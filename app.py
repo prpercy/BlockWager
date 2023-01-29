@@ -99,4 +99,5 @@ for g in odds.keys():
     counter = counter+1
     
 if st.button("Submit"):
+    st.write(bet_amounts)
     st.balloons()
