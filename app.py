@@ -87,5 +87,16 @@ sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn'
 sportsbook = st.selectbox('Select the sports book to fetch from', sportsbooks)
 data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds = getOdds(sportsbook)
 st.text(" \n")
-st.write(odds)
-
+bet_amounts = {}
+counter=1;
+for g in odds.keys():
+    home_team, away_team = g.split(":")
+    st.write(f"{away_team} ({odds[g][away_team]['money_line_odds']}) @ {home_team} ({odds[g][home_team]['money_line_odds']})")
+    st.text(" \n")
+    input_str = f"Bet Amount {counter}"
+    bet_amounts["bet_amount_{0}".format(counter)] = st.number_input(input_str)
+    st.text(" \n")
+    counter = counter+1
+    
+if st.button("Submit"):
+    st.balloons()
