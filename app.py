@@ -54,7 +54,7 @@ def createTodaysGames(games, df, odds):
     return data, todays_games_uo, frame_ml, home_team_odds, away_team_odds
 
 
-def getGames(sportsbook):
+def getOdds(sportsbook):
     odds = None
     if sportsbooks != None:
         odds = SbrOddsProvider(sportsbook).get_odds()
@@ -70,12 +70,13 @@ def getGames(sportsbook):
                 home_team, away_team = g.split(":")
                 print(f"{away_team} ({odds[g][away_team]['money_line_odds']}) @ {home_team} ({odds[g][home_team]['money_line_odds']})")
     else:
+        print('Please select sportsbook')
         data = get_todays_games_json(todays_games_url)
         games = create_todays_games(data)
     data = get_json_data(data_url)
     df = to_data_frame(data)
     data, todays_games_uo, frame_ml, home_team_odds, away_team_odds = createTodaysGames(games, df, odds)
-    return data, todays_games_uo, frame_ml, home_team_odds, away_team_odds
+    return data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds
     
 
    
@@ -84,8 +85,7 @@ st.markdown("## Bet now!")
 st.text(" \n")
 sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn', 'bet_rivers_ny']
 sportsbook = st.selectbox('Select the sports book to fetch from', sportsbooks)
-data, todays_games_uo, frame_ml, home_team_odds, away_team_odds = getGames(sportsbook)
+data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds = getOdds(sportsbook)
 st.text(" \n")
-st.write(home_team_odds)
-st.text(" \n")
-st.write(away_team_odds)
+st.write(odds)
+
