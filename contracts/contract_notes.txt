@@ -1,0 +1,44 @@
+contract BetContract is SportAccounts, TeamAccounts, CbetAccount, BettorAccounts, BettingGames
+
+   SportAccounts
+      function createSport(...)
+      function getSportName(...)
+      function getSportId(...)
+      
+   TeamAccounts
+      function createTeam(...)
+      function getTeamName(...)
+      function getTeamId(...)   
+      
+   BettingGames
+      function createGame(...)
+      function updateGameOddsMoneyline(...)
+      function updateGameOddsSpread(...)
+      function updateGameOddsOverUnder(...)
+      function setGameStart(...)
+      function setGameOver(...)
+      function isAcceptingBets(...)
+      function isGameInProgress(...)
+      function isGameOver(...)
+      function getGameTeamIds(...)
+      function getGameMoneylineOdds(...)
+      function getGameSpreadOdds(...)
+      function getGameOverUnderOdds(...)         
+
+   CbetAccount
+      function setCbetAccountWalletAddr(...)
+      function getBalanceCbetAccountEther()  
+      
+   BettorAccounts
+      function createBettorAccount(...)
+      function getBettorAccountName(...)
+      function getBettorAccountUsername(...)
+      function getBettorAccountPassword(...)
+      function isBettorAccountActive(...)
+      function setBetterAccountInactive(...)
+      function setBetterAccountActive(...)
+      function depositBettorAccountEther()
+      function withdrawBettorAccountEther()
+      function getBalanceBettorAccountEther()         
+            
+   CbetAccount       
