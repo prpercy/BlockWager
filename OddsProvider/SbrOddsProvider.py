@@ -12,6 +12,7 @@ class SbrOddsProvider:
         
        self.games = Scoreboard(sport="NBA").games
        self.sportsbook = sportsbook
+       self.games_nfl = Scoreboard(sport="NFL").games
 
     
     def get_odds(self):
@@ -44,3 +45,32 @@ class SbrOddsProvider:
                 away_team_name: { 'money_line_odds': money_line_away_value }
             }
         return dict_res
+    
+    
+   
+##currently unimplemented function that attempts to do same thing as NBA Odds, but for the super bowl 
+    def get_odds_superbowl(self):
+        dict_res_nfl = {}
+        for game in self.games_nfl:
+            # Get team names
+            home_team_name = game['home_team'].replace("Philidelphia", "Phildelphia Eagles")
+            away_team_name = game['away_team'].replace("Kansas City", "Kansas City Chiefs") 
+            
+            money_line_home_value = money_line_away_value = totals_value = None
+
+            # Get money line bet values
+            if self.sportsbook in game['home_ml']:
+                money_line_home_value = game['home_ml'][self.sportsbook]
+            if self.sportsbook in game['away_ml']:
+                money_line_away_value = game['away_ml'][self.sportsbook]
+            
+            # Get totals bet value
+            if self.sportsbook in game['total']:
+                totals_value = game['total'][self.sportsbook]
+            
+            dict_res_nfl[home_team_name + ':' + away_team_name] =  { 
+                'under_over_odds': totals_value,
+                home_team_name: { 'money_line_odds': money_line_home_value }, 
+                away_team_name: { 'money_line_odds': money_line_away_value }
+            }
+        return dict_res_nfl

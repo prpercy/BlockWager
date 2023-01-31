@@ -1,2 +1,2 @@
 colorama==0.4.4
-sbrscrape==0.0.2
+sbrscrape==0.0.4
