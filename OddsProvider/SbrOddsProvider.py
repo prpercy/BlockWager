@@ -1,4 +1,6 @@
 from sbrscrape import Scoreboard
+from pprint import pprint
+import inspect
 
 class SbrOddsProvider:
     
@@ -9,9 +11,8 @@ class SbrOddsProvider:
     """    
 
     def __init__(self, sportsbook="fanduel"):
-        
-       self.games = Scoreboard(sport="NBA").games
-       self.sportsbook = sportsbook
+        self.games = Scoreboard(sport="NBA").games
+        self.sportsbook = sportsbook
 
     
     def get_odds(self):
