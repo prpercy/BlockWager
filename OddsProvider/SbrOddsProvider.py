@@ -13,6 +13,7 @@ class SbrOddsProvider:
     def __init__(self, sportsbook="fanduel"):
         self.games = Scoreboard(sport="NBA").games
         self.sportsbook = sportsbook
+        self.games_nhl= Scoreboard(sport="NHL").games
 
     
     def get_odds(self):
@@ -49,8 +50,8 @@ class SbrOddsProvider:
     
    
 ##currently unimplemented function that attempts to do same thing as NBA Odds, but for the super bowl 
-    def get_odds_superbowl(self):
-        dict_res_nfl = {}
+    def get_odds_nhl(self):
+        dict_res_nhl = {}
         for game in self.games_nfl:
             # Get team names
             home_team_name = game['home_team'].replace("Philidelphia", "Phildelphia Eagles")
@@ -68,9 +69,9 @@ class SbrOddsProvider:
             if self.sportsbook in game['total']:
                 totals_value = game['total'][self.sportsbook]
             
-            dict_res_nfl[home_team_name + ':' + away_team_name] =  { 
+            dict_res_nhl[home_team_name + ':' + away_team_name] =  { 
                 'under_over_odds': totals_value,
                 home_team_name: { 'money_line_odds': money_line_home_value }, 
                 away_team_name: { 'money_line_odds': money_line_away_value }
             }
-        return dict_res_nfl
+        return dict_res_nhl
