@@ -1,0 +1,13 @@
+from bs4 import BeautifulSoup
+import json 
+import requests 
+import re 
+
+
+def scrapeHorseOddsWebsite(): 
+    page = requests.get('https://bets.drf.com/')
+    soup = BeautifulSoup(page.content, 'html.parser')
+    odds_table = soup.find_all(class_='pageData betsPageData')
+    print(odds_table)
+
+scrapeHorseOddsWebsite()
