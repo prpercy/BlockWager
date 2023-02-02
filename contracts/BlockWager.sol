@@ -6,7 +6,7 @@ import "./CbetAccount.sol";
 import "./BettorAccounts.sol";
 import "./BettingGames.sol";
 
-contract BetContract is SportAccounts, TeamAccounts, CbetAccount, BettorAccounts, BettingGames {
+contract BlockWager is SportAccounts, TeamAccounts, CbetAccount, BettorAccounts, BettingGames {
     address betContractOwner;
 
     constructor()

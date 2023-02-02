@@ -33,6 +33,10 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_sportId",
+				"type": "uint256"
+			},
+			{
 				"name": "_homeTeamId",
 				"type": "uint256"
 			},
@@ -57,12 +61,12 @@
 				"type": "int256"
 			},
 			{
-				"name": "_isHomeFavorite",
-				"type": "bool"
+				"name": "_homeTeamSpread",
+				"type": "int256"
 			},
 			{
-				"name": "_spread",
-				"type": "uint256"
+				"name": "_awayTeamSpread",
+				"type": "int256"
 			},
 			{
 				"name": "_homeTeamOddsOverUnder",
@@ -283,12 +287,12 @@
 				"type": "int256"
 			},
 			{
-				"name": "_isHomeFavorite",
-				"type": "bool"
+				"name": "_homeTeamSpread",
+				"type": "int256"
 			},
 			{
-				"name": "_spread",
-				"type": "uint256"
+				"name": "_awayTeamSpread",
+				"type": "int256"
 			}
 		],
 		"name": "updateGameOddsSpread",
@@ -481,11 +485,11 @@
 			},
 			{
 				"name": "",
-				"type": "bool"
+				"type": "int256"
 			},
 			{
 				"name": "",
-				"type": "uint256"
+				"type": "int256"
 			}
 		],
 		"payable": false,
