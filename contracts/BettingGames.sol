@@ -57,7 +57,7 @@ contract BettingGames {
         contractOwnerAddr = _contractOwnerAddr;
     }
 
-    // Create a single betting game/match that users/bettors can bet on
+    // Create a single betting game/match that users/users can bet on
     // (fills in the details of the betting odds)
     function createGame(uint _sportId, uint _homeTeamId, uint _awayTeamId,
                         int _homeTeamOddsMoneyline, int _awayTeamOddsMoneyline,
