@@ -13,8 +13,6 @@ class SbrOddsProvider:
     def __init__(self, sportsbook="fanduel"):
         self.games = Scoreboard(sport="NBA").games
         self.sportsbook = sportsbook
-        self.games_nhl= Scoreboard(sport="NHL").games
-
     
     def get_odds(self):
         """Function returning odds from Sbr server's json content

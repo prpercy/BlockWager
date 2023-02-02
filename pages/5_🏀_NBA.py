@@ -1,11 +1,22 @@
+# Libraries
 import streamlit as st
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
+import plotly.subplots as sp
 import argparse
 from colorama import Fore, Style
-import pandas as pd
 from Utils.Dictionaries import team_index_current
 from Utils.tools import create_todays_games_from_odds, get_json_data, to_data_frame, get_todays_games_json, create_todays_games
 from OddsProvider.SbrOddsProvider import SbrOddsProvider
 
+# Global Variables
+theme_plotly = None # None or streamlit
+week_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
+
+# Layout
+st.set_page_config(page_title='NBA Odds and Bets', page_icon=':bar_chart:', layout='wide')
+st.title('🌍 NBA Odds and Bets')
 
 todays_games_url = 'https://data.nba.com/data/10s/v2015/json/mobile_teams/nba/2022/scores/00_todays_scores.json'
 todays_games_url_nhl = ''
@@ -18,6 +29,28 @@ data_url = 'https://stats.nba.com/stats/leaguedashteamstats?' \
            'Season=2022-23&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&' \
            'StarterBench=&TeamID=0&TwoWay=0&VsConference=&VsDivision='
 
+
+
+
+# Style
+with open('style.css')as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html = True)
+
+# Google Analytics
+st.components.v1.html("""
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PQ45JJR2R7"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-PQ45JJR2R7');
+    </script>
+""", height=1, scrolling=False)
+    
+# Data Sources
+@st.cache(ttl=600)
 def createTodaysGames(games, df, odds):
     match_data = []
     todays_games_uo = []
@@ -57,8 +90,10 @@ def createTodaysGames(games, df, odds):
 
 def getOdds(sportsbook):
     odds = None
-    print(f' sportsbook is {sportsbook} ----------- \n')
     if sportsbooks != None:
+        print('\n')
+        print('-------------')
+        print(sportsbook)
         odds = SbrOddsProvider(sportsbook).get_odds()
         games = create_todays_games_from_odds(odds)
         if((games[0][0]+':'+games[0][1]) not in list(odds.keys())):
@@ -79,27 +114,43 @@ def getOdds(sportsbook):
     df = to_data_frame(data)
     data, todays_games_uo, frame_ml, home_team_odds, away_team_odds = createTodaysGames(games, df, odds)
     return data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds
-    
 
-   
-st.markdown("# Welcome to distributed online betting platform...")
-st.markdown("## Bet now!")
-st.text(" \n")
 sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn', 'bet_rivers_ny']
-sportsbook = st.selectbox('Select the sports book to fetch from', sportsbooks)
-data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds = getOdds(sportsbook)
-st.text(" \n")
-bet_amounts = {}
-counter=1;
-for g in odds.keys():
-    home_team, away_team = g.split(":")
-    st.write(f"{away_team} ({odds[g][away_team]['money_line_odds']}) @ {home_team} ({odds[g][home_team]['money_line_odds']})")
-    st.text(" \n")
-    input_str = f"Bet Amount {counter}"
-    bet_amounts["bet_amount_{0}".format(counter)] = st.number_input(input_str)
-    st.text(" \n")
-    counter = counter+1
+
+# Filter the sportsbooks
+options = st.multiselect(
+    '**Select your desired sportsbook:**',
+    options=sportsbooks,
+    default='fanduel',
+    key='sportsbook_options'
+)
+
+# Present Odds to Client
+if len(options) == 0:
+    st.warning('Please select at least one sportsbook.')
+else:
+    st.subheader('Overview')
     
-if st.button("Submit"):
-    st.write(bet_amounts)
-    st.balloons()
+    for i in range(len(options)):
+        sportsbook = options[i]
+        data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds = getOdds(sportsbook)
+        st.text(" \n")
+        c1, c2 = st.columns(2)
+        bet_amounts = {}
+        counter=1;
+        for g in odds.keys():
+            home_team, away_team = g.split(":")
+            with c1:
+                st.write(f"{away_team} ({odds[g][away_team]['money_line_odds']}) @ {home_team} ({odds[g][home_team]['money_line_odds']})")
+                st.text(" \n")
+            with c2:
+                input_str = f"Bet Amount {sportsbook} {counter}"
+                bet_amounts["bet_amount_{0}_{1}".format(sportsbook,counter)] = st.number_input(input_str)
+            counter = counter+1
+            st.text(" \n")
+
+        if st.button("Submit bets for {0}".format(sportsbook)):
+            st.write(bet_amounts)
+            st.balloons()
+
+ 
