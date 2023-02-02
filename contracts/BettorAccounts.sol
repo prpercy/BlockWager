@@ -5,7 +5,6 @@ pragma solidity ^0.5.0;
 
 contract BettorAccounts {
     address payable cbetAccountOwnerAddr;    // BlockWager contract owner address
-    address payable cbetAccountWalletAddr;   // Address of wallet that will (temporarilty) hold funds that are deposited by the user/bettor to bet on
 
     // Balance of ETHER and CBET (custom) tokens
     struct Balance {
@@ -35,15 +34,6 @@ contract BettorAccounts {
         public
     {
         cbetAccountOwnerAddr = _cbetAccountOwnerAddr;
-    }
-
-    // Assign the BlockWager contract owner address
-    function setBACbetAccountWalletAddr(address payable _cbetAccountWalletAddr)
-        public
-        onlyOwner
-    {
-        require (msg.sender != _cbetAccountWalletAddr, "The escrow account cannot be the same address as contract account");
-        cbetAccountWalletAddr = _cbetAccountWalletAddr;
     }
 
     // Create a new user/better
@@ -123,14 +113,14 @@ contract BettorAccounts {
     }
 
     // Allow the user/bettor to deposit ETHER into the CBET account to be used for betting
-    function depositBettorAccountEther()
+    function depositBettorAccountEther(address payable _cbetAccountWalletAddr)
         public
         payable
     {
-        require (msg.sender != cbetAccountWalletAddr, "The Cbet account is not allowed to deposit ether to itself");
+        require (msg.sender != _cbetAccountWalletAddr, "The Cbet account is not allowed to deposit ether to itself");
         require (bettorAccounts[msg.sender].activeAccount == true, "This account is not active");
         bettorAccounts[msg.sender].balance.eth += msg.value;  // Keep local track of the amount of ETHER in the CBET account/wallet that belongs to this user
-        cbetAccountWalletAddr.transfer(msg.value);  // Transfer ETEHR from the user (msg.sender) to the CBET account/wallet (cbetAccountWalletAddr)
+        _cbetAccountWalletAddr.transfer(msg.value);  // Transfer ETEHR from the user (msg.sender) to the CBET account/wallet (_cbetAccountWalletAddr)
     }
 
     // Allow the user/bettor to withdraw ETHER from the CBET account
@@ -139,7 +129,6 @@ contract BettorAccounts {
         public
         payable
     {
-        //require (msg.sender != cbetAccountWalletAddr, "The Cbet account is not allowed to withdraw ether to itself");
         require (bettorAccounts[recipient].activeAccount == true, "This account is not active");
         bettorAccounts[recipient].balance.eth -= msg.value;  // Keep local track of the amount of ETHER in the CBET account/wallet that belongs to this user
         recipient.transfer(msg.value); // Transfer ETHER from the CBET account/wallet (msg.sender) to the user/bettor account (recipient)

@@ -246,12 +246,6 @@ st.write("---")
 
 st.write("Test setting up user/bettor accounts....")
 
-if st.button("Setup Cbet account wallet addr"):
-   contract.functions.setCACbetAccountWalletAddr(cbet_account_wallet_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   contract.functions.setBACbetAccountWalletAddr(cbet_account_wallet_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   st.write(cbet_account_wallet_addr)
-   st.write("Done")
-
 if st.button("Setup betc user/bettor account"):
    st.write(bettor_accountr_addr_1)
    st.write(bettor_accountr_addr_2)
@@ -275,9 +269,9 @@ better_1_ether = st.text_input("Better1: Entery amount of ether to deposit into 
 if st.button("Better1: Make deposit"):
    st.write(bettor_accountr_addr_1)
    
-   contract.functions.depositBettorAccountEther().transact({'from': bettor_accountr_addr_1, "value": w3.toWei(better_1_ether, "ether"), 'gas': 1000000})
+   contract.functions.depositBettorAccountEther(cbet_account_wallet_addr).transact({'from': bettor_accountr_addr_1, "value": w3.toWei(better_1_ether, "ether"), 'gas': 1000000})
    better_1_cbet_accont_ether_balance = contract.functions.getBalanceBettorAccountEther().call({'from': bettor_accountr_addr_1})
-   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther().call({'from': cbet_account_owner_addr})
+   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther(cbet_account_wallet_addr).call({'from': cbet_account_owner_addr})
    
    st.write("Better1 Ether Cbet Account Balance:"+str(better_1_cbet_accont_ether_balance))
    st.write("Ttoal Ether Cbet Account Balance:"+str(total_cbet_accont_ether_balance))      
@@ -288,9 +282,9 @@ better_2_ether = st.text_input("Better2: Entery amount of ether to deposit into 
 if st.button("Better2: Make deposit"):
    st.write(bettor_accountr_addr_2)
    
-   contract.functions.depositBettorAccountEther().transact({'from': bettor_accountr_addr_2, "value": w3.toWei(better_2_ether, "ether"), 'gas': 1000000})
+   contract.functions.depositBettorAccountEther(cbet_account_wallet_addr).transact({'from': bettor_accountr_addr_2, "value": w3.toWei(better_2_ether, "ether"), 'gas': 1000000})
    better_2_cbet_accont_ether_balance = contract.functions.getBalanceBettorAccountEther().call({'from': bettor_accountr_addr_2})
-   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther().call({'from': cbet_account_owner_addr})
+   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther(cbet_account_wallet_addr).call({'from': cbet_account_owner_addr})
    
    st.write("Better2 Ether Cbet Account Balance:"+str(better_2_cbet_accont_ether_balance))
    st.write("Ttoal Ether Cbet Account Balance:"+str(total_cbet_accont_ether_balance))      
@@ -301,9 +295,9 @@ better_3_ether = st.text_input("Better3: Entery amount of ether to deposit into 
 if st.button("Better3: Make deposit"):
    st.write(bettor_accountr_addr_3)
    
-   contract.functions.depositBettorAccountEther().transact({'from': bettor_accountr_addr_3, "value": w3.toWei(better_3_ether, "ether"), 'gas': 1000000})
+   contract.functions.depositBettorAccountEther(cbet_account_wallet_addr).transact({'from': bettor_accountr_addr_3, "value": w3.toWei(better_3_ether, "ether"), 'gas': 1000000})
    better_3_cbet_accont_ether_balance = contract.functions.getBalanceBettorAccountEther().call({'from': bettor_accountr_addr_3})
-   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther().call({'from': cbet_account_owner_addr})
+   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther(cbet_account_wallet_addr).call({'from': cbet_account_owner_addr})
    
    st.write("Better3 Ether Cbet Account Balance:"+str(better_3_cbet_accont_ether_balance))
    st.write("Ttoal Ether Cbet Account Balance:"+str(total_cbet_accont_ether_balance))      
@@ -316,7 +310,7 @@ if st.button("Better1: Make withdrawal"):
    
    contract.functions.withdrawBettorAccountEther(bettor_accountr_addr_1).transact({'from': cbet_account_wallet_addr, "value": w3.toWei(better_1_ether, "ether"), 'gas': 1000000})
    better_1_cbet_accont_ether_balance = contract.functions.getBalanceBettorAccountEther().call({'from': bettor_accountr_addr_1})
-   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther().call({'from': cbet_account_owner_addr})
+   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther(cbet_account_wallet_addr).call({'from': cbet_account_owner_addr})
    
    st.write("Better1 Ether Cbet Account Balance:"+str(better_1_cbet_accont_ether_balance))
    st.write("Ttoal Ether Cbet Account Balance:"+str(total_cbet_accont_ether_balance))      
@@ -327,9 +321,9 @@ better_2_ether = st.text_input("Better2: Entery amount of ether to withdrawal in
 if st.button("Better2: Make withdrawal"):
    st.write(bettor_accountr_addr_2)
    
-   contract.functions.withdrawBettorAccountEther().transact({'from': bettor_accountr_addr_2, "value": w3.toWei(better_2_ether, "ether"), 'gas': 1000000})
+   contract.functions.withdrawBettorAccountEther(bettor_accountr_addr_2).transact({'from': cbet_account_wallet_addr, "value": w3.toWei(better_2_ether, "ether"), 'gas': 1000000})
    better_2_ether = contract.functions.getBalanceBettorAccountEther().call({'from': bettor_accountr_addr_2})
-   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther().call({'from': cbet_account_owner_addr})
+   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther(cbet_account_wallet_addr).call({'from': cbet_account_owner_addr})
    
    st.write("Better2 Ether Cbet Account Balance:"+str(better_2_ether))
    st.write("Ttoal Ether Cbet Account Balance:"+str(total_cbet_accont_ether_balance))      
@@ -340,9 +334,9 @@ better_3_ether = st.text_input("Better3: Entery amount of ether to withdrawal in
 if st.button("Better3: Make withdrawal"):
    st.write(bettor_accountr_addr_3)
    
-   contract.functions.withdrawBettorAccountEther().transact({'from': bettor_accountr_addr_3, "value": w3.toWei(better_3_ether, "ether"), 'gas': 1000000})
+   contract.functions.withdrawBettorAccountEther(bettor_accountr_addr_3).transact({'from': cbet_account_wallet_addr, "value": w3.toWei(better_3_ether, "ether"), 'gas': 1000000})
    better_3_ether = contract.functions.getBalanceBettorAccountEther().call({'from': bettor_accountr_addr_3})
-   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther().call({'from': cbet_account_owner_addr})
+   total_cbet_accont_ether_balance = contract.functions.getBalanceCbetAccountEther(cbet_account_wallet_addr).call({'from': cbet_account_owner_addr})
    
    st.write("Better3 Ether Cbet Account Balance:"+str(better_3_ether))
    st.write("Ttoal Ether Cbet Account Balance:"+str(total_cbet_accont_ether_balance))      
