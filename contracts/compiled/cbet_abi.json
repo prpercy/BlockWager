@@ -1,5 +1,43 @@
 [
 	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_cbetAccountWalletAddr",
+				"type": "address"
+			}
+		],
+		"name": "getBalanceCbetAccountEther",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "getUserAccountUsername",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [
 			{
@@ -23,155 +61,7 @@
 				"type": "string"
 			}
 		],
-		"name": "createBettorAccount",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_homeTeamId",
-				"type": "uint256"
-			},
-			{
-				"name": "_awayTeamId",
-				"type": "uint256"
-			},
-			{
-				"name": "_homeTeamOddsMoneyline",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsMoneyline",
-				"type": "int256"
-			},
-			{
-				"name": "_homeTeamOddsSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_isHomeFavorite",
-				"type": "bool"
-			},
-			{
-				"name": "_spread",
-				"type": "uint256"
-			},
-			{
-				"name": "_homeTeamOddsOverUnder",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsOverUnder",
-				"type": "int256"
-			},
-			{
-				"name": "_overUnder",
-				"type": "uint256"
-			}
-		],
-		"name": "createGame",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_sportName",
-				"type": "string"
-			}
-		],
-		"name": "createSport",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_teamName",
-				"type": "string"
-			}
-		],
-		"name": "createTeam",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [],
-		"name": "depositBettorAccountEther",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_cbetAccountWalletAddr",
-				"type": "address"
-			}
-		],
-		"name": "setBACbetAccountWalletAddr",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "setBetterAccountActive",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "setBetterAccountInactive",
+		"name": "createUserAccount",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -185,253 +75,10 @@
 				"type": "address"
 			}
 		],
-		"name": "setCACbetAccountWalletAddr",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_gameId",
-				"type": "uint256"
-			}
-		],
-		"name": "setGameOver",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_gameId",
-				"type": "uint256"
-			}
-		],
-		"name": "setGameStart",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_gameId",
-				"type": "uint256"
-			},
-			{
-				"name": "_homeTeamOddsMoneyline",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsMoneyline",
-				"type": "int256"
-			}
-		],
-		"name": "updateGameOddsMoneyline",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_gameId",
-				"type": "uint256"
-			},
-			{
-				"name": "_homeTeamOddsOverUnder",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsOverUnder",
-				"type": "int256"
-			},
-			{
-				"name": "_overUnder",
-				"type": "uint256"
-			}
-		],
-		"name": "updateGameOddsOverUnder",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_gameId",
-				"type": "uint256"
-			},
-			{
-				"name": "_homeTeamOddsSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_isHomeFavorite",
-				"type": "bool"
-			},
-			{
-				"name": "_spread",
-				"type": "uint256"
-			}
-		],
-		"name": "updateGameOddsSpread",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "recipient",
-				"type": "address"
-			}
-		],
-		"name": "withdrawBettorAccountEther",
+		"name": "depositUserAccountEther",
 		"outputs": [],
 		"payable": true,
 		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"inputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "constructor"
-	},
-	{
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "fallback"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "getBalanceBettorAccountEther",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [],
-		"name": "getBalanceCbetAccountEther",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "getBettorAccountName",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			},
-			{
-				"name": "",
-				"type": "string"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "getBettorAccountPassword",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "getBettorAccountUsername",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_gameId",
-				"type": "uint256"
-			}
-		],
-		"name": "getGameMoneylineOdds",
-		"outputs": [
-			{
-				"name": "",
-				"type": "int256"
-			},
-			{
-				"name": "",
-				"type": "int256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -465,11 +112,99 @@
 		"constant": true,
 		"inputs": [
 			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "isUserAccountActive",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getBalanceUserAccountEther",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
 				"name": "_gameId",
 				"type": "uint256"
 			}
 		],
-		"name": "getGameSpreadOdds",
+		"name": "isAcceptingBets",
+		"outputs": [
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_gameId",
+				"type": "uint256"
+			}
+		],
+		"name": "setGameOver",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_gameId",
+				"type": "uint256"
+			},
+			{
+				"name": "_homeTeamOddsMoneyline",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamOddsMoneyline",
+				"type": "int256"
+			}
+		],
+		"name": "updateGameOddsMoneyline",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_gameId",
+				"type": "uint256"
+			}
+		],
+		"name": "getGameMoneylineOdds",
 		"outputs": [
 			{
 				"name": "",
@@ -478,14 +213,276 @@
 			{
 				"name": "",
 				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "getUserAccountPassword",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "getUserAccountName",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
 			},
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_teamId",
+				"type": "uint256"
+			}
+		],
+		"name": "getTeamName",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "setBetterAccountInactive",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_gameId",
+				"type": "uint256"
+			}
+		],
+		"name": "isGameOver",
+		"outputs": [
 			{
 				"name": "",
 				"type": "bool"
-			},
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_teamName",
+				"type": "string"
+			}
+		],
+		"name": "createTeam",
+		"outputs": [
 			{
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_sportName",
+				"type": "string"
+			}
+		],
+		"name": "getSportId",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [],
+		"name": "getLastGameId",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "recipient",
+				"type": "address"
+			}
+		],
+		"name": "withdrawUserAccountEther",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_sportId",
+				"type": "uint256"
+			},
+			{
+				"name": "_homeTeamId",
+				"type": "uint256"
+			},
+			{
+				"name": "_awayTeamId",
+				"type": "uint256"
+			},
+			{
+				"name": "_homeTeamOddsMoneyline",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamOddsMoneyline",
+				"type": "int256"
+			},
+			{
+				"name": "_homeTeamOddsSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamOddsSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_homeTeamSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_homeTeamOddsOverUnder",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamOddsOverUnder",
+				"type": "int256"
+			},
+			{
+				"name": "_overUnder",
+				"type": "uint256"
+			}
+		],
+		"name": "createGame",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_gameId",
+				"type": "uint256"
+			}
+		],
+		"name": "setGameStart",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "setBetterAccountActive",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_sportId",
+				"type": "uint256"
+			}
+		],
+		"name": "getSportName",
+		"outputs": [
+			{
+				"name": "",
+				"type": "string"
 			}
 		],
 		"payable": false,
@@ -516,93 +513,59 @@
 		"type": "function"
 	},
 	{
-		"constant": true,
-		"inputs": [],
-		"name": "getLastGameId",
-		"outputs": [
+		"constant": false,
+		"inputs": [
 			{
-				"name": "",
+				"name": "_gameId",
 				"type": "uint256"
+			},
+			{
+				"name": "_homeTeamOddsSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamOddsSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_homeTeamSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamSpread",
+				"type": "int256"
 			}
 		],
+		"name": "updateGameOddsSpread",
+		"outputs": [],
 		"payable": false,
-		"stateMutability": "view",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
-		"constant": true,
+		"constant": false,
 		"inputs": [
 			{
-				"name": "_sportName",
-				"type": "string"
-			}
-		],
-		"name": "getSportId",
-		"outputs": [
+				"name": "_gameId",
+				"type": "uint256"
+			},
 			{
-				"name": "",
+				"name": "_homeTeamOddsOverUnder",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamOddsOverUnder",
+				"type": "int256"
+			},
+			{
+				"name": "_overUnder",
 				"type": "uint256"
 			}
 		],
+		"name": "updateGameOddsOverUnder",
+		"outputs": [],
 		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_sportId",
-				"type": "uint256"
-			}
-		],
-		"name": "getSportName",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_teamName",
-				"type": "string"
-			}
-		],
-		"name": "getTeamId",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_teamId",
-				"type": "uint256"
-			}
-		],
-		"name": "getTeamName",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -613,30 +576,23 @@
 				"type": "uint256"
 			}
 		],
-		"name": "isAcceptingBets",
+		"name": "getGameSpreadOdds",
 		"outputs": [
 			{
 				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "isBettorAccountActive",
-		"outputs": [
+				"type": "int256"
+			},
 			{
 				"name": "",
-				"type": "bool"
+				"type": "int256"
+			},
+			{
+				"name": "",
+				"type": "int256"
+			},
+			{
+				"name": "",
+				"type": "int256"
 			}
 		],
 		"payable": false,
@@ -666,19 +622,49 @@
 		"constant": true,
 		"inputs": [
 			{
-				"name": "_gameId",
-				"type": "uint256"
+				"name": "_teamName",
+				"type": "string"
 			}
 		],
-		"name": "isGameOver",
+		"name": "getTeamId",
 		"outputs": [
 			{
 				"name": "",
-				"type": "bool"
+				"type": "uint256"
 			}
 		],
 		"payable": false,
 		"stateMutability": "view",
 		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_sportName",
+				"type": "string"
+			}
+		],
+		"name": "createSport",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"inputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "constructor"
+	},
+	{
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "fallback"
 	}
 ]
