@@ -135,22 +135,23 @@ else:
         sportsbook = options[i]
         data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds = getOdds(sportsbook)
         st.text(" \n")
-        c1, c2 = st.columns(2)
         bet_amounts = {}
         counter=1;
         for g in odds.keys():
             home_team, away_team = g.split(":")
+            c1, c2, c3 = st.columns([4,2,4])
             with c1:
-                st.write(f"{away_team} ({odds[g][away_team]['money_line_odds']}) @ {home_team} ({odds[g][home_team]['money_line_odds']})")
-                st.text(" \n")
+                st.write(f"{away_team} ({odds[g][away_team]['money_line_odds']})")
+                st.write(f"{home_team} ({odds[g][home_team]['money_line_odds']})")
             with c2:
                 input_str = f"Bet Amount {sportsbook} {counter}"
                 bet_amounts["bet_amount_{0}_{1}".format(sportsbook,counter)] = st.number_input(input_str)
             counter = counter+1
-            st.text(" \n")
+            st.write('---')
 
         if st.button("Submit bets for {0}".format(sportsbook)):
             st.write(bet_amounts)
             st.balloons()
+        st.text(" \n")
 
  
