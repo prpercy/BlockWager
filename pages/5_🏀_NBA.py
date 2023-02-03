@@ -37,6 +37,18 @@ data_url = 'https://stats.nba.com/stats/leaguedashteamstats?' \
 with open('style.css')as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html = True)
 
+
+#Sportsbook list
+sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn', 'bet_rivers_ny']
+
+# Filter the sportsbooks
+options = st.multiselect(
+    '**Select your desired sportsbook(s):**',
+    options=sportsbooks,
+    default='fanduel',
+    key='sportsbook_options'
+)
+
 #Team list
 nba_teams = [
     "Atlanta Hawks",    "Boston Celtics",    "Brooklyn Nets",    "Charlotte Hornets",    "Chicago Bulls",
@@ -121,15 +133,9 @@ def getOdds(sportsbook):
     data, todays_games_uo, frame_ml, home_team_odds, away_team_odds = createTodaysGames(games, df, odds)
     return data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds
 
-sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn', 'bet_rivers_ny']
 
-# Filter the sportsbooks
-options = st.multiselect(
-    '**Select your desired sportsbook:**',
-    options=sportsbooks,
-    default='fanduel',
-    key='sportsbook_options'
-)
+
+
 
 st.markdown("""
 <style>

@@ -15,10 +15,10 @@ sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn'
 
 # Filter for sportsbooks
 options = st.multiselect(
-    '**Select your team(s):**',
-    options=mlb_teams,
-    default=mlb_teams,
-    key='MLB Teams'
+    '**Select your sportsbook(s):**',
+    options=sportsbooks,
+    default=sportsbooks,
+    key='Sportsbooks'
 )
 
 #Team list
@@ -30,25 +30,24 @@ mlb_teams = ["Arizona Diamondbacks",    "Atlanta Braves",    "Baltimore Orioles"
 "Philadelphia Phillies",    "Pittsburgh Pirates",    "San Diego Padres",    "San Francisco Giants",    "Seattle Mariners",    
 "St. Louis Cardinals",    "Tampa Bay Rays",    "Texas Rangers",    "Toronto Blue Jays",    "Washington Nationals"]
 
-
 # Filter for teams
-options = st.multiselect(
+options = st.selectbox(
     '**Select your team(s):**',
     options=mlb_teams,
-    default=mlb_teams,
+    # default=mlb_teams,
     key='MLB Teams'
 )
 
 tab1, tab2, tab3 = st.tabs(["Spread", "Money", "Total"])
 
 with tab1:
-   st.header("Odds")
+   st.subheader("Odds")
 #Odds and betting code to be inserted here
 
 with tab2:
-    st.header("Odds")
+    st.subheader("Odds")
 #Odds and betting code to be inserted here
 
 with tab3:
-   st.header("Odds")
+   st.subheader("Odds")
 #Odds and betting code to be inserted here
