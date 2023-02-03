@@ -37,18 +37,23 @@ data_url = 'https://stats.nba.com/stats/leaguedashteamstats?' \
 with open('style.css')as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html = True)
 
-# Google Analytics
-st.components.v1.html("""
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-PQ45JJR2R7"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
+#Team list
+nba_teams = [
+    "Atlanta Hawks",    "Boston Celtics",    "Brooklyn Nets",    "Charlotte Hornets",    "Chicago Bulls",
+    "Cleveland Cavaliers",    "Dallas Mavericks",    "Denver Nuggets",    "Detroit Pistons",    "Golden State Warriors",
+    "Houston Rockets",    "Indiana Pacers",    "Los Angeles Clippers",    "Los Angeles Lakers",    "Memphis Grizzlies",
+    "Miami Heat",    "Milwaukee Bucks",    "Minnesota Timberwolves",    "New Orleans Pelicans",    "New York Knicks",
+    "Oklahoma City Thunder",    "Orlando Magic",    "Philadelphia 76ers",    "Phoenix Suns",    "Portland Trail Blazers",
+    "Sacramento Kings",    "San Antonio Spurs",    "Toronto Raptors",    "Utah Jazz",    "Washington Wizards"]
 
-    gtag('config', 'G-PQ45JJR2R7');
-    </script>
-""", height=1, scrolling=False)
+
+# Filter for teams
+options = st.multiselect(
+    '**Select your team(s):**',
+    options=nba_teams,
+    default=nba_teams,
+    key='NBA Teams'
+)
     
 # Data Sources
 @st.cache(ttl=600)
