@@ -1,5 +1,6 @@
 # Libraries
 import streamlit as st
+from streamlit_elements import elements, mui, html
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -125,6 +126,25 @@ options = st.multiselect(
     key='sportsbook_options'
 )
 
+st.markdown("""
+<style>
+div.stButton > button:first-child {
+    box-shadow:inset 0px 39px 0px -24px #e67a73;
+	background-color:#e4685d;
+	border-radius:4px;
+	border:1px solid #ffffff;
+	display:inline-block;
+	cursor:pointer;
+	color:#ffffff;
+	font-family:Arial;
+	font-size:16px;
+	padding:6px 15px;
+	text-decoration:none;
+	text-shadow:0px 1px 0px #b23e35;
+    width: 100px;
+}
+</style>""", unsafe_allow_html=True)
+
 # Present Odds to Client
 if len(options) == 0:
     st.warning('Please select at least one sportsbook.')
@@ -140,19 +160,38 @@ else:
         counter=1;
         for g in odds.keys():
             home_team, away_team = g.split(":")
-            c1, c2, c3 = st.columns([4,2,4])
+            c1, c2, c3,c4 = st.columns([3,2,2,4])
             with c1:
-                st.write(f"{away_team} ({odds[g][away_team]['money_line_odds']})")
-                st.write(f"{home_team} ({odds[g][home_team]['money_line_odds']})")
+                st.write(f"{away_team}")
+                if st.button(f"{odds[g][away_team]['money_line_odds']}", key=f"{sportsbook}_{away_team}_{counter}"):
+                    st.write(f"betting on {away_team}")
+                    st.balloons()
             with c2:
+                st.write(f"{home_team}")
+                if st.button(f"{odds[g][home_team]['money_line_odds']}", key=f"{sportsbook}_{home_team}_{counter}"):
+                    st.write(f"betting on {home_team}")
+                    st.balloons()
+            with c3:
                 input_str = f"Bet Amount {sportsbook} {counter}"
                 bet_amounts["bet_amount_{0}_{1}".format(sportsbook,counter)] = st.number_input(input_str)
+            with c4:
+                st.text(" \n")
+                st.text(" \n")
+                
             counter = counter+1
             st.write('---')
+            
 
         if st.button("Submit bets for {0}".format(sportsbook)):
             st.write(bet_amounts)
             st.balloons()
         st.text(" \n")
+        with elements("nested_children"):
+            with mui.Paper:
+                with mui.Typography:
+                    html.p(sportsbook)
+                    html.p("Goodbye world")
+            with mui.Paper(elevation=3, variant="outlined", square=True):
+                mui.Typography(sportsbook)
 
  
