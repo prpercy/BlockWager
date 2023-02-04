@@ -78,11 +78,7 @@
 		"outputs": [
 			{
 				"name": "",
-				"type": "int256"
-			},
-			{
-				"name": "",
-				"type": "int256"
+				"type": "bool"
 			},
 			{
 				"name": "",
@@ -206,6 +202,57 @@
 		"outputs": [],
 		"payable": true,
 		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_sportId",
+				"type": "uint256"
+			},
+			{
+				"name": "_homeTeamId",
+				"type": "uint256"
+			},
+			{
+				"name": "_awayTeamId",
+				"type": "uint256"
+			},
+			{
+				"name": "_homeTeamOddsMoneyline",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamOddsMoneyline",
+				"type": "int256"
+			},
+			{
+				"name": "_homeTeamSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_isOver",
+				"type": "bool"
+			},
+			{
+				"name": "_overUnder",
+				"type": "uint256"
+			}
+		],
+		"name": "createGame",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -480,6 +527,28 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_gameId",
+				"type": "uint256"
+			},
+			{
+				"name": "_homeTeamSpread",
+				"type": "int256"
+			},
+			{
+				"name": "_awayTeamSpread",
+				"type": "int256"
+			}
+		],
+		"name": "updateGameSpread",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "_addr",
 				"type": "address"
 			}
@@ -511,69 +580,6 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_sportId",
-				"type": "uint256"
-			},
-			{
-				"name": "_homeTeamId",
-				"type": "uint256"
-			},
-			{
-				"name": "_awayTeamId",
-				"type": "uint256"
-			},
-			{
-				"name": "_homeTeamOddsMoneyline",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsMoneyline",
-				"type": "int256"
-			},
-			{
-				"name": "_homeTeamOddsSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_homeTeamSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_homeTeamOddsOverUnder",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsOverUnder",
-				"type": "int256"
-			},
-			{
-				"name": "_overUnder",
-				"type": "uint256"
-			}
-		],
-		"name": "createGame",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -686,42 +692,8 @@
 				"type": "uint256"
 			},
 			{
-				"name": "_homeTeamOddsSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_homeTeamSpread",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamSpread",
-				"type": "int256"
-			}
-		],
-		"name": "updateGameOddsSpread",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_gameId",
-				"type": "uint256"
-			},
-			{
-				"name": "_homeTeamOddsOverUnder",
-				"type": "int256"
-			},
-			{
-				"name": "_awayTeamOddsOverUnder",
-				"type": "int256"
+				"name": "_isOver",
+				"type": "bool"
 			},
 			{
 				"name": "_overUnder",
@@ -744,14 +716,6 @@
 		],
 		"name": "getGameSpreadOdds",
 		"outputs": [
-			{
-				"name": "",
-				"type": "int256"
-			},
-			{
-				"name": "",
-				"type": "int256"
-			},
 			{
 				"name": "",
 				"type": "int256"
