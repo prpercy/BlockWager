@@ -8,7 +8,7 @@ import plotly.subplots as sp
 import argparse
 from colorama import Fore, Style
 from Utils.Dictionaries import team_index_current
-from Utils.tools import create_todays_games_from_odds, get_json_data, to_data_frame, get_todays_games_json, create_todays_games
+from Utils.tools import create_todays_games_from_odds, get_json_data, to_data_frame, get_todays_games_json, create_todays_games,payout
 from OddsProvider.SbrOddsProvider import SbrOddsProvider
 
 # Global Variables
@@ -101,20 +101,16 @@ div.stButton > button:first-child {
 }
 </style>""", unsafe_allow_html=True)
 
-
-
 # Present Odds to Client
 if len(options) == 0:
     st.warning('Please select at least one sportsbook.')
 else:
-    
-    
     for i in range(len(options)):
         sportsbook = options[i]
         st.subheader(f"Overview for {sportsbook} sportsbook")
         df, odds, dict_games = getOdds(sportsbook)
         df1 = pd.DataFrame.from_dict(dict_games).T
-        
+
         #Team list
         games = df1['game'].unique()
 
@@ -129,16 +125,16 @@ else:
 
         counter = 0
         with st.container():
-            c1, c2, c3,c4= st.columns(4, gap="medium")
-            with c1:
+            cl1, cl2, cl3,cl4= st.columns(4, gap="medium")
+            with cl1:
                 st.subheader("Team Names")
-            with c2:
+            with cl2:
                 st.subheader("Moneyline")
-            with c3:
+            with cl3:
                 st.subheader("Spread")
-            with c4:
+            with cl4:
                 st.subheader("Total")
-                        
+
         for game in game_options:
             df2 = df1[df1['game']==game]
             counter = df1[df1['game']==game].index.values[0]
@@ -181,7 +177,7 @@ else:
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.away_team[counter],"ML",df2.away_ml_odds[counter], )
                         )
-                            
+
                     with c3:
                         st.button(
                             f"{df2.away_spread[counter]}", 
@@ -196,6 +192,11 @@ else:
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.away_team[counter],"Total",df2.away_total[counter], )
                         )
-            
- 
-st.write(st.session_state.user_bets)
+   
+st.sidebar.subheader("User Bet Slip")
+for bet in st.session_state.user_bets:
+    st.sidebar.write(bet.game)
+    st.sidebar.write(bet.team)
+    st.sidebar.write(bet.bet_type)
+    st.sidebar.write(st.number_input("amount", key=f"bet_amount_{bet}"))
+    st.sidebar.write(payout(st.session_state[f"bet_amount_{bet}"],bet.odds))
