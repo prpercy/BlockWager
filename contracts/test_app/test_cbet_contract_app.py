@@ -156,27 +156,24 @@ if st.button("Test setting up game 1"):
    home_team = "Philadelphia Eagles"
    away_team_odss_moneyline = 132
    home_team_odss_moneyline = -156
-   away_team_odds_spread = -100
-   home_team_odds_spread = -122
    home_spread = int(-2.5 * SPREAD_FACTOR)
    away_spread = int(2.5 * SPREAD_FACTOR)
-   away_team_odds_overunder = -102
-   home_team_odds_overunder = -120
-   overunder = int(46.5*OVERUNDER_FACTOR)
+   is_over = True
+   over_under = int(46.5*OVERUNDER_FACTOR)
 
    away_team_id = contract.functions.getTeamId(away_team).call()
    home_team_id = contract.functions.getTeamId(home_team).call()
    
    contract.functions.createGame(sport_id, home_team_id, away_team_id, 
                                  home_team_odss_moneyline, away_team_odss_moneyline,
-                                 home_team_odds_spread, away_team_odds_spread, home_spread, away_spread,
-                                 home_team_odds_overunder, away_team_odds_overunder, overunder).transact({'from': cbet_account_owner_addr, 'gas': 1000000})      
+                                 home_spread, away_spread,
+                                 is_over, over_under).transact({'from': cbet_account_owner_addr, 'gas': 1000000})      
    game_1_id = contract.functions.getLastGameId().call()
    
    (home_team_id,away_team_id) = contract.functions.getGameTeamIds(game_1_id).call()
    (home_team_odss_moneyline,away_team_odss_moneyline) = contract.functions.getGameMoneylineOdds(game_1_id).call()
-   (home_team_odds_spread,away_team_odds_spread,home_spread,away_spread) = contract.functions.getGameSpreadOdds(game_1_id).call()
-   (home_team_odds_overunder,away_team_odds_overunder,overunder) = contract.functions.getGameOverUnderOdds(game_1_id).call()
+   (home_spread,away_spread) = contract.functions.getGameSpreadOdds(game_1_id).call()
+   (is_over, over_under) = contract.functions.getGameOverUnderOdds(game_1_id).call()
 
    sport_name = contract.functions.getSportName(sport_id).call()
    home_team = contract.functions.getTeamName(home_team_id).call()
@@ -187,13 +184,10 @@ if st.button("Test setting up game 1"):
    st.write("Away team:"+away_team)
    st.write("Home team odds moneyline:"+str(home_team_odss_moneyline))
    st.write("Away team odds moneyline:"+str(away_team_odss_moneyline))
-   st.write("Home team odds spread:"+str(home_team_odds_spread))
-   st.write("Away team odds spread:"+str(away_team_odds_spread))
    st.write("Home Spread:"+str(float(home_spread/SPREAD_FACTOR)))
    st.write("Away Spread:"+str(float(away_spread/SPREAD_FACTOR)))
-   st.write("Home team OverUnder:"+str(home_team_odds_overunder))
-   st.write("Away team OverUnder:"+str(away_team_odds_overunder))
-   st.write("OverUnder:"+str(float(overunder/OVERUNDER_FACTOR)))
+   st.write("Is Over:"+str(bool(is_over)))
+   st.write("OverUnder:"+str(float(over_under/OVERUNDER_FACTOR)))
    
    st.write("Done!")
 
@@ -203,27 +197,24 @@ if st.button("Test setting up game 2"):
    home_team = "Kansas City Chiefs"
    away_team_odss_moneyline = 106
    home_team_odss_moneyline = -124
-   away_team_odds_spread = -108
-   home_team_odds_spread = -112
    home_spread = int(-1.5 * SPREAD_FACTOR)
    away_spread = int(1.5 * SPREAD_FACTOR)
-   away_team_odds_overunder = -105
-   home_team_odds_overunder = -115
-   overunder = int(48.5*OVERUNDER_FACTOR)
+   is_over = True
+   over_under = int(48.5*OVERUNDER_FACTOR)
 
    away_team_id = contract.functions.getTeamId(away_team).call()
    home_team_id = contract.functions.getTeamId(home_team).call()
    
    contract.functions.createGame(sport_id,home_team_id, away_team_id, 
                                  home_team_odss_moneyline, away_team_odss_moneyline,
-                                 home_team_odds_spread, away_team_odds_spread, home_spread, away_spread,
-                                 home_team_odds_overunder, away_team_odds_overunder, overunder).transact({'from': cbet_account_owner_addr, 'gas': 1000000})      
+                                 home_spread, away_spread,
+                                 is_over, over_under).transact({'from': cbet_account_owner_addr, 'gas': 1000000})      
    game_2_id = contract.functions.getLastGameId().call()
    
    (home_team_id,away_team_id) = contract.functions.getGameTeamIds(game_2_id).call()
    (home_team_odss_moneyline,away_team_odss_moneyline) = contract.functions.getGameMoneylineOdds(game_2_id).call()
-   (home_team_odds_spread,away_team_odds_spread,home_spread,away_spread) = contract.functions.getGameSpreadOdds(game_2_id).call()
-   (home_team_odds_overunder,away_team_odds_overunder,overunder) = contract.functions.getGameOverUnderOdds(game_2_id).call()
+   (home_spread,away_spread) = contract.functions.getGameSpreadOdds(game_2_id).call()
+   (is_over, over_under) = contract.functions.getGameOverUnderOdds(game_2_id).call()
 
    sport_name = contract.functions.getSportName(sport_id).call()
    home_team = contract.functions.getTeamName(home_team_id).call()
@@ -234,13 +225,10 @@ if st.button("Test setting up game 2"):
    st.write("Away team:"+away_team)
    st.write("Home team odds moneyline:"+str(home_team_odss_moneyline))
    st.write("Away team odds moneyline:"+str(away_team_odss_moneyline))
-   st.write("Home team odds spread:"+str(home_team_odds_spread))
-   st.write("Away team odds spread:"+str(away_team_odds_spread))
    st.write("Home Spread:"+str(float(home_spread/SPREAD_FACTOR)))
    st.write("Away Spread:"+str(float(away_spread/SPREAD_FACTOR)))
-   st.write("Home team OverUnder:"+str(home_team_odds_overunder))
-   st.write("Away team OverUnder:"+str(away_team_odds_overunder))
-   st.write("OverUnder:"+str(float(overunder/OVERUNDER_FACTOR)))
+   st.write("Is Over:"+str(bool(is_over)))   
+   st.write("OverUnder:"+str(float(over_under/OVERUNDER_FACTOR)))
    
    st.write("Done!")
 

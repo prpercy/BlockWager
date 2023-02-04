@@ -35,10 +35,10 @@ contract BettingGames {
         uint awayTeamId;
 
         Odds oddsMoneyline;      // Moneyline betting odds
-        Odds oddsSpread;         // Spread odds
-        Odds oddsOverUnder;      // Over/Under (Total) odds
  
         Spread spread;           // Spread
+        
+        bool isOver;             // Select over/under
         uint overUnder;          // Total points for over/under bet
     }
 
@@ -61,8 +61,8 @@ contract BettingGames {
     // (fills in the details of the betting odds)
     function createGame(uint _sportId, uint _homeTeamId, uint _awayTeamId,
                         int _homeTeamOddsMoneyline, int _awayTeamOddsMoneyline,
-                        int _homeTeamOddsSpread, int _awayTeamOddsSpread, int _homeTeamSpread, int _awayTeamSpread,
-                        int _homeTeamOddsOverUnder, int _awayTeamOddsOverUnder, uint _overUnder)
+                        int _homeTeamSpread, int _awayTeamSpread,
+                        bool _isOver, uint _overUnder)
         public
         onlyOwner
         returns (uint)
@@ -79,13 +79,11 @@ contract BettingGames {
         bettingGameParams.oddsMoneyline.homeOdds = _homeTeamOddsMoneyline;
         bettingGameParams.oddsMoneyline.awayOdds = _awayTeamOddsMoneyline;
 
-        bettingGameParams.oddsSpread.homeOdds = _homeTeamOddsSpread;
-        bettingGameParams.oddsSpread.awayOdds = _awayTeamOddsSpread;
         bettingGameParams.spread.homeSpread = _homeTeamSpread;
         bettingGameParams.spread.awaySpread = _awayTeamSpread;
 
-        bettingGameParams.oddsOverUnder.homeOdds = _homeTeamOddsOverUnder;
-        bettingGameParams.oddsOverUnder.awayOdds = _awayTeamOddsOverUnder;
+        
+        bettingGameParams.isOver = _isOver;
         bettingGameParams.overUnder = _overUnder;
 
         uint gameId = currGameId++;  // increment the gameId for "next" sport creation
@@ -120,27 +118,24 @@ contract BettingGames {
     }
 
     // Update the spread odds
-    function updateGameOddsSpread(uint _gameId, int _homeTeamOddsSpread, int _awayTeamOddsSpread, int _homeTeamSpread, int _awayTeamSpread)
+    function updateGameSpread(uint _gameId, int _homeTeamSpread, int _awayTeamSpread)
         public
         onlyOwner
     {
         require (bettingGames[_gameId].gameStatus == GameStatus.PRE_GAME_START, "Only accepting updated odds for games that have not yet started");
 
-        bettingGames[_gameId].oddsSpread.homeOdds = _homeTeamOddsSpread;
-        bettingGames[_gameId].oddsSpread.awayOdds = _awayTeamOddsSpread;
         bettingGames[_gameId].spread.homeSpread = _homeTeamSpread;
         bettingGames[_gameId].spread.awaySpread = _awayTeamSpread;
     }
 
     // Update the over/under (total) odds
-    function updateGameOddsOverUnder(uint _gameId, int _homeTeamOddsOverUnder, int _awayTeamOddsOverUnder, uint _overUnder)
+    function updateGameOddsOverUnder(uint _gameId, bool _isOver, uint _overUnder)
         public
         onlyOwner
     {
         require (bettingGames[_gameId].gameStatus == GameStatus.PRE_GAME_START, "Only accepting updated odds for games that have not yet started");
 
-        bettingGames[_gameId].oddsOverUnder.homeOdds = _homeTeamOddsOverUnder;
-        bettingGames[_gameId].oddsOverUnder.awayOdds = _awayTeamOddsOverUnder;
+        bettingGames[_gameId].isOver = _isOver;
         bettingGames[_gameId].overUnder = _overUnder;
     }
 
@@ -211,18 +206,18 @@ contract BettingGames {
     function getGameSpreadOdds(uint _gameId)
         public
         view
-        returns (int, int, int, int)
+        returns (int, int)
     {
-        return (bettingGames[_gameId].oddsSpread.homeOdds, bettingGames[_gameId].oddsSpread.awayOdds, bettingGames[_gameId].spread.homeSpread, bettingGames[_gameId].spread.awaySpread);
+        return (bettingGames[_gameId].spread.homeSpread, bettingGames[_gameId].spread.awaySpread);
     }
 
     // Getter function to get the current over/under (total) odds
     function getGameOverUnderOdds(uint _gameId)
         public
         view
-        returns (int, int, uint)
+        returns (bool, uint)
     {
-        return (bettingGames[_gameId].oddsOverUnder.homeOdds, bettingGames[_gameId].oddsOverUnder.awayOdds, bettingGames[_gameId].overUnder);
+        return (bettingGames[_gameId].isOver, bettingGames[_gameId].overUnder);
     }
 
 }

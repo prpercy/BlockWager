@@ -95,7 +95,7 @@ def get_balances_pre_action():
     (st.session_state.balance_owner_ether_pre, st.session_state.balance_owner_token_pre) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
        
 with st.form(key='check_registration_form'):
-    st.text_input("ETH wallet public address:", key="user_account_addr")
+    st.text_input("Wallet public address:", key="user_account_addr")
     submit = st.form_submit_button(label='Login to BlockWager', on_click=check_registered)
 
 if (st.session_state.isRegistered != True) and (st.session_state.user_account_addr !=""):
@@ -164,7 +164,7 @@ if st.session_state.user_account_addr and st.session_state.isRegistered:
     (st.session_state.user_balance_betting_ether, st.session_state.user_balance_betting_token) = contract.functions.getBalanceUserBetting(st.session_state.user_account_addr).call()
     (st.session_state.user_balance_escrow_ether, st.session_state.user_balance_escrow_token) = contract.functions.getBalanceUserEscrow(st.session_state.user_account_addr).call()
     
-    st.write("User Balances:")
+    st.write("User Balances (ETH / CBET):")
     if (st.session_state.is_first_time):
         st.write("User Wallet Balance ==> ETH:" + str(st.session_state.user_balance_wallet_ether/WEI_FACTOR)         + " / CBET:" + str(st.session_state.user_balance_wallet_token/WEI_FACTOR))
         st.write("BlockWager Betting Balance ==> ETH:" + str(st.session_state.user_balance_betting_ether/WEI_FACTOR) + " / CBET:" + str(st.session_state.user_balance_betting_token/WEI_FACTOR))
@@ -203,7 +203,7 @@ if st.session_state.user_account_addr and st.session_state.isRegistered:
     (st.session_state.balance_owner_ether, st.session_state.balance_owner_token) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())    
     
     st.write("---")
-    st.write("House Balances:")
+    st.write("House Balances (ETH / CBET):")
     if (st.session_state.is_first_time):
        st.write("Owner/Deployer Balance ==> ETH:" + str(st.session_state.balance_owner_ether/WEI_FACTOR)        + " / CBET:" + str(st.session_state.balance_owner_token/WEI_FACTOR))
        st.write("House Betting Balance ==> ETH:" + str(st.session_state.house_balance_betting_ether/WEI_FACTOR) + " / CBET:" + str(st.session_state.house_balance_betting_token/WEI_FACTOR))

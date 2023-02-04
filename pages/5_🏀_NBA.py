@@ -116,7 +116,7 @@ else:
         st.subheader(f"Overview for {sportsbook} sportsbook")
         df, odds, dict_games = getOdds(sportsbook)
         df1 = pd.DataFrame.from_dict(dict_games).T
-
+        
         #Team list
         games = df1['game'].unique()
 
@@ -154,7 +154,7 @@ else:
                 with st.container():
                     c1, c2, c3,c4, c5, c6= st.columns(6, gap="medium")
                     with c1:
-                        st.write(df2.home_team[counter])
+                        st.write(f"Home Team: {df2.home_team[counter]}")
                     with c2:
                         st.button(
                             f"{df2.home_ml_odds[counter]}", 
@@ -171,7 +171,7 @@ else:
                         )
                     with c4:
                         st.button(
-                            f"{df2.home_total[counter]}", 
+                            f"O:{df2.home_total[counter]}", 
                             key=f"{sportsbook}_{df2.home_team[counter]}_t_{counter}",
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.home_team[counter],"Total",df2.home_total[counter], )
@@ -189,7 +189,7 @@ else:
                 with st.container():
                     c1, c2, c3,c4, c5, c6= st.columns(6, gap="medium")
                     with c1:
-                        st.write(df2.away_team[counter])
+                        st.write(f"Away Team: {df2.away_team[counter]}")
                     with c2:
                         st.button(
                             f"{df2.away_ml_odds[counter]}", 
@@ -207,7 +207,7 @@ else:
                         )
                     with c4:
                         st.button(
-                            f"{df2.away_total[counter]}", 
+                            f"U:{df2.away_total[counter]}", 
                             key=f"{sportsbook}_{df2.away_team[counter]}_t_{counter}",
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.away_team[counter],"Total",df2.away_total[counter], )
