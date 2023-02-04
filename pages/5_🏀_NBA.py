@@ -49,7 +49,13 @@ options = st.multiselect(
     key='sportsbook_options'
 )
 
-
+class Bet:
+    def __init__(self, sportsbook, game, team, bet_type, odds):
+        self.sportsbook = sportsbook
+        self.game = game
+        self.team = team
+        self.bet_type = bet_type
+        self.odds = odds
     
 # Data Sources
 @st.cache(ttl=600)
@@ -69,8 +75,11 @@ def getOdds(sportsbook):
     #data, todays_games_uo, frame_ml, home_team_odds, away_team_odds = createTodaysGames(games, df, odds)
     return df, odds,dict_games
 
-
-
+if 'user_bets' not in st.session_state:
+    st.session_state['user_bets'] = []
+    
+def add_bet(sportsbook, game, team, bet_type, odds):
+    st.session_state.user_bets.append(Bet(sportsbook, game, team, bet_type, odds))
 
 
 st.markdown("""
@@ -92,8 +101,7 @@ div.stButton > button:first-child {
 }
 </style>""", unsafe_allow_html=True)
 
-if 'user_bets' not in st.session_state:
-    st.session_state['user_bets'] = []
+
 
 # Present Odds to Client
 if len(options) == 0:
@@ -142,32 +150,52 @@ else:
                     with c1:
                         st.write(df2.home_team[counter])
                     with c2:
-                        if st.button(f"{df2.home_ml_odds[counter]}", key=f"{sportsbook}_{df2.home_team[counter]}_ml_{counter}"):
-                            st.write(f"betting on {df2.home_team[counter]}")
-                            st.balloons()
+                        st.button(
+                            f"{df2.home_ml_odds[counter]}", 
+                            key=f"{sportsbook}_{df2.home_team[counter]}_ml_{counter}", 
+                            on_click=add_bet, 
+                            args=(sportsbook,df2.game[counter],df2.home_team[counter],"ML",df2.home_ml_odds[counter], )
+                        )
                     with c3:
-                        if st.button(f"{df2.home_spread[counter]}", key=f"{sportsbook}_{df2.home_team[counter]}_s_{counter}"):
-                            st.write(f"betting on {df2.home_team[counter]}")
-                            st.balloons()
+                        st.button(
+                            f"{df2.home_spread[counter]}", 
+                            key=f"{sportsbook}_{df2.home_team[counter]}_s_{counter}",
+                            on_click=add_bet, 
+                            args=(sportsbook,df2.game[counter],df2.home_team[counter],"Spread",df2.home_spread[counter], )
+                        )
                     with c4:
-                        if st.button(f"{df2.home_total[counter]}", key=f"{sportsbook}_{df2.home_team[counter]}_t_{counter}"):
-                            st.write(f"betting on {df2.home_team[counter]}")
-                            st.balloons()
+                        st.button(
+                            f"{df2.home_total[counter]}", 
+                            key=f"{sportsbook}_{df2.home_team[counter]}_t_{counter}",
+                            on_click=add_bet, 
+                            args=(sportsbook,df2.game[counter],df2.home_team[counter],"Total",df2.home_total[counter], )
+                        )
                 with st.container():
                     c1, c2, c3,c4= st.columns(4, gap="medium")
                     with c1:
                         st.write(df2.away_team[counter])
                     with c2:
-                        if st.button(f"{df2.away_ml_odds[counter]}", key=f"{sportsbook}_{df2.away_team[counter]}_ml_{counter}"):
-                            st.write(f"betting on {df2.away_team[counter]}")
-                            st.balloons()
+                        st.button(
+                            f"{df2.away_ml_odds[counter]}", 
+                            key=f"{sportsbook}_{df2.away_team[counter]}_ml_{counter}",
+                            on_click=add_bet, 
+                            args=(sportsbook,df2.game[counter],df2.away_team[counter],"ML",df2.away_ml_odds[counter], )
+                        )
+                            
                     with c3:
-                        if st.button(f"{df2.away_spread[counter]}", key=f"{sportsbook}_{df2.away_team[counter]}_s_{counter}"):
-                            st.write(f"betting on {df2.away_team[counter]}")
-                            st.balloons()
+                        st.button(
+                            f"{df2.away_spread[counter]}", 
+                            key=f"{sportsbook}_{df2.away_team[counter]}_s_{counter}",
+                            on_click=add_bet, 
+                            args=(sportsbook,df2.game[counter],df2.away_team[counter],"Spread",df2.away_spread[counter], )
+                        )
                     with c4:
-                        if st.button(f"{df2.away_total[counter]}", key=f"{sportsbook}_{df2.away_team[counter]}_t_{counter}"):
-                            st.write(f"betting on {df2.away_team[counter]}")
-                            st.balloons()
+                        st.button(
+                            f"{df2.away_total[counter]}", 
+                            key=f"{sportsbook}_{df2.away_team[counter]}_t_{counter}",
+                            on_click=add_bet, 
+                            args=(sportsbook,df2.game[counter],df2.away_team[counter],"Total",df2.away_total[counter], )
+                        )
             
  
+st.write(st.session_state.user_bets)
