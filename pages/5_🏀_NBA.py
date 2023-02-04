@@ -11,10 +11,6 @@ from Utils.Dictionaries import team_index_current
 from Utils.tools import create_todays_games_from_odds, get_json_data, to_data_frame, get_todays_games_json, create_todays_games,payout
 from OddsProvider.SbrOddsProvider import SbrOddsProvider
 
-# Global Variables
-theme_plotly = None # None or streamlit
-week_days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday']
-
 # Layout
 st.set_page_config(page_title='NBA Odds and Bets', page_icon=':bar_chart:', layout='wide')
 st.title('🌍 NBA Odds and Bets')
@@ -81,7 +77,10 @@ if 'user_bets' not in st.session_state:
 def add_bet(sportsbook, game, team, bet_type, odds):
     st.session_state.user_bets.append(Bet(sportsbook, game, team, bet_type, odds))
 
-
+def place_bets():
+    st.write("Bets placed")
+    st.session_state['user_bets'] = []
+    
 st.markdown("""
 <style>
 div.stButton > button:first-child {
@@ -125,7 +124,7 @@ else:
 
         counter = 0
         with st.container():
-            cl1, cl2, cl3,cl4= st.columns(4, gap="medium")
+            cl1, cl2, cl3,cl4, cl5, cl6= st.columns(6, gap="medium")
             with cl1:
                 st.subheader("Team Names")
             with cl2:
@@ -134,6 +133,10 @@ else:
                 st.subheader("Spread")
             with cl4:
                 st.subheader("Total")
+            with cl5:
+                st.subheader("Bets")
+            with cl6:
+                st.button(label='Place bets', on_click=place_bets)
 
         for game in game_options:
             df2 = df1[df1['game']==game]
@@ -142,7 +145,7 @@ else:
                 st.write('---')
                 #st.subheader(df2.game[counter])
                 with st.container():
-                    c1, c2, c3,c4= st.columns(4, gap="medium")
+                    c1, c2, c3,c4, c5, c6= st.columns(6, gap="medium")
                     with c1:
                         st.write(df2.home_team[counter])
                     with c2:
@@ -166,8 +169,18 @@ else:
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.home_team[counter],"Total",df2.home_total[counter], )
                         )
+                    with c5:
+                        for bet in st.session_state.user_bets:
+                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
+                                st.write(bet.bet_type)
+                    with c6:
+                        for bet in st.session_state.user_bets:
+                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
+                                st.number_input("amount", key=f"bet_amount_{bet}")
+                                st.write(f"Payout : {payout(st.session_state[f'bet_amount_{bet}'],bet.odds)}")
+                                
                 with st.container():
-                    c1, c2, c3,c4= st.columns(4, gap="medium")
+                    c1, c2, c3,c4, c5, c6= st.columns(6, gap="medium")
                     with c1:
                         st.write(df2.away_team[counter])
                     with c2:
@@ -192,11 +205,14 @@ else:
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.away_team[counter],"Total",df2.away_total[counter], )
                         )
-   
-st.sidebar.subheader("User Bet Slip")
-for bet in st.session_state.user_bets:
-    st.sidebar.write(bet.game)
-    st.sidebar.write(bet.team)
-    st.sidebar.write(bet.bet_type)
-    st.sidebar.write(st.number_input("amount", key=f"bet_amount_{bet}"))
-    st.sidebar.write(payout(st.session_state[f"bet_amount_{bet}"],bet.odds))
+                    with c5:
+                        for bet in st.session_state.user_bets:
+                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
+                                st.write(bet.bet_type)
+                    with c6:
+                        for bet in st.session_state.user_bets:
+                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
+                                st.number_input("amount", key=f"bet_amount_{bet}")
+                                st.write(f"Payout : {payout(st.session_state[f'bet_amount_{bet}'],bet.odds)}")
+
+    
