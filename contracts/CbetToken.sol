@@ -1,30 +1,82 @@
 pragma solidity ^0.5.0;
 
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/token/ERC20/ERC20.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/token/ERC20/ERC20Detailed.sol";
-import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/token/ERC20/ERC20Mintable.sol";
+contract CbetToken {
+    address payable cbetAccountOwnerAddr;
 
-contract CbetToken is ERC20, ERC20Detailed, ERC20Mintable {
-    address payable owner;
+    string public name = "CBET";
+    string public symbol = "CBET";
+    uint public exchangeRate;
 
-    // Generic modifier that can be applied to any function (as if this code is copy/pasted into function itself)
-    modifier onlyOwner {
-        require(msg.sender == owner, "You do not have permission to mint these tokens!");
-        _;
-    }
+    uint totalSupply;
+
+    mapping(address => uint) balances;  // Cbet token balance
 
     // Parameters passed into the constructor must be provided at deployment time
     // When deploy, token name, symbol, and decimals are automatically passed through
-    constructor(uint initial_supply) 
-        ERC20Detailed("CbetToken", "CBET", 18) 
-        public 
+    constructor(address payable _cbetAccountOwnerAddr, uint _initialSupply)
+        public
     {
-        // owner will be wallet/address who hit the deploy button
-        owner = msg.sender;
-        // At deploytment time, min arcade tokens with the initial_supply provided in this constructor
-        // Note, this does not require any ether to be paid, just minted from scratch
-        mint(msg.sender, initial_supply);
+        // cbetAccountOwnerAddr will be wallet/address who hit the deploy button
+        cbetAccountOwnerAddr = _cbetAccountOwnerAddr;
+
+        // Token properties
+        name = "CbetToken";
+        symbol = "CBET";    
+        exchangeRate = 1;
+
+        mint(_cbetAccountOwnerAddr, _cbetAccountOwnerAddr, _initialSupply);
+
+        totalSupply = _initialSupply;
     }
 
-}
+    // Balance of tokens from the user account/address
+    function balance(address _addr) 
+        public 
+        view 
+        returns(uint) 
+    {
+        return balances[_addr];
+    }
 
+    // Transfer tokens from one account to the another
+    function transferOf(address _sender, address _recipient, uint _value) 
+        public 
+    {
+        balances[_sender] -= _value;
+        balances[_recipient] += _value;
+    }
+
+    function mint(address _sender, address _recipient, uint _value) 
+        public 
+        payable 
+    {
+        require(_sender == cbetAccountOwnerAddr, "You do not have permission to mint these tokens!");
+
+        uint amount = _value * exchangeRate;
+        balances[_recipient] += amount;
+
+        totalSupply += amount;
+    }
+
+    function unmint(address _sender, address _recipient, uint _value) 
+        public 
+        payable 
+    {
+        require(_sender == cbetAccountOwnerAddr, "You do not have permission to mint these tokens!");
+
+        uint amount = _value * exchangeRate;
+        balances[_recipient] -= amount;
+
+        totalSupply -= amount;
+    }
+
+    function getTotalSupply(address _sender)
+        public
+        view
+        returns(uint)
+    {
+        require(_sender == cbetAccountOwnerAddr, "You do not have permission to access the total token supply!");
+
+        return totalSupply;
+    }
+}

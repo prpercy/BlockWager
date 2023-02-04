@@ -1,14 +1,13 @@
 [
 	{
 		"constant": true,
-		"inputs": [
-			{
-				"name": "_cbetAccountWalletAddr",
-				"type": "address"
-			}
-		],
-		"name": "getBalanceCbetAccountEther",
+		"inputs": [],
+		"name": "getBalanceHouseBetting",
 		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			},
 			{
 				"name": "",
 				"type": "uint256"
@@ -68,20 +67,6 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_cbetAccountWalletAddr",
-				"type": "address"
-			}
-		],
-		"name": "depositUserAccountEther",
-		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
 		"constant": true,
 		"inputs": [
 			{
@@ -109,6 +94,20 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "setUserAccountActive",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [
 			{
@@ -128,17 +127,12 @@
 		"type": "function"
 	},
 	{
-		"constant": true,
+		"constant": false,
 		"inputs": [],
-		"name": "getBalanceUserAccountEther",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
+		"name": "purchaseCbetTokens",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -164,6 +158,24 @@
 		"constant": false,
 		"inputs": [
 			{
+				"name": "_addr",
+				"type": "address"
+			},
+			{
+				"name": "_value",
+				"type": "uint256"
+			}
+		],
+		"name": "depositIntoBettingToken",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
 				"name": "_gameId",
 				"type": "uint256"
 			}
@@ -172,6 +184,28 @@
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			},
+			{
+				"name": "_value",
+				"type": "uint256"
+			},
+			{
+				"name": "_isEther",
+				"type": "bool"
+			}
+		],
+		"name": "transferBettingToEscrow",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -200,6 +234,29 @@
 		"constant": true,
 		"inputs": [
 			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "getBalanceUserEscrow",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
 				"name": "_gameId",
 				"type": "uint256"
 			}
@@ -221,6 +278,33 @@
 	},
 	{
 		"constant": true,
+		"inputs": [],
+		"name": "getBalanceHouseEscrow",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [],
+		"name": "depositIntoBettingEther",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [
 			{
 				"name": "_addr",
@@ -236,6 +320,28 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			},
+			{
+				"name": "_value",
+				"type": "uint256"
+			},
+			{
+				"name": "_isEther",
+				"type": "bool"
+			}
+		],
+		"name": "transferEscrowToBetting",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -281,20 +387,6 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "setBetterAccountInactive",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
 		"constant": true,
 		"inputs": [
 			{
@@ -307,6 +399,25 @@
 			{
 				"name": "",
 				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "balanceCbetTokens",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
 			}
 		],
 		"payable": false,
@@ -369,14 +480,37 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "recipient",
+				"name": "_addr",
 				"type": "address"
 			}
 		],
-		"name": "withdrawUserAccountEther",
+		"name": "sellCbetTokens",
 		"outputs": [],
 		"payable": true,
 		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
+		"name": "getBalanceUserBetting",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -446,14 +580,18 @@
 		"constant": false,
 		"inputs": [
 			{
-				"name": "_gameId",
+				"name": "recipient",
+				"type": "address"
+			},
+			{
+				"name": "_value",
 				"type": "uint256"
 			}
 		],
-		"name": "setGameStart",
+		"name": "withdrawFromBettingToken",
 		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -464,7 +602,21 @@
 				"type": "address"
 			}
 		],
-		"name": "setBetterAccountActive",
+		"name": "setUserAccountInactive",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_gameId",
+				"type": "uint256"
+			}
+		],
+		"name": "setGameStart",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -510,6 +662,20 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "recipient",
+				"type": "address"
+			}
+		],
+		"name": "withdrawFromBettingEther",
+		"outputs": [],
+		"payable": true,
+		"stateMutability": "payable",
 		"type": "function"
 	},
 	{
@@ -597,6 +763,20 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_cbetBettingAddr",
+				"type": "address"
+			}
+		],
+		"name": "setCbetBettingAddr",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
