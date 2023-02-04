@@ -60,10 +60,8 @@ st.markdown("---")
 cbet_account_wallet_addr = accounts[0]
 cbet_account_owner_addr = accounts[1]
 
-
 if 'isRegistered' not in st.session_state:
     st.session_state['isRegistered'] = False
-    st.write(f"you are here again {st.session_state.isRegistered}")
     
 def check_registered():
     user_account_first_name_1, user_account_last_name_1 = contract.functions.getUserAccountName(st.session_state.user_accountr_addr).call({'from': cbet_account_owner_addr})
