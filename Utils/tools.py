@@ -58,3 +58,10 @@ def create_todays_games_from_odds(input_dict):
         home_team, away_team = game.split(":")
         games.append([home_team, away_team])
     return games
+
+
+def payout(stake, odds):
+    if odds > 0:
+        return (stake * (odds / 100)) + stake
+    else:
+        return abs((stake / (odds / 100))) + stake
