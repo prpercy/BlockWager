@@ -12,6 +12,7 @@ class SbrOddsProvider:
 
     def __init__(self, sportsbook="fanduel"):
         self.games = Scoreboard(sport="NBA").games
+        print(self.games)
         self.sportsbook = sportsbook
     
     def get_odds(self):
@@ -21,6 +22,8 @@ class SbrOddsProvider:
             dictionary: [home_team_name + ':' + away_team_name: { home_team: money_line_odds, away_team: money_line_odds }, under_over_odds: val]
         """
         dict_res = {}
+        dict_games = {}
+        idx = 1
         for game in self.games:
             # Get team names
             home_team_name = game['home_team'].replace("Los Angeles Clippers", "LA Clippers")
@@ -33,17 +36,29 @@ class SbrOddsProvider:
                 money_line_home_value = game['home_ml'][self.sportsbook]
             if self.sportsbook in game['away_ml']:
                 money_line_away_value = game['away_ml'][self.sportsbook]
+                
+                
+            # Get spread values
+            if self.sportsbook in game['home_spread']:
+                spread_home_value = game['home_spread'][self.sportsbook]
+            if self.sportsbook in game['away_spread']:
+                spread_away_value = game['away_spread'][self.sportsbook]
             
             # Get totals bet value
             if self.sportsbook in game['total']:
                 totals_value = game['total'][self.sportsbook]
             
-            dict_res[home_team_name + ':' + away_team_name] =  { 
-                'under_over_odds': totals_value,
-                home_team_name: { 'money_line_odds': money_line_home_value }, 
-                away_team_name: { 'money_line_odds': money_line_away_value }
+            dict_games[idx] = {
+                'game': home_team_name + '<>' + away_team_name, 
+                'home_team': home_team_name, 'home_ml_odds': money_line_home_value, 'home_spread' : spread_home_value, 'home_total':totals_value,
+                'away_team': away_team_name, 'away_ml_odds': money_line_away_value, 'away_spread' : spread_away_value, 'away_total':totals_value
             }
-        return dict_res
+            dict_res[home_team_name + ':' + away_team_name] =  { 
+                home_team_name: { 'money_line_odds': money_line_home_value, 'spread':spread_home_value, 'total': totals_value}, 
+                away_team_name: { 'money_line_odds': money_line_away_value, 'spread':spread_away_value, 'total': totals_value }
+            }
+            idx = idx+1
+        return dict_res, dict_games
     
     
    
