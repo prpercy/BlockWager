@@ -52,6 +52,9 @@ class Bet:
         self.team = team
         self.bet_type = bet_type
         self.odds = odds
+        self.amount=0
+    def update_bet(self, amount):
+        self.amount = amount
     
 # Data Sources
 @st.cache(ttl=600)
@@ -79,8 +82,12 @@ def add_bet(sportsbook, game, team, bet_type, odds):
 
 def place_bets():
     st.write("Bets placed")
-    st.session_state['user_bets'] = []
+    for bet in st.session_state.user_bets:
+        if f"bet_amount_{bet}" in st.session_state:
+            print(f"you are updating bet with amount {st.session_state[f'bet_amount_{bet}']}")
+            bet.update_bet(st.session_state[f'bet_amount_{bet}'])
     
+   
 st.markdown("""
 <style>
 div.stButton > button:first-child {
@@ -176,7 +183,7 @@ else:
                     with c6:
                         for bet in st.session_state.user_bets:
                             if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
-                                st.number_input("amount", key=f"bet_amount_{bet}")
+                                st.number_input("amount",key=f"bet_amount_{bet}")
                                 st.write(f"Payout : {payout(st.session_state[f'bet_amount_{bet}'],bet.odds)}")
                                 
                 with st.container():
@@ -212,7 +219,7 @@ else:
                     with c6:
                         for bet in st.session_state.user_bets:
                             if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
-                                st.number_input("amount", key=f"bet_amount_{bet}")
+                                st.number_input("amount",key=f"bet_amount_{bet}")
                                 st.write(f"Payout : {payout(st.session_state[f'bet_amount_{bet}'],bet.odds)}")
 
     
