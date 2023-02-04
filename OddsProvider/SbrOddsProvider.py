@@ -12,7 +12,6 @@ class SbrOddsProvider:
 
     def __init__(self, sportsbook="fanduel"):
         self.games = Scoreboard(sport="NBA").games
-        print(self.games)
         self.sportsbook = sportsbook
     
     def get_odds(self):
