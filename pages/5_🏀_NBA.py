@@ -49,89 +49,25 @@ options = st.multiselect(
     key='sportsbook_options'
 )
 
-#Team list
-nba_teams = [
-    "Atlanta Hawks",    "Boston Celtics",    "Brooklyn Nets",    "Charlotte Hornets",    "Chicago Bulls",
-    "Cleveland Cavaliers",    "Dallas Mavericks",    "Denver Nuggets",    "Detroit Pistons",    "Golden State Warriors",
-    "Houston Rockets",    "Indiana Pacers",    "Los Angeles Clippers",    "Los Angeles Lakers",    "Memphis Grizzlies",
-    "Miami Heat",    "Milwaukee Bucks",    "Minnesota Timberwolves",    "New Orleans Pelicans",    "New York Knicks",
-    "Oklahoma City Thunder",    "Orlando Magic",    "Philadelphia 76ers",    "Phoenix Suns",    "Portland Trail Blazers",
-    "Sacramento Kings",    "San Antonio Spurs",    "Toronto Raptors",    "Utah Jazz",    "Washington Wizards"]
 
-
-# Filter for teams
-options = st.multiselect(
-    '**Select your team(s):**',
-    options=nba_teams,
-    default=nba_teams,
-    key='NBA Teams'
-)
     
 # Data Sources
 @st.cache(ttl=600)
-def createTodaysGames(games, df, odds):
-    match_data = []
-    todays_games_uo = []
-    home_team_odds = []
-    away_team_odds = []
-
-    for game in games:
-        home_team = game[0]
-        away_team = game[1]
-        if odds is not None:
-            game_odds = odds[home_team + ':' + away_team]
-            todays_games_uo.append(game_odds['under_over_odds'])
-            
-            home_team_odds.append(game_odds[home_team]['money_line_odds'])
-            away_team_odds.append(game_odds[away_team]['money_line_odds'])
-
-        else:
-            todays_games_uo.append(input(home_team + ' vs ' + away_team + ': '))
-
-            home_team_odds.append(input(home_team + ' odds: '))
-            away_team_odds.append(input(away_team + ' odds: '))
-
-        home_team_series = df.iloc[team_index_current.get(home_team)]
-        away_team_series = df.iloc[team_index_current.get(away_team)]
-        stats = pd.concat([home_team_series, away_team_series])
-        match_data.append(stats)
-
-    games_data_frame = pd.concat(match_data, ignore_index=True, axis=1)
-    games_data_frame = games_data_frame.T
-
-    frame_ml = games_data_frame.drop(columns=['TEAM_ID', 'CFID', 'CFPARAMS', 'TEAM_NAME'])
-    data = frame_ml.values
-    data = data.astype(float)
-
-    return data, todays_games_uo, frame_ml, home_team_odds, away_team_odds
-
-
 def getOdds(sportsbook):
     odds = None
     if sportsbooks != None:
         print('\n')
         print('-------------')
         print(sportsbook)
-        odds = SbrOddsProvider(sportsbook).get_odds()
-        games = create_todays_games_from_odds(odds)
-        if((games[0][0]+':'+games[0][1]) not in list(odds.keys())):
-            print(games[0][0]+':'+games[0][1])
-            print(Fore.RED, "--------------Games not up to date for todays games. Scraping disabled until list is updated.--------------")
-            print(Style.RESET_ALL)
-            odds = None
-        else:
-            print(f"------------------{sportsbook} odds data------------------")
-            for g in odds.keys():
-                home_team, away_team = g.split(":")
-                print(f"{away_team} ({odds[g][away_team]['money_line_odds']}) @ {home_team} ({odds[g][home_team]['money_line_odds']})")
+        odds,dict_games = SbrOddsProvider(sportsbook).get_odds()
+        print(odds)
     else:
         print('Please select sportsbook')
-        data = get_todays_games_json(todays_games_url)
-        games = create_todays_games(data)
+
     data = get_json_data(data_url)
     df = to_data_frame(data)
-    data, todays_games_uo, frame_ml, home_team_odds, away_team_odds = createTodaysGames(games, df, odds)
-    return data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds
+    #data, todays_games_uo, frame_ml, home_team_odds, away_team_odds = createTodaysGames(games, df, odds)
+    return df, odds,dict_games
 
 
 
@@ -156,6 +92,9 @@ div.stButton > button:first-child {
 }
 </style>""", unsafe_allow_html=True)
 
+if 'user_bets' not in st.session_state:
+    st.session_state['user_bets'] = []
+
 # Present Odds to Client
 if len(options) == 0:
     st.warning('Please select at least one sportsbook.')
@@ -165,44 +104,70 @@ else:
     for i in range(len(options)):
         sportsbook = options[i]
         st.subheader(f"Overview for {sportsbook} sportsbook")
-        data, todays_games_uo, frame_ml, home_team_odds, away_team_odds, odds = getOdds(sportsbook)
-        st.text(" \n")
-        bet_amounts = {}
-        counter=1;
-        for g in odds.keys():
-            home_team, away_team = g.split(":")
-            c1, c2, c3,c4 = st.columns([3,2,2,4])
+        df, odds, dict_games = getOdds(sportsbook)
+        df1 = pd.DataFrame.from_dict(dict_games).T
+        
+        #Team list
+        games = df1['game'].unique()
+
+
+        # Filter for teams
+        game_options = st.multiselect(
+            '**Select your matches(s):**',
+            options=games,
+            default=games[1],
+            key= f'game_options_{sportsbook}'
+        )
+
+        counter = 0
+        with st.container():
+            c1, c2, c3,c4= st.columns(4, gap="medium")
             with c1:
-                st.write(f"{away_team}")
-                if st.button(f"{odds[g][away_team]['money_line_odds']}", key=f"{sportsbook}_{away_team}_{counter}"):
-                    st.write(f"betting on {away_team}")
-                    st.balloons()
+                st.subheader("Team Names")
             with c2:
-                st.write(f"{home_team}")
-                if st.button(f"{odds[g][home_team]['money_line_odds']}", key=f"{sportsbook}_{home_team}_{counter}"):
-                    st.write(f"betting on {home_team}")
-                    st.balloons()
+                st.subheader("Moneyline")
             with c3:
-                input_str = f"Bet Amount {sportsbook} {counter}"
-                bet_amounts["bet_amount_{0}_{1}".format(sportsbook,counter)] = st.number_input(input_str)
+                st.subheader("Spread")
             with c4:
-                st.text(" \n")
-                st.text(" \n")
-                
-            counter = counter+1
-            st.write('---')
+                st.subheader("Total")
+                        
+        for game in game_options:
+            df2 = df1[df1['game']==game]
+            counter = df1[df1['game']==game].index.values[0]
+            with st.container():
+                st.write('---')
+                #st.subheader(df2.game[counter])
+                with st.container():
+                    c1, c2, c3,c4= st.columns(4, gap="medium")
+                    with c1:
+                        st.write(df2.home_team[counter])
+                    with c2:
+                        if st.button(f"{df2.home_ml_odds[counter]}", key=f"{sportsbook}_{df2.home_team[counter]}_ml_{counter}"):
+                            st.write(f"betting on {df2.home_team[counter]}")
+                            st.balloons()
+                    with c3:
+                        if st.button(f"{df2.home_spread[counter]}", key=f"{sportsbook}_{df2.home_team[counter]}_s_{counter}"):
+                            st.write(f"betting on {df2.home_team[counter]}")
+                            st.balloons()
+                    with c4:
+                        if st.button(f"{df2.home_total[counter]}", key=f"{sportsbook}_{df2.home_team[counter]}_t_{counter}"):
+                            st.write(f"betting on {df2.home_team[counter]}")
+                            st.balloons()
+                with st.container():
+                    c1, c2, c3,c4= st.columns(4, gap="medium")
+                    with c1:
+                        st.write(df2.away_team[counter])
+                    with c2:
+                        if st.button(f"{df2.away_ml_odds[counter]}", key=f"{sportsbook}_{df2.away_team[counter]}_ml_{counter}"):
+                            st.write(f"betting on {df2.away_team[counter]}")
+                            st.balloons()
+                    with c3:
+                        if st.button(f"{df2.away_spread[counter]}", key=f"{sportsbook}_{df2.away_team[counter]}_s_{counter}"):
+                            st.write(f"betting on {df2.away_team[counter]}")
+                            st.balloons()
+                    with c4:
+                        if st.button(f"{df2.away_total[counter]}", key=f"{sportsbook}_{df2.away_team[counter]}_t_{counter}"):
+                            st.write(f"betting on {df2.away_team[counter]}")
+                            st.balloons()
             
-
-        if st.button("Submit bets for {0}".format(sportsbook)):
-            st.write(bet_amounts)
-            st.balloons()
-        st.text(" \n")
-        with elements("nested_children"):
-            with mui.Paper:
-                with mui.Typography:
-                    html.p(sportsbook)
-                    html.p("Goodbye world")
-            with mui.Paper(elevation=3, variant="outlined", square=True):
-                mui.Typography(sportsbook)
-
  
