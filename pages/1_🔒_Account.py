@@ -67,20 +67,22 @@ def check_registered():
     is_account_active = contract.functions.isUserAccountActive(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
     if (is_account_active):
         user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
+        contract.functions.setCbetBettingAddr(cbet_account_betting_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
         st.session_state.isRegistered = True
     else:
         st.session_state.isRegistered = False
         
 def register_new_user():
     try:
-           contract.functions.createUserAccount(
-               st.session_state.user_account_addr, st.session_state.user_first_name, st.session_state.user_last_name, "place_holder_username", "place_holder_password"
-           ).transact(
-               {'from': cbet_account_owner_addr, 'gas': 1000000}
-           )
+       contract.functions.createUserAccount(
+          st.session_state.user_account_addr, st.session_state.user_first_name, st.session_state.user_last_name, "place_holder_username", "place_holder_password"
+       ).transact(
+          {'from': cbet_account_owner_addr, 'gas': 1000000}
+       )
     except Exception as ex:
            st.write(ex.args)
     user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
+    contract.functions.setCbetBettingAddr(cbet_account_betting_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
     st.session_state.isRegistered = True
     st.write(f"{user_account_first_name} {user_account_last_name} has been successfully registered!")
 
