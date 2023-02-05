@@ -5,6 +5,8 @@ from web3 import Web3
 from pathlib import Path
 from dotenv import load_dotenv
 import streamlit as st
+from persist import persist, load_widget_state
+
 
 WEI_FACTOR = 10**18
 
@@ -61,32 +63,42 @@ cbet_account_betting_addr = accounts[1]
 st.write(f"Betting address -> {cbet_account_betting_addr}")
 st.write(f"cbet_account_owner_addr address -> {cbet_account_owner_addr}")
 
+
+if 'user_account_addr' not in st.session_state:
+    st.session_state['user_account_addr'] = ""
+    persist("user_account_addr")
+    
 if 'isRegistered' not in st.session_state:
     st.session_state['isRegistered'] = False
     
 def check_registered():
     st.session_state.is_first_time = True
-    is_account_active = contract.functions.isUserAccountActive(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
+    is_account_active = contract.functions.isUserAccountActive(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
     if (is_account_active):
-        user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
+        user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
         contract.functions.setCbetBettingAddr(cbet_account_betting_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
         st.session_state.isRegistered = True
+        st.session_state['user_account_addr'] = st.session_state.user_account_address
+        persist("user_account_addr")
     else:
         st.session_state.isRegistered = False
         
 def register_new_user():
     try:
        contract.functions.createUserAccount(
-          st.session_state.user_account_addr, st.session_state.user_first_name, st.session_state.user_last_name
+          st.session_state.user_account_address, st.session_state.user_first_name, st.session_state.user_last_name
        ).transact(
           {'from': cbet_account_owner_addr, 'gas': 1000000}
        )
     except Exception as ex:
            st.write(ex.args)
-    user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
+    user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
     contract.functions.setCbetBettingAddr(cbet_account_betting_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
     st.session_state.isRegistered = True
     st.write(f"{user_account_first_name} {user_account_last_name} has been successfully registered!")
+    st.session_state['user_account_addr'] = st.session_state.user_account_address
+    persist("user_account_addr")
+
 
 def get_balances_pre_action():
     (st.session_state.user_balance_wallet_ether_pre, st.session_state.user_balance_wallet_token_pre) = (w3.eth.getBalance(st.session_state.user_account_addr), contract.functions.balanceCbetTokens(st.session_state.user_account_addr).call())
@@ -101,7 +113,7 @@ def get_balances_pre_action():
     
 
 with st.form(key='check_registration_form'):
-    st.text_input("Wallet public address:", key="user_account_addr")
+    st.text_input("Wallet public address:", key="user_account_address")
     submit = st.form_submit_button(label='Login to BlockWager', on_click=check_registered)
 
 if (st.session_state.isRegistered != True) and (st.session_state.user_account_addr !=""):
