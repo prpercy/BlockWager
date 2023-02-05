@@ -1,6 +1,5 @@
 # Libraries
 import streamlit as st
-from streamlit_elements import elements, mui, html
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -64,29 +63,31 @@ def getOdds(sportsbook):
         print('\n')
         print('-------------')
         print(sportsbook)
-        odds,dict_games = SbrOddsProvider(sportsbook).get_odds()
-        print(odds)
+        dict_games = SbrOddsProvider(sportsbook).get_odds()
+        #print(odds)
     else:
         print('Please select sportsbook')
 
     data = get_json_data(data_url)
     df = to_data_frame(data)
     #data, todays_games_uo, frame_ml, home_team_odds, away_team_odds = createTodaysGames(games, df, odds)
-    return df, odds,dict_games
+    return df, dict_games
 
 if 'user_bets' not in st.session_state:
     st.session_state['user_bets'] = []
     
 def add_bet(sportsbook, game, team, bet_type, odds):
-    st.session_state.user_bets.append(Bet(sportsbook, game, team, bet_type, odds))
+    if odds != "":
+        st.session_state.user_bets.append(Bet(sportsbook, game, team, bet_type, odds))
 
 def place_bets():
-    st.write("Bets placed")
+    st.sidebar.write("Bets placed:")
     for bet in st.session_state.user_bets:
         if f"bet_amount_{bet}" in st.session_state:
             print(f"you are updating bet with amount {st.session_state[f'bet_amount_{bet}']}")
             bet.update_bet(st.session_state[f'bet_amount_{bet}'])
-    
+            st.sidebar.write(f"{bet.sportsbook}-{bet.game}-{bet.team}-{bet.bet_type}-{bet.odds}-{bet.amount}")
+    st.session_state['user_bets'] = []
    
 st.markdown("""
 <style>
@@ -103,7 +104,15 @@ div.stButton > button:first-child {
 	padding:6px 15px;
 	text-decoration:none;
 	text-shadow:0px 1px 0px #b23e35;
-    width: 100px;
+    width: 130px;
+    height: 52px;
+}
+</style>""", unsafe_allow_html=True)
+
+st.markdown("""
+<style>
+div[data-baseweb=“base-input”] > div {
+    height: 53px;
 }
 </style>""", unsafe_allow_html=True)
 
@@ -113,8 +122,9 @@ if len(options) == 0:
 else:
     for i in range(len(options)):
         sportsbook = options[i]
+        st.markdown("***")
         st.subheader(f"Overview for {sportsbook} sportsbook")
-        df, odds, dict_games = getOdds(sportsbook)
+        df, dict_games = getOdds(sportsbook)
         df1 = pd.DataFrame.from_dict(dict_games).T
         
         #Team list
@@ -131,19 +141,25 @@ else:
 
         counter = 0
         with st.container():
-            cl1, cl2, cl3,cl4, cl5, cl6= st.columns(6, gap="medium")
-            with cl1:
-                st.subheader("Team Names")
-            with cl2:
+            c1, c2, c3, c4, c5, c6, c7, c8, c9 = st.columns(9, gap="medium")
+            with c1:
+                st.write("")
+            with c2:
+                st.subheader("Teams")
+            with c3:
                 st.subheader("Moneyline")
-            with cl3:
+            with c4:
                 st.subheader("Spread")
-            with cl4:
+            with c5:
                 st.subheader("Total")
-            with cl5:
+            with c6:
                 st.subheader("Bets")
-            with cl6:
-                st.button(label='Place bets', on_click=place_bets)
+            with c7:
+                st.button(label='Place bets', key=f"place_bets_{sportsbook}", on_click=place_bets)
+            with c8:
+                st.write("")
+            with c9:
+                st.write("")
 
         for game in game_options:
             df2 = df1[df1['game']==game]
@@ -152,45 +168,52 @@ else:
                 st.write('---')
                 #st.subheader(df2.game[counter])
                 with st.container():
-                    c1, c2, c3,c4, c5, c6= st.columns(6, gap="medium")
+                    c1, c2, c3,c4, c5, c6, c7, c8, c9 = st.columns(9, gap="medium")
                     with c1:
-                        st.write(f"Home Team: {df2.home_team[counter]}")
+                        st.markdown("*:black[Home Team]*")
                     with c2:
+                        st.markdown(f"{df2.home_team[counter]}")
+                    with c3:
                         st.button(
                             f"{df2.home_ml_odds[counter]}", 
                             key=f"{sportsbook}_{df2.home_team[counter]}_ml_{counter}", 
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.home_team[counter],"ML",df2.home_ml_odds[counter], )
                         )
-                    with c3:
-                        st.button(
-                            f"{df2.home_spread[counter]}", 
-                            key=f"{sportsbook}_{df2.home_team[counter]}_s_{counter}",
-                            on_click=add_bet, 
-                            args=(sportsbook,df2.game[counter],df2.home_team[counter],"Spread",df2.home_spread[counter], )
-                        )
                     with c4:
                         st.button(
-                            f"O:{df2.home_total[counter]}", 
-                            key=f"{sportsbook}_{df2.home_team[counter]}_t_{counter}",
+                            f"{df2.home_spread[counter]}    {df2.home_spread_odds[counter]}", 
+                            key=f"{sportsbook}_{df2.home_team[counter]}_s_{counter}",
                             on_click=add_bet, 
-                            args=(sportsbook,df2.game[counter],df2.home_team[counter],"Total",df2.home_total[counter], )
+                            args=(sportsbook,df2.game[counter],df2.home_team[counter],"Spread",df2.home_spread_odds[counter], )
                         )
                     with c5:
-                        for bet in st.session_state.user_bets:
-                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
-                                st.write(bet.bet_type)
+                        st.button(
+                            f"O: {df2.home_total[counter]}    {df2.over_odds[counter]}", 
+                            key=f"{sportsbook}_{df2.home_team[counter]}_t_{counter}",
+                            on_click=add_bet, 
+                            args=(sportsbook,df2.game[counter],df2.home_team[counter],"Total",df2.over_odds[counter], )
+                        )
                     with c6:
                         for bet in st.session_state.user_bets:
                             if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
-                                st.number_input("amount",key=f"bet_amount_{bet}")
-                                st.write(f"Payout : {payout(st.session_state[f'bet_amount_{bet}'],bet.odds)}")
+                                st.code(bet.bet_type)
+                    with c7:
+                        for bet in st.session_state.user_bets:
+                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
+                                st.number_input("amount",key=f"bet_amount_{bet}", label_visibility="collapsed")
+                    with c8:
+                        for bet in st.session_state.user_bets:
+                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
+                                st.code(f"Payout : {round(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),2)}")
                                 
                 with st.container():
-                    c1, c2, c3,c4, c5, c6= st.columns(6, gap="medium")
+                    c1, c2, c3,c4, c5, c6, c7, c8, c9= st.columns(9, gap="medium")
                     with c1:
-                        st.write(f"Away Team: {df2.away_team[counter]}")
+                        st.markdown("*:red[Away Team]*")
                     with c2:
+                        st.markdown(f"{df2.away_team[counter]}")
+                    with c3:
                         st.button(
                             f"{df2.away_ml_odds[counter]}", 
                             key=f"{sportsbook}_{df2.away_team[counter]}_ml_{counter}",
@@ -198,28 +221,31 @@ else:
                             args=(sportsbook,df2.game[counter],df2.away_team[counter],"ML",df2.away_ml_odds[counter], )
                         )
 
-                    with c3:
-                        st.button(
-                            f"{df2.away_spread[counter]}", 
-                            key=f"{sportsbook}_{df2.away_team[counter]}_s_{counter}",
-                            on_click=add_bet, 
-                            args=(sportsbook,df2.game[counter],df2.away_team[counter],"Spread",df2.away_spread[counter], )
-                        )
                     with c4:
                         st.button(
-                            f"U:{df2.away_total[counter]}", 
-                            key=f"{sportsbook}_{df2.away_team[counter]}_t_{counter}",
+                            f"{df2.away_spread[counter]}    {df2.away_spread_odds[counter]}", 
+                            key=f"{sportsbook}_{df2.away_team[counter]}_s_{counter}",
                             on_click=add_bet, 
-                            args=(sportsbook,df2.game[counter],df2.away_team[counter],"Total",df2.away_total[counter], )
+                            args=(sportsbook,df2.game[counter],df2.away_team[counter],"Spread",df2.away_spread_odds[counter], )
                         )
                     with c5:
-                        for bet in st.session_state.user_bets:
-                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
-                                st.write(bet.bet_type)
+                        st.button(
+                            f"U: {df2.away_total[counter]}    {df2.under_odds[counter]}", 
+                            key=f"{sportsbook}_{df2.away_team[counter]}_t_{counter}",
+                            on_click=add_bet, 
+                            args=(sportsbook,df2.game[counter],df2.away_team[counter],"Total",df2.under_odds[counter], )
+                        )
                     with c6:
                         for bet in st.session_state.user_bets:
                             if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
-                                st.number_input("amount",key=f"bet_amount_{bet}")
-                                st.write(f"Payout : {payout(st.session_state[f'bet_amount_{bet}'],bet.odds)}")
+                                st.code(bet.bet_type)
+                    with c7:
+                        for bet in st.session_state.user_bets:
+                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
+                                st.number_input("amount",key=f"bet_amount_{bet}", label_visibility="collapsed")
+                    with c8:
+                        for bet in st.session_state.user_bets:
+                            if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
+                                st.code(f"Payout : {round(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),2)}")
 
     
