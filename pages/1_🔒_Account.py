@@ -75,7 +75,7 @@ def check_registered():
 def register_new_user():
     try:
        contract.functions.createUserAccount(
-          st.session_state.user_account_addr, st.session_state.user_first_name, st.session_state.user_last_name, "place_holder_username", "place_holder_password"
+          st.session_state.user_account_addr, st.session_state.user_first_name, st.session_state.user_last_name
        ).transact(
           {'from': cbet_account_owner_addr, 'gas': 1000000}
        )

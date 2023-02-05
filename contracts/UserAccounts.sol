@@ -4,13 +4,11 @@ pragma solidity ^0.5.0;
 //    - Will be able to dynamically add new users
 
 import "./CbetToken.sol";
+import "./PlaceBets.sol";
 
-contract UserAccounts {
+contract UserAccounts is CbetToken {
     address payable cbetOwnerAddr;      // BlockWager contract owner address
     address payable cbetBettingAddr;    // BlockWage betting account (users must first deposit/withdrawal into this account before betting)
-
-    CbetToken cbetToken;                // CBET Token Contract
-    uint cbetTokenEtherExchRate;        // Exchange rate of ether --> tokens (will = 1 for simplicity)    
 
     // Balance of ETHER and CBET (custom) tokens
     struct Balance {
@@ -23,8 +21,6 @@ contract UserAccounts {
         bool activeAccount;
         string firstName;
         string lastName;
-        string username;
-        string password;
         Balance bettingBalance;
         Balance escrowBalance;
     }
@@ -34,7 +30,7 @@ contract UserAccounts {
 
     mapping(address => UserAccountParams) userAccounts;  // // Mapping between better wallet address and CBET accounts
 
-    uint WEI_FACTOR = 1000000000000000000;
+    uint WEI_FACTOR = 10**18;
 
     modifier onlyOwner {
         require(msg.sender == cbetOwnerAddr, "Only the contracts owner has permissions for this action!");
@@ -42,14 +38,11 @@ contract UserAccounts {
     }
 
     // Construct which sets up the BlockWager contract owner address
-    constructor (address payable _cbetOwnerAddr)
+    constructor (address payable _contractOwnerAddr)
+        CbetToken(msg.sender, 100*WEI_FACTOR)
         public
     {
-        cbetOwnerAddr = _cbetOwnerAddr;
-
-        cbetTokenEtherExchRate = 1;                                   // Default exchange rate = 1 (ToDo: Change to 100)
-        cbetToken = new CbetToken(_cbetOwnerAddr, 100*WEI_FACTOR);    // Create CBET token, initial supply = 100 tokens minted to owner, 
-                                                                      // additional tokens will be minted as users purchase tokens
+        cbetOwnerAddr = _contractOwnerAddr;
         
         // Initialize all house (i.e. total of all user accounts) balances
         houseBettingBalance.eth = 0;                  
@@ -71,8 +64,7 @@ contract UserAccounts {
 
     // Create a new user account
     function createUserAccount(address payable _addr,
-                               string memory _firstName, string memory _lastName,
-                               string memory _username, string memory _password)
+                               string memory _firstName, string memory _lastName)
         public
         onlyOwner
     {
@@ -81,8 +73,6 @@ contract UserAccounts {
         userAccounts[_addr].activeAccount = true;
         userAccounts[_addr].firstName = _firstName;
         userAccounts[_addr].lastName = _lastName;
-        userAccounts[_addr].username = _username;
-        userAccounts[_addr].password = _password;
         userAccounts[_addr].bettingBalance.eth = 0;
         userAccounts[_addr].bettingBalance.token = 0;
         userAccounts[_addr].escrowBalance.eth = 0;
@@ -99,26 +89,6 @@ contract UserAccounts {
         return (userAccounts[_addr].firstName, userAccounts[_addr].lastName);
     }
 
-    // Getter function to get the users username given the wallet address of the user
-    function getUserAccountUsername(address _addr)
-        public
-        view
-        onlyOwner
-        returns(string memory)
-    {
-        return (userAccounts[_addr].username);
-    }
-
-    // Getter function to get the users password given the wallet address of the user
-    function getUserAccountPassword(address _addr)
-        public
-        view
-        onlyOwner
-        returns(string memory)
-    {
-        return (userAccounts[_addr].password);
-    }
-
     // Getter function to check if a user account is active (which can be activated/de-activated dynamically by the BlockWager contract owner)
     function isUserAccountActive(address _addr)
         public
@@ -129,24 +99,6 @@ contract UserAccounts {
         return userAccounts[_addr].activeAccount;
     }
 
-    // Set by the BlockWager account owner to deactivate a users account
-    function setUserAccountInactive(address payable _addr)
-        public
-        onlyOwner
-    {
-        require (userAccounts[_addr].activeAccount == true, "This account is already inactive");
-        userAccounts[_addr].activeAccount = false;
-    }
-
-    // Set by the BlockWager account owner to (re)activate a users account
-    function setUserAccountActive(address payable _addr)
-        public
-        onlyOwner
-    {
-        require (userAccounts[_addr].activeAccount == false, "This account is already active");
-        userAccounts[_addr].activeAccount = true;
-    }
-
     // Allow the user to purchase CBET Tokens
     function purchaseCbetTokens()
         public
@@ -155,7 +107,7 @@ contract UserAccounts {
         require (userAccounts[msg.sender].activeAccount == true, "This account is not active");
 
         // Need to mint the tokens to the users account
-        cbetToken.mint(cbetOwnerAddr, msg.sender, msg.value);
+        mint(cbetOwnerAddr, msg.sender, msg.value);
         cbetOwnerAddr.transfer(msg.value);
     }
 
@@ -167,7 +119,7 @@ contract UserAccounts {
         require (userAccounts[_addr].activeAccount == true, "This account is not active");
 
         // Need to remove the tokens from the open token pool (unmint)
-        cbetToken.unmint(cbetOwnerAddr, _addr, msg.value);
+        unmint(cbetOwnerAddr, _addr, msg.value);
         _addr.transfer(msg.value);
     }
 
@@ -177,7 +129,7 @@ contract UserAccounts {
         view
         returns (uint)
     {
-        return cbetToken.balance(_addr);
+        return balance(_addr);
     }
 
     // Allow the user to deposit ether into the betting account (to be used for betting in the future)
@@ -203,7 +155,7 @@ contract UserAccounts {
 
         userAccounts[_addr].bettingBalance.token += _value;   // Keep local track of the amount of tokens in the betting account
         houseBettingBalance.token += _value;                  // Keep track of the house (total) betting account token balance
-        cbetToken.transferOf(_addr, cbetBettingAddr, _value); // Transfer tokens from the user to the betting account 
+        transferOf(_addr, cbetBettingAddr, _value); // Transfer tokens from the user to the betting account 
     }
 
     // Allow the user to withdraw ether from the betting account
@@ -227,7 +179,7 @@ contract UserAccounts {
 
         userAccounts[recipient].bettingBalance.token -= _value;    // Keep local track of the amount of tokens in the betting account
         houseBettingBalance.token -= _value;                       // Keep track of the house (total) betting account tokens balance
-        cbetToken.transferOf(cbetBettingAddr, recipient, _value);  // Transfer tokens from the betting account to the user account
+        transferOf(cbetBettingAddr, recipient, _value);  // Transfer tokens from the betting account to the user account
     }
 
     // When a game is bet on, need to transfer the ether/tokens to an escrow account (not to be touched until the conlusion of the game)
@@ -291,6 +243,28 @@ contract UserAccounts {
         return (userAccounts[_addr].bettingBalance.eth, userAccounts[_addr].bettingBalance.token);
     }
 
+    // Getter function to get their ether/token balances from the betting account
+    function getBalanceUserBettingEth(address payable _addr)
+        public
+        view
+        returns (uint)
+    {
+        require (userAccounts[_addr].activeAccount == true, "This account is not active");
+
+        return userAccounts[_addr].bettingBalance.eth;
+    }
+
+    // Getter function to get their ether/token balances from the betting account
+    function getBalanceUserBettingCbet(address payable _addr)
+        public
+        view
+        returns (uint)
+    {
+        require (userAccounts[_addr].activeAccount == true, "This account is not active");
+
+        return userAccounts[_addr].bettingBalance.token;
+    }
+
     // Getter function to get their ether/token balances from the escrow account
     function getBalanceUserEscrow(address payable _addr)
         public
@@ -318,6 +292,22 @@ contract UserAccounts {
         returns (uint, uint)
     {
         return (houseEscrowBalance.eth, houseEscrowBalance.token);
+    }
+
+    function CheckBettingFundsForBetting(address payable _addr, uint _betAmount, bool _isEther)
+        internal
+        view
+        onlyOwner
+    {
+        uint userBalanceBetting;
+        if (_isEther)
+        {
+            userBalanceBetting = getBalanceUserBettingEth(_addr);
+        } else
+        {
+            userBalanceBetting = getBalanceUserBettingCbet(_addr);
+        }
+        require (_betAmount >= userBalanceBetting, "Do not have enough funds in betting account for this transaction");
     }
 
     function()
