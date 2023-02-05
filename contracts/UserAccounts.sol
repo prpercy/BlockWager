@@ -294,7 +294,7 @@ contract UserAccounts is CbetToken {
         return (houseEscrowBalance.eth, houseEscrowBalance.token);
     }
 
-    function CheckBettingFundsForBetting(address payable _addr, uint _betAmount, bool _isEther)
+    function CheckBettingFundsAvailability(address payable _addr, uint _betAmount, bool _isEther)
         internal
         view
         onlyOwner
@@ -307,7 +307,7 @@ contract UserAccounts is CbetToken {
         {
             userBalanceBetting = getBalanceUserBettingCbet(_addr);
         }
-        require (_betAmount >= userBalanceBetting, "Do not have enough funds in betting account for this transaction");
+        require (userBalanceBetting >= _betAmount, "Do not have enough funds in betting account for this transaction");
     }
 
     function()
