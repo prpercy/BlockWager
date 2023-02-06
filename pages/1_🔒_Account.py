@@ -8,15 +8,24 @@ import streamlit as st
 from persist import persist, load_widget_state
 
 
-WEI_FACTOR = 10**18
 
-# environment Variables
-load_dotenv("./blockwager.env")
 
 # Layout
 st.set_page_config(page_title='BlockWager | Account', page_icon='🔒', layout='wide')
 st.title('🔒 BlockWager Account')
 
+WEI_FACTOR = 10**18
+
+# environment Variables
+load_dotenv("./blockwager.env")
+
+st.markdown("""
+<style>
+div.stButton > button:first-child {
+    width: 175px;
+    height: 35px;
+}
+</style>""", unsafe_allow_html=True)
 # Style
 with open('style.css')as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html = True)
@@ -63,7 +72,10 @@ cbet_account_betting_addr = accounts[1]
 st.caption(f"House Betting Wallet Address    -> {cbet_account_betting_addr}")
 st.caption(f"House Contract Deployer Address -> {cbet_account_owner_addr}")
 
-
+if 'cbet_account_owner_addr' not in st.session_state:
+    st.session_state['cbet_account_owner_addr'] = cbet_account_owner_addr
+    persist('cbet_account_owner_addr')
+    
 if 'user_account_addr' not in st.session_state:
     st.session_state['user_account_addr'] = ""
     
@@ -76,7 +88,7 @@ def check_registered():
     st.session_state['user_account_addr'] = st.session_state.user_account_address
     persist("user_account_addr")
     if (is_account_active):
-        user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
+        #user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
         contract.functions.setCbetBettingAddr(cbet_account_betting_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
         st.session_state.isRegistered = True
         

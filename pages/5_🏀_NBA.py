@@ -4,6 +4,7 @@ import pandas as pd
 import argparse
 from colorama import Fore, Style
 from Utils.tools import get_json_data, to_data_frame, payout
+from Utils.Dictionaries import team_index_current, sportsbook_index
 from OddsProvider.SbrOddsProvider import SbrOddsProvider
 import os
 import json
@@ -16,6 +17,12 @@ from dotenv import load_dotenv
 # Layout
 st.set_page_config(page_title='NBA Odds and Bets', page_icon=':bar_chart:', layout='wide')
 st.title('🌍 NBA Odds and Bets')
+
+if 'user_account_addr' not in st.session_state:
+    st.session_state['user_account_addr'] = ""
+    
+st.caption(f"ACCOUNT: {st.session_state.user_account_addr} !!!")
+st.caption(f"Cbet account: {st.session_state.cbet_account_owner_addr} !!!")
 
 WEI_FACTOR = 10**18
 
@@ -84,8 +91,13 @@ class Bet:
         self.bet_type = bet_type
         self.odds = odds
         self.amount=0
-    def update_bet(self, amount):
+        self.spread=0
+        self.total=0
+        self.is_over=False
+        self.currency=st.session_state.user_dealing_ccy
+    def update_bet(self, amount,ccy):
         self.amount = amount
+        self.currency = ccy
     
 # Data Sources
 @st.cache(ttl=600)
@@ -108,35 +120,59 @@ def getOdds(sportsbook):
 if 'user_bets' not in st.session_state:
     st.session_state['user_bets'] = []
     
+if 'user_dealing_ccy' not in st.session_state:
+    st.session_state['user_dealing_ccy'] = "ETHER"
+    
 def add_bet(sportsbook, game, team, bet_type, odds):
     if odds != "":
         st.session_state.user_bets.append(Bet(sportsbook, game, team, bet_type, odds))
-
+        
 def place_bets():
     st.sidebar.write("Bets placed:")
+    counter = 1
     for bet in st.session_state.user_bets:
         if f"bet_amount_{bet}" in st.session_state:
-            print(f"you are updating bet with amount {st.session_state[f'bet_amount_{bet}']}")
-            bet.update_bet(st.session_state[f'bet_amount_{bet}'])
-            st.sidebar.write(f"{bet.sportsbook}-{bet.game}-{bet.team}-{bet.bet_type}-{bet.odds}-{bet.amount}")
-            
+            if st.session_state[f'bet_amount_{bet}'] > 0:
+                bet.update_bet(st.session_state[f'bet_amount_{bet}'], st.session_state.user_dealing_ccy)
+                st.sidebar.write(f"{bet.sportsbook}-{bet.game}-{bet.team}-{bet.bet_type}-{bet.odds}-{bet.amount}")
+                if bet.bet_type == 'ML':
+                    contract.functions.createMoneylineBet(counter, sportsbook_index[bet.sportsbook], team_index_current[bet.team], bet.odds, 
+                                    st.session_state.user_account_addr, w3.toWei(bet.amount, "ether"), True
+                    ).transact({'from': st.session_state.cbet_account_owner_addr, 'gas': 1000000})
+                elif bet.bet_type == 'Spread':
+                    contract.functions.createSpreadBet(counter, sportsbook_index[bet.sportsbook], team_index_current[bet.team], bet.odds, bet.spread, 
+                                 st.session_state.user_account_addr, w3.toWei(bet.amount, "ether"), True
+                    ).transact({'from': st.session_state.cbet_account_owner_addr, 'gas': 1000000})
+                elif bet.bet_type == 'Total':
+                    contract.functions.createTotalBet(counter, sportsbook_index[bet.sportsbook], team_index_current[bet.team], bet.odds, bet.is_over, bet.total,
+                                st.session_state.user_account_addr, w3.toWei(bet.amount, "ether"), True
+                    ).transact({'from': st.session_state.cbet_account_owner_addr, 'gas': 1000000})
+                counter = counter + 1
     st.session_state['user_bets'] = []
    
 st.markdown("""
 <style>
 div.stButton > button:first-child {
-    box-shadow:inset 0px 39px 0px -24px #e67a73;
-	background-color:#e4685d;
-	border-radius:4px;
-	border:1px solid #ffffff;
-	display:inline-block;
-	cursor:pointer;
-	color:#ffffff;
-	font-family:Arial;
-	font-size:16px;
-	padding:6px 15px;
-	text-decoration:none;
-	text-shadow:0px 1px 0px #b23e35;
+    background-color: rgba(51, 51, 51, 0.05);
+    border-radius: 8px;
+    border-width: 0;
+    color: #333333;
+    cursor: pointer;
+    display: inline-block;
+    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 20px;
+    list-style: none;
+    margin: 0;
+    padding: 10px 12px;
+    text-align: center;
+    transition: all 200ms;
+    vertical-align: baseline;
+    white-space: nowrap;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: manipulation;
     width: 130px;
     height: 52px;
 }
@@ -174,7 +210,7 @@ else:
 
         counter = 0
         with st.container():
-            c1, c2, c3, c4, c5, c6, c7, c8, c9 = st.columns(9, gap="medium")
+            c1, c2, c3, c4, c5, c6, c7, c8 = st.columns(8, gap="medium")
             with c1:
                 st.write("")
             with c2:
@@ -190,9 +226,9 @@ else:
             with c7:
                 st.button(label='Place bets', key=f"place_bets_{sportsbook}", on_click=place_bets)
             with c8:
-                st.write("")
-            with c9:
-                st.write("")
+                asset_type_lst = ["ETHER", "CBET TOKENS"]
+                asset_type = st.selectbox('Select Asset Type', asset_type_lst, label_visibility="collapsed", key="user_dealing_ccy")
+
 
         for game in game_options:
             df2 = df1[df1['game']==game]
@@ -201,7 +237,7 @@ else:
                 st.write('---')
                 #st.subheader(df2.game[counter])
                 with st.container():
-                    c1, c2, c3,c4, c5, c6, c7, c8, c9 = st.columns(9, gap="medium")
+                    c1, c2, c3,c4, c5, c6, c7, c8 = st.columns(8, gap="medium")
                     with c1:
                         st.markdown("*:black[Home Team]*")
                     with c2:
@@ -239,9 +275,10 @@ else:
                         for bet in st.session_state.user_bets:
                             if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
                                 st.code(f"Payout : {round(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),2)}")
+
                                 
                 with st.container():
-                    c1, c2, c3,c4, c5, c6, c7, c8, c9= st.columns(9, gap="medium")
+                    c1, c2, c3,c4, c5, c6, c7, c8 = st.columns(8, gap="medium")
                     with c1:
                         st.markdown("*:red[Away Team]*")
                     with c2:

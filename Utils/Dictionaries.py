@@ -300,3 +300,13 @@ team_index_nhl = {"Anaheim Ducks": 0,
     
 }
 
+sportsbook_index = {
+    'fanduel': 0,
+    'draftkings': 1,
+    'betmgm': 2,
+    'pointsbet': 3,
+    'caesars': 4,
+    'wynn': 5,
+    'bet_rivers_ny': 6
+}
+
