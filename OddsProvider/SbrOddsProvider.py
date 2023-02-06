@@ -84,7 +84,7 @@ class SbrOddsProvider:
                 totals_value = ""
 
             dict_games[idx] = {
-                'game': home_team_name + '<>' + away_team_name, 
+                'game': home_team_name + '@' + away_team_name, 
                 'home_team': home_team_name, 'home_ml_odds': money_line_home_value, 'home_spread' : spread_home_value, 'home_spread_odds' : spread_home_odds_value, 'home_total':totals_value,'over_odds':over_odds_value,
                 'away_team': away_team_name, 'away_ml_odds': money_line_away_value, 'away_spread' : spread_away_value, 'away_spread_odds' : spread_away_odds_value, 'away_total':totals_value, 'under_odds':under_odds_value
             }
