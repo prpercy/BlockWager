@@ -78,17 +78,9 @@ if st.button("Setup user account"):
    st.write(user_account_addr_2)
    st.write(user_account_addr_3)
 
-   contract.functions.createUserAccount(user_account_addr_1, "FirstName1", "LastName1").transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   contract.functions.createUserAccount(user_account_addr_2, "FirstName2", "LastName2").transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   contract.functions.createUserAccount(user_account_addr_3, "FirstName3", "LastName3").transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   
-   (user_account_first_name_1, user_account_last_name_1) = contract.functions.getUserAccountName(user_account_addr_1).call({'from': cbet_account_owner_addr})
-   (user_account_first_name_2, user_account_last_name_2) = contract.functions.getUserAccountName(user_account_addr_2).call({'from': cbet_account_owner_addr})
-   (user_account_first_name_3, user_account_last_name_3) = contract.functions.getUserAccountName(user_account_addr_3).call({'from': cbet_account_owner_addr})
-
-   st.write(user_account_first_name_1+" "+user_account_last_name_1)
-   st.write(user_account_first_name_2+" "+user_account_last_name_2)
-   st.write(user_account_first_name_3+" "+user_account_last_name_3)
+   contract.functions.createUserAccount(user_account_addr_1).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   contract.functions.createUserAccount(user_account_addr_2).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   contract.functions.createUserAccount(user_account_addr_3).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
 
    st.write("Done")
 
@@ -344,21 +336,23 @@ if st.button("Place Bet #1, Moneyline, 1 Eth"):
    (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
 
    bet_id = 1 
-   sportbook = "FanDuel" 
-   team = "Philadelphia Eagles"
+   sportbook_id = 2 
+   team_id = 3
    odds = -156
    addr = user_address
    bet_amount = (1 * WEI_FACTOR)
    is_ether = True
    
-   contract.functions.createMoneylineBet(bet_id,sportbook,team,odds,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   contract.functions.createMoneylineBet(bet_id,sportbook_id,team_id,odds,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
    
    st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   (sportbook,gameStatus,team,odds) = contract.functions.getBetMoneyLineOdds(bet_id).call({'from': cbet_account_owner_addr})
-   (addr,bet_amount,is_ether) = contract.functions.getBetMoneyLineBet(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook: {sportbook}")
+   sportbook_id = contract.functions.getBetMoneylineSportbook(bet_id).call({'from': cbet_account_owner_addr})
+   gameStatus= contract.functions.getBetMoneylineGameStatus(bet_id).call({'from': cbet_account_owner_addr})
+   (team_id,odds,bet_amount,is_ether) = contract.functions.getBetMoneylineBet(bet_id).call({'from': cbet_account_owner_addr})
+   addr = contract.functions.getBetMoneylineAddress(bet_id).call({'from': cbet_account_owner_addr})
+   st.write(f"sportbook_id: {sportbook_id}")
    st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team: {team}")
+   st.write(f"team_id: {team_id}")
    st.write(f"odds: {odds}")
    st.write(f"addr: {addr}")
    st.write(f"bet_amount: {bet_amount/WEI_FACTOR}")
@@ -392,22 +386,24 @@ if st.button("Place Bet #2, Spread, 1 Eth"):
 
 
    bet_id = 1 
-   sportbook = "FanDuel" 
-   team = "San Fransisco"
+   sportbook_id = 2 
+   team_id = 4
    odds = 100
    spread = int((2.5 * SPREAD_FACTOR))
    addr = user_address
    bet_amount = (1 * WEI_FACTOR)
    is_ether = True
    
-   contract.functions.createSpreadBet(bet_id,sportbook,team,odds,spread,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   contract.functions.createSpreadBet(bet_id,sportbook_id,team_id,odds,spread,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
    
    st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   (sportbook,gameStatus,team,odds,spread) = contract.functions.getBetSpreadOdds(bet_id).call({'from': cbet_account_owner_addr})
-   (addr,bet_amount,is_ether) = contract.functions.getBetSpreadBet(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook: {sportbook}")
+   sportbook_id = contract.functions.getBetSpreadSportbook(bet_id).call({'from': cbet_account_owner_addr})
+   gameStatus= contract.functions.getBetSpreadGameStatus(bet_id).call({'from': cbet_account_owner_addr})   
+   (team_id,odds,spread,bet_amount,is_ether) = contract.functions.getBetSpreadBet(bet_id).call({'from': cbet_account_owner_addr})
+   addr = contract.functions.getBetSpreadAddress(bet_id).call({'from': cbet_account_owner_addr})
+   st.write(f"sportbook_id: {sportbook_id}")
    st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team: {team}")
+   st.write(f"team_id: {team_id}")
    st.write(f"odds: {odds}")
    st.write(f"spread: {spread}")
    st.write(f"addr: {addr}")
@@ -441,8 +437,8 @@ if st.button("Place Bet #3, Total, 1 Eth"):
    (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
  
    bet_id = 1 
-   sportbook = "FanDuel" 
-   team = "San Fransisco"
+   sportbook_id = 2 
+   team_id = 4
    odds = 100
    is_over = True
    total = int(46.5 * TOTAL_FACTOR)
@@ -450,14 +446,16 @@ if st.button("Place Bet #3, Total, 1 Eth"):
    bet_amount = (1 * WEI_FACTOR)
    is_ether = True
    
-   contract.functions.createTotalBet(bet_id,sportbook,team,odds,is_over,total,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   contract.functions.createTotalBet(bet_id,sportbook_id,team_id,odds,is_over,total,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
    
    st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   (sportbook,gameStatus,team,odds,is_over,total) = contract.functions.getBetTotalOdds(bet_id).call({'from': cbet_account_owner_addr})
-   (addr,bet_amount,is_ether) = contract.functions.getBetTotalBet(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook: {sportbook}")
+   sportbook_id = contract.functions.getBetTotalSportbook(bet_id).call({'from': cbet_account_owner_addr})
+   gameStatus= contract.functions.getBetTotalGameStatus(bet_id).call({'from': cbet_account_owner_addr})   
+   (team_id,odds,is_over,total,bet_amount,is_ether) = contract.functions.getBetTotalBet(bet_id).call({'from': cbet_account_owner_addr})
+   addr = contract.functions.getBetTotalAddress(bet_id).call({'from': cbet_account_owner_addr})
+   st.write(f"sportbook_id: {sportbook_id}")
    st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team: {team}")
+   st.write(f"team_id: {team_id}")
    st.write(f"odds: {odds}")
    st.write(f"is_over: {str(is_over)}")
    st.write(f"total: {total}")
@@ -492,21 +490,23 @@ if st.button("Place Bet #4, Moneyline, 1 Cbet"):
    (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
 
    bet_id = 1 
-   sportbook = "FanDuel" 
-   team = "Philadelphia Eagles"
+   sportbook_id = 2 
+   team_id = 3
    odds = -156
    addr = user_address
    bet_amount = (1 * WEI_FACTOR)
    is_ether = False
    
-   contract.functions.createMoneylineBet(bet_id,sportbook,team,odds,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   contract.functions.createMoneylineBet(bet_id,sportbook_id,team_id,odds,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
    
    st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   (sportbook,gameStatus,team,odds) = contract.functions.getBetMoneyLineOdds(bet_id).call({'from': cbet_account_owner_addr})
-   (addr,bet_amount,is_ether) = contract.functions.getBetMoneyLineBet(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook: {sportbook}")
+   sportbook_id = contract.functions.getBetMoneylineSportbook(bet_id).call({'from': cbet_account_owner_addr})
+   gameStatus= contract.functions.getBetMoneylineGameStatus(bet_id).call({'from': cbet_account_owner_addr})
+   (team_id,odds,bet_amount,is_ether) = contract.functions.getBetMoneylineBet(bet_id).call({'from': cbet_account_owner_addr})
+   addr = contract.functions.getBetMoneylineAddress(bet_id).call({'from': cbet_account_owner_addr})
+   st.write(f"sportbook_id: {sportbook_id}")
    st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team: {team}")
+   st.write(f"team_id: {team_id}")
    st.write(f"odds: {odds}")
    st.write(f"addr: {addr}")
    st.write(f"bet_amount: {bet_amount/WEI_FACTOR}")
@@ -540,22 +540,24 @@ if st.button("Place Bet #5, Spread, 1 Cbet"):
 
 
    bet_id = 1 
-   sportbook = "FanDuel" 
-   team = "San Fransisco"
+   sportbook_id = 2 
+   team_id = 4
    odds = 100
    spread = int((2.5 * SPREAD_FACTOR))
    addr = user_address
    bet_amount = (1 * WEI_FACTOR)
    is_ether = False
    
-   contract.functions.createSpreadBet(bet_id,sportbook,team,odds,spread,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   contract.functions.createSpreadBet(bet_id,sportbook_id,team_id,odds,spread,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
    
    st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   (sportbook,gameStatus,team,odds,spread) = contract.functions.getBetSpreadOdds(bet_id).call({'from': cbet_account_owner_addr})
-   (addr,bet_amount,is_ether) = contract.functions.getBetSpreadBet(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook: {sportbook}")
+   sportbook_id = contract.functions.getBetSpreadSportbook(bet_id).call({'from': cbet_account_owner_addr})
+   gameStatus= contract.functions.getBetSpreadGameStatus(bet_id).call({'from': cbet_account_owner_addr})   
+   (team_id,odds,spread,bet_amount,is_ether) = contract.functions.getBetSpreadBet(bet_id).call({'from': cbet_account_owner_addr})
+   addr = contract.functions.getBetSpreadAddress(bet_id).call({'from': cbet_account_owner_addr})
+   st.write(f"sportbook_id: {sportbook_id}")
    st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team: {team}")
+   st.write(f"team_id: {team_id}")
    st.write(f"odds: {odds}")
    st.write(f"spread: {spread}")
    st.write(f"addr: {addr}")
@@ -589,8 +591,8 @@ if st.button("Place Bet #6, Total, 1 Cbet"):
    (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
  
    bet_id = 1 
-   sportbook = "FanDuel" 
-   team = "San Fransisco"
+   sportbook_id = 2 
+   team_id = 4
    odds = 100
    is_over = True
    total = int(46.5 * TOTAL_FACTOR)
@@ -598,14 +600,16 @@ if st.button("Place Bet #6, Total, 1 Cbet"):
    bet_amount = (1 * WEI_FACTOR)
    is_ether = False
    
-   contract.functions.createTotalBet(bet_id,sportbook,team,odds,is_over,total,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   contract.functions.createTotalBet(bet_id,sportbook_id,team_id,odds,is_over,total,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
    
    st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   (sportbook,gameStatus,team,odds,is_over,total) = contract.functions.getBetTotalOdds(bet_id).call({'from': cbet_account_owner_addr})
-   (addr,bet_amount,is_ether) = contract.functions.getBetTotalBet(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook: {sportbook}")
+   sportbook_id = contract.functions.getBetTotalSportbook(bet_id).call({'from': cbet_account_owner_addr})
+   gameStatus= contract.functions.getBetTotalGameStatus(bet_id).call({'from': cbet_account_owner_addr})   
+   (team_id,odds,is_over,total,bet_amount,is_ether) = contract.functions.getBetTotalBet(bet_id).call({'from': cbet_account_owner_addr})
+   addr = contract.functions.getBetTotalAddress(bet_id).call({'from': cbet_account_owner_addr})
+   st.write(f"sportbook_id: {sportbook_id}")
    st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team: {team}")
+   st.write(f"team_id: {team_id}")
    st.write(f"odds: {odds}")
    st.write(f"is_over: {str(is_over)}")
    st.write(f"total: {total}")
@@ -629,7 +633,68 @@ if st.button("Place Bet #6, Total, 1 Cbet"):
    st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
 
    st.write("Done")
-         
+
+if st.button("Place Bet & Tie, Total, 1 Cbet"):
+   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
+   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
+   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
+   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
+   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
+   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
+   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+ 
+   bet_id = 10 
+   sportbook_id = 1 
+   team_id = 10
+   odds = 100
+   is_over = True
+   total = int(50 * TOTAL_FACTOR)
+   addr = user_address
+   bet_amount = (1 * WEI_FACTOR)
+   is_ether = True
+   
+   contract.functions.createTotalBet(bet_id,sportbook_id,team_id,odds,is_over,total,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+      
+   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
+   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
+   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
+   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
+   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
+   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
+   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+
+   st.write("Before Bet")
+   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
+   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
+   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
+   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
+   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
+   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
+
+   bet_id = 10 
+   winningTeamId = 10
+   winningScore = int(25 * TOTAL_FACTOR)
+   losingScore = int(25 * TOTAL_FACTOR)
+   
+   contract.functions.gameEvent(bet_id, winningTeamId, winningScore, losingScore).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+      
+   st.write("After Bet")
+   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
+   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
+   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
+   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
+   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
+   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
+   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+
+   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
+   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
+   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
+   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
+   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
+   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
+ 
+                
 st.write("---")
       
 # ToDo:

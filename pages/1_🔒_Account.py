@@ -8,15 +8,24 @@ import streamlit as st
 from persist import persist, load_widget_state
 
 
-WEI_FACTOR = 10**18
 
-# environment Variables
-load_dotenv("./blockwager.env")
 
 # Layout
 st.set_page_config(page_title='BlockWager | Account', page_icon='🔒', layout='wide')
 st.title('🔒 BlockWager Account')
 
+WEI_FACTOR = 10**18
+
+# environment Variables
+load_dotenv("./blockwager.env")
+
+st.markdown("""
+<style>
+div.stButton > button:first-child {
+    width: 175px;
+    height: 35px;
+}
+</style>""", unsafe_allow_html=True)
 # Style
 with open('style.css')as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html = True)
@@ -60,13 +69,15 @@ accounts = w3.eth.accounts
 st.markdown("---")
 cbet_account_owner_addr = accounts[0]
 cbet_account_betting_addr = accounts[1]
-st.write(f"Betting address -> {cbet_account_betting_addr}")
-st.write(f"cbet_account_owner_addr address -> {cbet_account_owner_addr}")
+st.caption(f"House Betting Wallet Address    -> {cbet_account_betting_addr}")
+st.caption(f"House Contract Deployer Address -> {cbet_account_owner_addr}")
 
-
+if 'cbet_account_owner_addr' not in st.session_state:
+    st.session_state['cbet_account_owner_addr'] = cbet_account_owner_addr
+    persist('cbet_account_owner_addr')
+    
 if 'user_account_addr' not in st.session_state:
     st.session_state['user_account_addr'] = ""
-    persist("user_account_addr")
     
 if 'isRegistered' not in st.session_state:
     st.session_state['isRegistered'] = False
@@ -74,28 +85,26 @@ if 'isRegistered' not in st.session_state:
 def check_registered():
     st.session_state.is_first_time = True
     is_account_active = contract.functions.isUserAccountActive(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
+    st.session_state['user_account_addr'] = st.session_state.user_account_address
+    persist("user_account_addr")
     if (is_account_active):
-        user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
+        #user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
         contract.functions.setCbetBettingAddr(cbet_account_betting_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
         st.session_state.isRegistered = True
-        st.session_state['user_account_addr'] = st.session_state.user_account_address
-        persist("user_account_addr")
+        
     else:
+        print('user is not active')
         st.session_state.isRegistered = False
         
 def register_new_user():
     try:
-       contract.functions.createUserAccount(
-          st.session_state.user_account_address, st.session_state.user_first_name, st.session_state.user_last_name
-       ).transact(
-          {'from': cbet_account_owner_addr, 'gas': 1000000}
-       )
+        contract.functions.createUserAccount(st.session_state.user_account_address).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
     except Exception as ex:
-           st.write(ex.args)
-    user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
+        st.write(ex.args)
+    #user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
     contract.functions.setCbetBettingAddr(cbet_account_betting_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
     st.session_state.isRegistered = True
-    st.write(f"{user_account_first_name} {user_account_last_name} has been successfully registered!")
+    st.write(f"{st.session_state.user_account_address} has been successfully registered!")
     st.session_state['user_account_addr'] = st.session_state.user_account_address
     persist("user_account_addr")
 
@@ -113,33 +122,35 @@ def get_balances_pre_action():
     
 
 with st.form(key='check_registration_form'):
-    st.text_input("Wallet public address:", key="user_account_address")
+    st.text_input("Wallet public address:", key="user_account_address", value=st.session_state.user_account_addr)
     submit = st.form_submit_button(label='Login to BlockWager', on_click=check_registered)
 
 if (st.session_state.isRegistered != True) and (st.session_state.user_account_addr !=""):
     st.write("This address is not registered with BlockWager. Please register it!")
     st.subheader("New User Registration")
     with st.form(key='registration_form'):
-        st.text_input("First Name:", key="user_first_name")
-        st.text_input("Last Name:", key="user_last_name")
+        #st.text_input("First Name:", key="user_first_name")
+        #st.text_input("Last Name:", key="user_last_name")
+        st.caption(f"Registere user {st.session_state.user_account_addr}")
         submit2 = st.form_submit_button(label='Register new user', on_click=register_new_user)
 
 if st.session_state.user_account_addr and st.session_state.isRegistered:
-    user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
+    #user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
+    get_balances_pre_action()
     st.write("---")
     c1, c2 = st.columns(2, gap="large")
     with c1:
-        st.subheader(f"ACCOUNT: {user_account_first_name} {user_account_last_name}!!!")
+        st.subheader(f"ACCOUNT: {st.session_state.user_account_addr} !!!")
         st.write("---")
         st.subheader("PURCHASE/SELL CBET TOKENS:")
+        
         amount_token_purchase = st.number_input("Purchase Tokens")
         if st.button("Purchase"):
-           get_balances_pre_action()
-           contract.functions.purchaseCbetTokens().transact({'from': st.session_state.user_account_addr, "value": w3.toWei(amount_token_purchase, "ether"), 'gas': 1000000})
+            contract.functions.purchaseCbetTokens().transact({'from': st.session_state.user_account_addr, "value": w3.toWei(amount_token_purchase, "ether"), 'gas': 1000000})
+            
         amount_token_sell = st.number_input("Sell Tokens")
         if st.button("Sell"):
-           get_balances_pre_action()
-           contract.functions.sellCbetTokens(st.session_state.user_account_addr).transact({'from': cbet_account_owner_addr, "value": w3.toWei(amount_token_sell, "ether"), 'gas': 1000000})
+            contract.functions.sellCbetTokens(st.session_state.user_account_addr).transact({'from': cbet_account_owner_addr, "value": w3.toWei(amount_token_sell, "ether"), 'gas': 1000000})
 
         st.write("---")
         st.subheader("ASSET SELECTION:")
@@ -149,31 +160,31 @@ if st.session_state.user_account_addr and st.session_state.isRegistered:
 
         st.write("---")
         st.subheader(f"DEPOSIT/WITHDRAW {asset_type} INTO BLOCKWAGER BETTING ACCOUNT:")
+        
         amount_deposit_into_betting_account = st.number_input(f"Deposit {asset_type} into Betting Account")
         if st.button("Deposit"):
-           get_balances_pre_action()
-           if (is_ether):
-              contract.functions.depositIntoBettingEther().transact({'from': st.session_state.user_account_addr, "value": w3.toWei(amount_deposit_into_betting_account, "ether"), 'gas': 1000000})
-           else:
-              contract.functions.depositIntoBettingToken(st.session_state.user_account_addr, w3.toWei(amount_deposit_into_betting_account, "ether")).transact({'from': st.session_state.user_account_addr, 'gas': 1000000})
+            if (is_ether):
+                contract.functions.depositIntoBettingEther().transact({'from': st.session_state.user_account_addr, "value": w3.toWei(amount_deposit_into_betting_account, "ether"), 'gas': 1000000})
+            else:
+                contract.functions.depositIntoBettingToken(st.session_state.user_account_addr, w3.toWei(amount_deposit_into_betting_account, "ether")).transact({'from': st.session_state.user_account_addr, 'gas': 1000000})
+        
         amount_deposit_into_betting_account = st.number_input(f"Withdrawal {asset_type} from Betting Account")
         if st.button("Withdrawal"):
-           get_balances_pre_action()
-           if (is_ether):
-              contract.functions.withdrawFromBettingEther(st.session_state.user_account_addr).transact({'from': cbet_account_betting_addr, "value": w3.toWei(amount_deposit_into_betting_account, "ether"), 'gas': 1000000})
-           else:
-              contract.functions.withdrawFromBettingToken(st.session_state.user_account_addr, w3.toWei(amount_deposit_into_betting_account, "ether")).transact({'from': cbet_account_betting_addr, 'gas': 1000000})
+            if (is_ether):
+                contract.functions.withdrawFromBettingEther(st.session_state.user_account_addr).transact({'from': cbet_account_betting_addr, "value": w3.toWei(amount_deposit_into_betting_account, "ether"), 'gas': 1000000})
+            else:
+                contract.functions.withdrawFromBettingToken(st.session_state.user_account_addr, w3.toWei(amount_deposit_into_betting_account, "ether")).transact({'from': cbet_account_betting_addr, 'gas': 1000000})
 
         st.write("---")
         st.subheader(f"TRANSFER {asset_type} TO/FROM BETTING/ESCROW ACCOUNT  (*** TEST ONLY, MOVE TO GAME BETTING PAGE WHEN READY ***):")
+        
         amount_transfer_to_escrow = st.number_input(f"Transfer {asset_type} into Escrow Account")
         if st.button("Transfer to Escrow"):
-           get_balances_pre_action()
-           contract.functions.transferBettingToEscrow(st.session_state.user_account_addr, w3.toWei(amount_transfer_to_escrow, "ether"), is_ether).transact({'from': st.session_state.user_account_addr, 'gas': 1000000})
+            contract.functions.transferBettingToEscrow(st.session_state.user_account_addr, w3.toWei(amount_transfer_to_escrow, "ether"), is_ether).transact({'from': st.session_state.user_account_addr, 'gas': 1000000})
+        
         amount_transfer_from_escrow = st.number_input(f"Transfer {asset_type} from Escrow Account")
         if st.button("Transfer from Escrow"):
-           get_balances_pre_action()
-           contract.functions.transferEscrowToBetting(st.session_state.user_account_addr, w3.toWei(amount_transfer_from_escrow, "ether"), is_ether).transact({'from': st.session_state.user_account_addr, 'gas': 1000000})
+            contract.functions.transferEscrowToBetting(st.session_state.user_account_addr, w3.toWei(amount_transfer_from_escrow, "ether"), is_ether).transact({'from': st.session_state.user_account_addr, 'gas': 1000000})
 
         st.write("---")
     with c2:

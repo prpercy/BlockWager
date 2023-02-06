@@ -22,27 +22,23 @@
 		"inputs": [
 			{
 				"name": "_betId",
-				"type": "uint256"
+				"type": "uint32"
 			},
 			{
-				"name": "_sportbook",
-				"type": "string"
+				"name": "_sportbookId",
+				"type": "uint8"
 			},
 			{
-				"name": "_team",
-				"type": "string"
+				"name": "_teamId",
+				"type": "uint16"
 			},
 			{
 				"name": "_odds",
-				"type": "int256"
+				"type": "int16"
 			},
 			{
-				"name": "_isOver",
-				"type": "bool"
-			},
-			{
-				"name": "_total",
-				"type": "uint256"
+				"name": "_spread",
+				"type": "int16"
 			},
 			{
 				"name": "_addr",
@@ -57,7 +53,7 @@
 				"type": "bool"
 			}
 		],
-		"name": "createTotalBet",
+		"name": "createSpreadBet",
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
@@ -82,49 +78,14 @@
 		"inputs": [
 			{
 				"name": "_betId",
-				"type": "uint256"
+				"type": "uint32"
 			}
 		],
-		"name": "getBetMoneyLineBet",
+		"name": "getBetMoneylineSportbook",
 		"outputs": [
 			{
 				"name": "",
-				"type": "address"
-			},
-			{
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_betId",
-				"type": "uint256"
-			}
-		],
-		"name": "getBetSpreadBet",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			},
-			{
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"name": "",
-				"type": "bool"
+				"type": "uint8"
 			}
 		],
 		"payable": false,
@@ -158,38 +119,65 @@
 		"inputs": [
 			{
 				"name": "_betId",
-				"type": "uint256"
+				"type": "uint32"
 			}
 		],
-		"name": "getBetTotalOdds",
+		"name": "getBetMoneylineBet",
 		"outputs": [
 			{
 				"name": "",
-				"type": "string"
+				"type": "uint16"
 			},
 			{
 				"name": "",
-				"type": "string"
+				"type": "int16"
 			},
 			{
 				"name": "",
-				"type": "string"
-			},
-			{
-				"name": "",
-				"type": "int256"
+				"type": "uint256"
 			},
 			{
 				"name": "",
 				"type": "bool"
-			},
-			{
-				"name": "",
-				"type": "uint256"
 			}
 		],
 		"payable": false,
 		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			},
+			{
+				"name": "_winningTeamId",
+				"type": "uint16"
+			},
+			{
+				"name": "_winningScore",
+				"type": "uint16"
+			},
+			{
+				"name": "_losingScore",
+				"type": "uint16"
+			}
+		],
+		"name": "gameEvent",
+		"outputs": [
+			{
+				"name": "",
+				"type": "int8"
+			},
+			{
+				"name": "",
+				"type": "int256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -221,45 +209,41 @@
 		"type": "function"
 	},
 	{
-		"constant": false,
+		"constant": true,
 		"inputs": [
 			{
 				"name": "_betId",
-				"type": "uint256"
-			},
-			{
-				"name": "_sportbook",
-				"type": "string"
-			},
-			{
-				"name": "_team",
-				"type": "string"
-			},
-			{
-				"name": "_odds",
-				"type": "int256"
-			},
-			{
-				"name": "_spread",
-				"type": "int256"
-			},
-			{
-				"name": "_addr",
-				"type": "address"
-			},
-			{
-				"name": "_betAmount",
-				"type": "uint256"
-			},
-			{
-				"name": "_isEther",
-				"type": "bool"
+				"type": "uint32"
 			}
 		],
-		"name": "createSpreadBet",
-		"outputs": [],
+		"name": "getBetSpreadGameStatus",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
 		"payable": false,
-		"stateMutability": "nonpayable",
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			}
+		],
+		"name": "getBetType",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -281,6 +265,25 @@
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			}
+		],
+		"name": "getBetTotalGameStatus",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [
 			{
@@ -298,18 +301,23 @@
 		],
 		"name": "transferBettingToEscrow",
 		"outputs": [],
-		"payable": true,
-		"stateMutability": "payable",
+		"payable": false,
+		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
 		"constant": true,
-		"inputs": [],
-		"name": "exchangeRate",
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			}
+		],
+		"name": "getBetMoneylineAddress",
 		"outputs": [
 			{
 				"name": "",
-				"type": "uint256"
+				"type": "address"
 			}
 		],
 		"payable": false,
@@ -341,6 +349,41 @@
 	},
 	{
 		"constant": true,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			}
+		],
+		"name": "getBetSpreadBet",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint16"
+			},
+			{
+				"name": "",
+				"type": "int16"
+			},
+			{
+				"name": "",
+				"type": "int16"
+			},
+			{
+				"name": "",
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "bool"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
 		"inputs": [],
 		"name": "getBalanceHouseEscrow",
 		"outputs": [
@@ -362,30 +405,53 @@
 		"inputs": [
 			{
 				"name": "_betId",
-				"type": "uint256"
+				"type": "uint32"
 			}
 		],
-		"name": "getBetSpreadOdds",
+		"name": "getBetSpreadSportbook",
 		"outputs": [
 			{
 				"name": "",
-				"type": "string"
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			}
+		],
+		"name": "getBetTotalBet",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint16"
 			},
 			{
 				"name": "",
-				"type": "string"
+				"type": "int16"
 			},
 			{
 				"name": "",
-				"type": "string"
+				"type": "bool"
 			},
 			{
 				"name": "",
-				"type": "int256"
+				"type": "uint16"
 			},
 			{
 				"name": "",
-				"type": "int256"
+				"type": "uint256"
+			},
+			{
+				"name": "",
+				"type": "bool"
 			}
 		],
 		"payable": false,
@@ -399,33 +465,6 @@
 		"outputs": [],
 		"payable": true,
 		"stateMutability": "payable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_betId",
-				"type": "uint256"
-			}
-		],
-		"name": "getBetTotalBet",
-		"outputs": [
-			{
-				"name": "",
-				"type": "address"
-			},
-			{
-				"name": "",
-				"type": "uint256"
-			},
-			{
-				"name": "",
-				"type": "bool"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -454,128 +493,6 @@
 		"constant": true,
 		"inputs": [
 			{
-				"name": "_sender",
-				"type": "address"
-			}
-		],
-		"name": "getTotalSupply",
-		"outputs": [
-			{
-				"name": "",
-				"type": "uint256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_addr",
-				"type": "address"
-			}
-		],
-		"name": "getUserAccountName",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			},
-			{
-				"name": "",
-				"type": "string"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_betId",
-				"type": "uint256"
-			},
-			{
-				"name": "_sportbook",
-				"type": "string"
-			},
-			{
-				"name": "_team",
-				"type": "string"
-			},
-			{
-				"name": "_odds",
-				"type": "int256"
-			},
-			{
-				"name": "_spread",
-				"type": "int256"
-			},
-			{
-				"name": "_addr",
-				"type": "address"
-			},
-			{
-				"name": "_betAmount",
-				"type": "uint256"
-			},
-			{
-				"name": "_isEther",
-				"type": "bool"
-			}
-		],
-		"name": "createSpreadBetInternal",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_betId",
-				"type": "uint256"
-			},
-			{
-				"name": "_sportbook",
-				"type": "string"
-			},
-			{
-				"name": "_team",
-				"type": "string"
-			},
-			{
-				"name": "_odds",
-				"type": "int256"
-			},
-			{
-				"name": "_addr",
-				"type": "address"
-			},
-			{
-				"name": "_betAmount",
-				"type": "uint256"
-			},
-			{
-				"name": "_isEther",
-				"type": "bool"
-			}
-		],
-		"name": "createMoneylineBetInternal",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
 				"name": "_addr",
 				"type": "address"
 			}
@@ -589,28 +506,6 @@
 		],
 		"payable": false,
 		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_addr",
-				"type": "address"
-			},
-			{
-				"name": "_firstName",
-				"type": "string"
-			},
-			{
-				"name": "_lastName",
-				"type": "string"
-			}
-		],
-		"name": "createUserAccount",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
 		"type": "function"
 	},
 	{
@@ -654,10 +549,43 @@
 				"type": "address"
 			}
 		],
+		"name": "createUserAccount",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_addr",
+				"type": "address"
+			}
+		],
 		"name": "sellCbetTokens",
 		"outputs": [],
 		"payable": true,
 		"stateMutability": "payable",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			}
+		],
+		"name": "getBetTotalSportbook",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
 		"type": "function"
 	},
 	{
@@ -688,84 +616,19 @@
 		"inputs": [
 			{
 				"name": "_betId",
-				"type": "uint256"
+				"type": "uint32"
 			},
 			{
-				"name": "_sportbook",
-				"type": "string"
+				"name": "_sportbookId",
+				"type": "uint8"
 			},
 			{
-				"name": "_team",
-				"type": "string"
-			},
-			{
-				"name": "_odds",
-				"type": "int256"
-			},
-			{
-				"name": "_isOver",
-				"type": "bool"
-			},
-			{
-				"name": "_total",
-				"type": "uint256"
-			},
-			{
-				"name": "_addr",
-				"type": "address"
-			},
-			{
-				"name": "_betAmount",
-				"type": "uint256"
-			},
-			{
-				"name": "_isEther",
-				"type": "bool"
-			}
-		],
-		"name": "createTotalBetInternal",
-		"outputs": [],
-		"payable": false,
-		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_betId",
-				"type": "uint256"
-			}
-		],
-		"name": "getBetType",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
-		"type": "function"
-	},
-	{
-		"constant": false,
-		"inputs": [
-			{
-				"name": "_betId",
-				"type": "uint256"
-			},
-			{
-				"name": "_sportbook",
-				"type": "string"
-			},
-			{
-				"name": "_team",
-				"type": "string"
+				"name": "_teamId",
+				"type": "uint16"
 			},
 			{
 				"name": "_odds",
-				"type": "int256"
+				"type": "int16"
 			},
 			{
 				"name": "_addr",
@@ -827,6 +690,52 @@
 		"type": "function"
 	},
 	{
+		"constant": false,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			},
+			{
+				"name": "_sportbookId",
+				"type": "uint8"
+			},
+			{
+				"name": "_teamId",
+				"type": "uint16"
+			},
+			{
+				"name": "_odds",
+				"type": "int16"
+			},
+			{
+				"name": "_isOver",
+				"type": "bool"
+			},
+			{
+				"name": "_total",
+				"type": "uint16"
+			},
+			{
+				"name": "_addr",
+				"type": "address"
+			},
+			{
+				"name": "_betAmount",
+				"type": "uint256"
+			},
+			{
+				"name": "_isEther",
+				"type": "bool"
+			}
+		],
+		"name": "createTotalBet",
+		"outputs": [],
+		"payable": false,
+		"stateMutability": "nonpayable",
+		"type": "function"
+	},
+	{
 		"constant": true,
 		"inputs": [
 			{
@@ -839,6 +748,25 @@
 			{
 				"name": "",
 				"type": "uint256"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			}
+		],
+		"name": "getBetMoneylineGameStatus",
+		"outputs": [
+			{
+				"name": "",
+				"type": "uint8"
 			}
 		],
 		"payable": false,
@@ -879,6 +807,44 @@
 		"type": "function"
 	},
 	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			}
+		],
+		"name": "getBetTotalAddress",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
+		"constant": true,
+		"inputs": [
+			{
+				"name": "_betId",
+				"type": "uint32"
+			}
+		],
+		"name": "getBetSpreadAddress",
+		"outputs": [
+			{
+				"name": "",
+				"type": "address"
+			}
+		],
+		"payable": false,
+		"stateMutability": "view",
+		"type": "function"
+	},
+	{
 		"constant": false,
 		"inputs": [
 			{
@@ -912,37 +878,6 @@
 		"outputs": [],
 		"payable": false,
 		"stateMutability": "nonpayable",
-		"type": "function"
-	},
-	{
-		"constant": true,
-		"inputs": [
-			{
-				"name": "_betId",
-				"type": "uint256"
-			}
-		],
-		"name": "getBetMoneyLineOdds",
-		"outputs": [
-			{
-				"name": "",
-				"type": "string"
-			},
-			{
-				"name": "",
-				"type": "string"
-			},
-			{
-				"name": "",
-				"type": "string"
-			},
-			{
-				"name": "",
-				"type": "int256"
-			}
-		],
-		"payable": false,
-		"stateMutability": "view",
 		"type": "function"
 	},
 	{
