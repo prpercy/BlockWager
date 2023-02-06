@@ -1,18 +1,52 @@
 # Libraries
 import streamlit as st
 import pandas as pd
-import plotly.express as px
-import plotly.graph_objects as go
-import plotly.subplots as sp
 import argparse
 from colorama import Fore, Style
-from Utils.Dictionaries import team_index_current
-from Utils.tools import create_todays_games_from_odds, get_json_data, to_data_frame, get_todays_games_json, create_todays_games,payout
+from Utils.tools import get_json_data, to_data_frame, payout
 from OddsProvider.SbrOddsProvider import SbrOddsProvider
+import os
+import json
+from web3 import Web3
+from pathlib import Path
+from dotenv import load_dotenv
+
+
 
 # Layout
 st.set_page_config(page_title='NBA Odds and Bets', page_icon=':bar_chart:', layout='wide')
 st.title('🌍 NBA Odds and Bets')
+
+WEI_FACTOR = 10**18
+
+# environment Variables
+load_dotenv("./blockwager.env")
+
+# Define and connect a new Web3 provider
+w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
+
+################################################################################
+# Contract Helper function:
+################################################################################
+
+@st.cache(allow_output_mutation=True)
+def load_contract():
+
+    # Load the contract ABI
+    with open(Path('./contracts/compiled/cbet_abi.json')) as f:
+        artwork_abi = json.load(f)
+
+    contract_address = os.getenv("SMART_CONTRACT_ADDRESS")
+    
+    # Load the contract
+    contract = w3.eth.contract(
+        address=contract_address,
+        abi=artwork_abi
+    )
+
+    return contract
+
+contract = load_contract()
 
 todays_games_url = 'https://data.nba.com/data/10s/v2015/json/mobile_teams/nba/2022/scores/00_todays_scores.json'
 todays_games_url_nhl = ''
@@ -24,8 +58,6 @@ data_url = 'https://stats.nba.com/stats/leaguedashteamstats?' \
            'PlayerExperience=&PlayerPosition=&PlusMinus=N&Rank=N&' \
            'Season=2022-23&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&' \
            'StarterBench=&TeamID=0&TwoWay=0&VsConference=&VsDivision='
-
-
 
 
 # Style
@@ -87,6 +119,7 @@ def place_bets():
             print(f"you are updating bet with amount {st.session_state[f'bet_amount_{bet}']}")
             bet.update_bet(st.session_state[f'bet_amount_{bet}'])
             st.sidebar.write(f"{bet.sportsbook}-{bet.game}-{bet.team}-{bet.bet_type}-{bet.odds}-{bet.amount}")
+            
     st.session_state['user_bets'] = []
    
 st.markdown("""
