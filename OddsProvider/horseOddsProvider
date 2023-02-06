@@ -1,18 +1,21 @@
-
+from bs4 import BeautifulSoup
 import json 
 import requests 
 import re 
 
 
 def scrapeHorseOddsWebsite(): 
-  url =  'https://www.usracing.com/odds'
-  r = requests.get(url)
-  j = re.findall('<script "type"=application/ld+json>',r.text)
-  if len(j) > 0:
-        odds_nested = json.loads(j)[0]['trackID']['isCancelled']['Race']
-
-        print(odds_nested)
-        
+  url = 'https://www.oddschecker.com/horse-racing'
+  page = requests.get(url)
+  soup = BeautifulSoup(page.content, 'html.parser')
+  # Find all the odds on the page
+  odds_list = soup.find_all('div', class_='odds-wrap')
+  for odds in odds_list:
+      # Get the horse name
+      horse_name = odds.find('span', class_='selection-name').text
+      # Get the horse odds
+      horse_odds = odds.find('span', class_='best-price').text
+      # Print out the results
+      print(f'{horse_name}: {horse_odds}')
+      
     
-
-scrapeHorseOddsWebsite()

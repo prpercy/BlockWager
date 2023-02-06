@@ -219,7 +219,16 @@ contract BettingGames {
     {
         return (bettingGames[_gameId].isOver, bettingGames[_gameId].overUnder);
     }
-
+    
+    //adding these two functions here for now b/c that is where they seem to be best fit;
+    //  this to test SettleBEts
+    function GetGame (uint, _gameId) public view returns (uint) 
+    {
+    return[_gameId]
+    }
+    function GamesOutcome(uint, _gameId) {
+        //Unsure how to implement this just yet..
+    }
 }
 
 
