@@ -14,7 +14,7 @@ function _transfertoHouse() private {
 }
 function _isWinningBet(BettingGames.GameOutcome _outcome, uint8, _chosenWinner, int8 _actualWinner) 
 private pure returns(bool) {
-    return _outcome == BettingGames.MatchOutcome.Decided && _chosenWinner >= 0 
+    return _outcome == BettingGames.GameOutcome.Decided && _chosenWinner >= 0 
     && (_chosenWinner ==uint8(_actualWinner)) 
 }
 _calculatePayout() {}
