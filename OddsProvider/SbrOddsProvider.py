@@ -94,7 +94,7 @@ class SbrOddsProvider:
     
     
    
-##currently unimplemented function that attempts to do same thing as NBA Odds, but for the super bowl 
+##currently unimplemented function that attempts to do same thing for NHL 
     def get_odds_nhl(self):
         dict_res_nhl = {}
         for game in self.games_nfl:
