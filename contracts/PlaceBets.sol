@@ -268,7 +268,7 @@ contract PlaceBets {
         uint16 teamId;
         int16 odds;
 
-        (team,odds,betAmount,isEther) = getBetMoneylineBet(_betId);
+        (teamId,odds,betAmount,isEther) = getBetMoneylineBet(_betId);
 
         if (teamId != _winningTeamId)
         {
@@ -311,14 +311,14 @@ contract PlaceBets {
         int16 spread;
         (teamId,odds,spread,betAmount,isEther) = getBetSpreadBet(_betId);
 
-        uint16 winningScoreWithSpread = int(_winningScore) + spread;
+        uint16 winningScoreWithSpread = uint16(int16(_winningScore) + spread);
 
-        if ((teamId != _winningTeamId) || (winningScoreWithSpread < int16(_losingScore)))
+        if ((teamId != _winningTeamId) || (winningScoreWithSpread < uint16(_losingScore)))
         {
             isWin = false;
             winnings = 0;
         }
-        else if (winningScoreWithSpread == int16(_losingScore))
+        else if (winningScoreWithSpread == uint16(_losingScore))
         {
             isWin = true;
             winnings = 0;

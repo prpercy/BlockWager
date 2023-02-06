@@ -171,7 +171,6 @@ contract UserAccounts is CbetToken {
     // When a game is bet on, need to transfer the ether/tokens to an escrow account (not to be touched until the conlusion of the game)
     function transferBettingToEscrow(address payable _addr, uint _value, bool _isEther)
         public
-        payable
     {
         require (userAccounts[_addr].activeAccount == true, "This account is not active");
 
@@ -217,6 +216,30 @@ contract UserAccounts is CbetToken {
             houseEscrowBalance.token -= _value;
         }
     }
+
+/*
+    function transferEscrowToUser(address payable _addr, uint _value, bool _isEther)
+        public
+        payable
+    {
+        require (userAccounts[_addr].activeAccount == true, "This account is not active");
+
+        // Check if betting with ether or tokens...
+        if (_isEther)
+        {
+            // Transfer ether from escrow account back to the betting account
+            userAccounts[_addr].escrowBalance.eth -= _value;        // Remove ether from escrow account..
+            houseEscrowBalance.eth -= _value;
+            cbetOwnerAddr.transfer(msg.value);
+        } else 
+        {
+            // Transfer tokens from escrow account back to the betting account
+            userAccounts[_addr].escrowBalance.token -= _value;      // Remove tokens from escrow account...          
+            houseEscrowBalance.token -= _value;
+            transferOf(cbetBettingAddr, recipient, _value);
+        }
+    }
+*/
 
     // Getter function to get their ether/token balances from the betting account
     function getBalanceUserBetting(address payable _addr)

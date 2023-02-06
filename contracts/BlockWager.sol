@@ -56,10 +56,11 @@ contract BlockWager is UserAccounts, PlaceBets {
 
     function gameEvent(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
         public
-        view
         onlyOwner
         returns (int8, int)
     {
+        address payable userAddr;
+
         bool isWin;
         uint betAmount;
         int winnings;
@@ -75,6 +76,7 @@ contract BlockWager is UserAccounts, PlaceBets {
         }
         else
         {
+            userAddr = getBetTotalAddress(_betId);
             (isWin, betAmount, winnings, isEther) = gameEventTotal(_betId, _winningScore, _losingScore);
         }
 
@@ -84,16 +86,26 @@ contract BlockWager is UserAccounts, PlaceBets {
         {
             winStatusId = -1;
             payout = int(-betAmount);
+
+            // Lost bet, 
+            // ToDo: move ether/cbet...
+            //transferEscrowToUser(userAddr, betAmount, isEther);
         }
         else if (winnings == 0)
         {
             winStatusId = 0;
             payout = int(betAmount);
+
+            // Push bet.
+            transferEscrowToBetting(userAddr, betAmount, isEther);
         }
         else
         {
             winStatusId = 1;
             payout = int(betAmount) + winnings;
+
+            // Win bet
+            // ToDo: move ether/cbet...
         }
         return (winStatusId, payout);
     }
