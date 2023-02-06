@@ -49,8 +49,10 @@ for (n = 0; n < payouts.length; n++) {
 }
     _transferToHouse();
 }
-function checkOutcome(bytes32 _gameId) public notDisabled returns (BettingGames.GameOutcome) {
-    BettingGames.GameOutcome outcome; 
+
+//internal function for checking to see if bets were actually settled. not yet implemented
+function checkOutcome(bytes32 _gameId) public notDisabled returns (BlockWager.gameEvent) {
+    Blockwager.gameEvent.outcome; 
     int8 winner = -1 
 
     (,,,,,outcome, winner) = BettingGames.getGame(_gameId);
