@@ -1,18 +1,25 @@
 pragma solidity ^0.5.0;
-import './BettingGames.sol';
+import '.BlockWager.sol';
 import './CbetAccounts.sol' ;
 import './SafeMath.sol';
-contract SettleBets is BettingGames,  CbetAccount {
+contract SettleBets is BlockWager,  CbetAccount {
     using SafeMath for uint; 
-function _payOutwinnings (CbetAcountAdrr, _user, uint _amount) private {
+function _payOutwinnings_cbet (CbetAcountAdrr, _user, uint _amount) private {
  _user.transfer(_amount);
 
 }
+//seperate functions for the paying out in eth versus paying out in Cbet token
+function _payoutwinnings_eth(address, _user, _amount) private { 
+    _user.transfer(_amount) 
+}
+
+//for transfering to house in event of  user losing
 function _transfertoHouse() private { 
     owner.transfer(address(this.balance));
 
 }
-function _isWinningBet(BettingGames.GameOutcome _outcome, uint8, _chosenWinner, int8 _actualWinner) 
+//needs to be fixed this doesnt work yet
+function _isWinningBet(isWin, bool, BlockWager.getBetTotalAddress, uint _amount) private 
 private pure returns(bool) {
     return _outcome == BettingGames.GameOutcome.Decided && _chosenWinner >= 0 
     && (_chosenWinner ==uint8(_actualWinner)) 
@@ -20,12 +27,12 @@ private pure returns(bool) {
 _calculatePayout() {}
 
 
-function _payoutForGame(bytes32, BettingGames.gameId, BettingGames.GameOutcome _outcome, int8, _winner) private {
+function _payoutForGame(bytes32, BlockWager.gameEvent, _winner) private {
     Bet[] storage bets = BettingGames.[_gameId];
     uint losingTotal = 0;
     uint winningTotal = 0; 
     uint totalsPot = 0;
-    uint[] memory payuts = new uinr[](bets.length);
+    uint[] memory payuts = new uint[](bets.length);
 
     uint n; 
     for (n = 0; n < bets.length; n++) {; {
