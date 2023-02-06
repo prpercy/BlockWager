@@ -15,44 +15,44 @@ contract PlaceBets {
 
     // Betting odds for home and away teams
 
-    struct MoneyLineBetParams {
-        string sportbook;
+    struct MoneylineBetParams {
+        uint8 sportbookId;
         GameStatus gameStatus;
-        string team;
-        int odds;
+        uint16 teamId;
+        int16 odds;
         address payable addr;
         uint betAmount;
         bool isEther;
     }
 
     struct SpreadBetParams {
-        string sportbook;
+        uint8 sportbookId;
         GameStatus gameStatus;
-        string team;
-        int odds;
-        int spread;
+        uint16 teamId;
+        int16 odds;
+        int16 spread;
         address payable addr;
         uint betAmount;
         bool isEther;
     }
 
     struct TotalBetParams {
-        string sportbook;
+        uint8 sportbookId;
         GameStatus gameStatus;
-        string team;
-        int odds;
+        uint16 teamId;
+        int16 odds;
         bool isOver;
-        uint total;
+        uint16 total;
         address payable addr;
         uint betAmount;
         bool isEther;
     }
     
-    mapping(uint => MoneyLineBetParams) moneylineBets;
-    mapping(uint => SpreadBetParams) spreadBets;
-    mapping(uint => TotalBetParams) totalBets;
+    mapping(uint32 => MoneylineBetParams) moneylineBets;
+    mapping(uint32 => SpreadBetParams) spreadBets;
+    mapping(uint32 => TotalBetParams) totalBets;
 
-    mapping(uint => BetType) betTypes;
+    mapping(uint32 => BetType) betTypes;
 
     uint WEI_FACTOR = 10**18;
 
@@ -69,14 +69,14 @@ contract PlaceBets {
         contractOwnerAddr = _contractOwnerAddr;
     }
 
-    function createMoneylineBetInternal(uint _betId, string memory _sportbook, string memory _team, int _odds, 
+    function createMoneylineBetInternal(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, 
                                         address payable _addr, uint _betAmount, bool _isEther)
-        public
+        internal
         onlyOwner
     {
-        moneylineBets[_betId].sportbook = _sportbook;
+        moneylineBets[_betId].sportbookId = _sportbookId;
         moneylineBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
-        moneylineBets[_betId].team = _team;
+        moneylineBets[_betId].teamId = _teamId;
         moneylineBets[_betId].odds = _odds;
         moneylineBets[_betId].addr = _addr;
         moneylineBets[_betId].betAmount = _betAmount;
@@ -85,14 +85,14 @@ contract PlaceBets {
         betTypes[_betId] = BetType.MONEYLINE;
     }
 
-    function createSpreadBetInternal(uint _betId, string memory _sportbook, string memory _team, int _odds, int _spread, 
+    function createSpreadBetInternal(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, int16 _spread, 
                                      address payable _addr, uint _betAmount, bool _isEther)
-        public
+        internal
         onlyOwner
     {
-        spreadBets[_betId].sportbook = _sportbook;
+        spreadBets[_betId].sportbookId = _sportbookId;
         spreadBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
-        spreadBets[_betId].team = _team;
+        spreadBets[_betId].teamId = _teamId;
         spreadBets[_betId].odds = _odds;
         spreadBets[_betId].spread = _spread;
         spreadBets[_betId].addr = _addr;
@@ -102,14 +102,14 @@ contract PlaceBets {
         betTypes[_betId] = BetType.SPREAD;
     }
 
-    function createTotalBetInternal(uint _betId, string memory _sportbook, string memory _team, int _odds, bool _isOver, uint _total,
+    function createTotalBetInternal(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, bool _isOver, uint16 _total,
                                     address payable _addr, uint _betAmount, bool _isEther)
-        public
+        internal
         onlyOwner
     {
-        totalBets[_betId].sportbook = _sportbook;
+        totalBets[_betId].sportbookId = _sportbookId;
         totalBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
-        totalBets[_betId].team = _team;
+        totalBets[_betId].teamId = _teamId;
         totalBets[_betId].odds = _odds;
         totalBets[_betId].isOver = _isOver;
         totalBets[_betId].total = _total;
@@ -120,217 +120,265 @@ contract PlaceBets {
         betTypes[_betId] = BetType.TOTAL;
     }
 
-    function getBetType(uint _betId)
+    function getBetType(uint32 _betId)
         public
         view
         onlyOwner
-        returns (string memory)
+        returns (uint8)
     {
-        return (betTypes[_betId] == BetType.MONEYLINE) ? "Moneyline" :
-               (betTypes[_betId] == BetType.SPREAD) ? "Spread" :
-               "Total";
+        return (betTypes[_betId] == BetType.MONEYLINE) ? 0 :
+               (betTypes[_betId] == BetType.SPREAD) ? 1 :
+               2;
     }
 
-    function getBetMoneyLineOdds(uint _betId)
+    function getBetMoneylineSportbook(uint32 _betId)
         public
         view
         onlyOwner
-        returns (string memory, string memory, string memory, int)
+        returns (uint8)
     {
-        return (moneylineBets[_betId].sportbook,
-                (moneylineBets[_betId].gameStatus == GameStatus.PRE_GAME_START) ? "Game not start" :
-                (moneylineBets[_betId].gameStatus == GameStatus.GAME_IN_PROGRESS) ? "Game In Progress" : "Game End",
-                moneylineBets[_betId].team,
-                moneylineBets[_betId].odds);
+        return moneylineBets[_betId].sportbookId;
     }
 
-    function getBetMoneyLineBet(uint _betId)
+    function getBetMoneylineGameStatus(uint32 _betId)
         public
         view
         onlyOwner
-        returns (address payable, uint, bool)
+        returns (uint8)
     {
-        return (moneylineBets[_betId].addr,
+        return (moneylineBets[_betId].gameStatus == GameStatus.PRE_GAME_START) ? 0 :
+               (moneylineBets[_betId].gameStatus == GameStatus.GAME_IN_PROGRESS) ? 1 : 2;
+    }
+
+    function getBetMoneylineBet(uint32 _betId)
+        public
+        view
+        onlyOwner
+        returns (uint16, int16, uint, bool)
+    {
+        return (moneylineBets[_betId].teamId,
+                moneylineBets[_betId].odds,
                 moneylineBets[_betId].betAmount,
                 moneylineBets[_betId].isEther);
     }
 
-    function getBetSpreadOdds(uint _betId)
+    function getBetMoneylineAddress(uint32 _betId)
         public
         view
         onlyOwner
-        returns (string memory, string memory, string memory, int, int)
+        returns (address payable)
     {
-        return (spreadBets[_betId].sportbook,
-                (spreadBets[_betId].gameStatus == GameStatus.PRE_GAME_START) ? "Game not start" :
-                (spreadBets[_betId].gameStatus == GameStatus.GAME_IN_PROGRESS) ? "Game In Progress" : "Game End",
-                spreadBets[_betId].team,
-                spreadBets[_betId].odds,
-                spreadBets[_betId].spread);
+        return (moneylineBets[_betId].addr);
     }
 
-    function getBetSpreadBet(uint _betId)
+    function getBetSpreadSportbook(uint32 _betId)
         public
         view
         onlyOwner
-        returns (address payable, uint, bool)
+        returns (uint8)
     {
-        return (spreadBets[_betId].addr,
+        return (spreadBets[_betId].sportbookId);
+    }
+
+    function getBetSpreadGameStatus(uint32 _betId)
+        public
+        view
+        onlyOwner
+        returns (uint8)
+    {
+        return ((spreadBets[_betId].gameStatus == GameStatus.PRE_GAME_START) ? 0 :
+                (spreadBets[_betId].gameStatus == GameStatus.GAME_IN_PROGRESS) ? 1 : 2);
+    }
+
+    function getBetSpreadBet(uint32 _betId)
+        public
+        view
+        onlyOwner
+        returns (uint16, int16, int16, uint, bool)
+    {
+        return (spreadBets[_betId].teamId,
+                spreadBets[_betId].odds,
+                spreadBets[_betId].spread,
                 spreadBets[_betId].betAmount,
                 spreadBets[_betId].isEther);
     }
 
-    function getBetTotalOdds(uint _betId)
+    function getBetSpreadAddress(uint32 _betId)
         public
         view
         onlyOwner
-        returns (string memory, string memory, string memory, int, bool, uint)
+        returns (address payable)
     {
-        return (totalBets[_betId].sportbook,
-                (totalBets[_betId].gameStatus == GameStatus.PRE_GAME_START) ? "Game not start" :
-                (totalBets[_betId].gameStatus == GameStatus.GAME_IN_PROGRESS) ? "Game In Progress" : "Game End",
-                totalBets[_betId].team,
-                totalBets[_betId].odds,
-                totalBets[_betId].isOver,
-                totalBets[_betId].total);
+        return (spreadBets[_betId].addr);
     }
 
-    function getBetTotalBet(uint _betId)
+    function getBetTotalSportbook(uint32 _betId)
         public
         view
         onlyOwner
-        returns (address payable, uint, bool)
+        returns (uint8)
     {
-        return (totalBets[_betId].addr,
+        return (totalBets[_betId].sportbookId);
+    }
+
+    function getBetTotalGameStatus(uint32 _betId)
+        public
+        view
+        onlyOwner
+        returns (uint8)
+    {
+        return ((totalBets[_betId].gameStatus == GameStatus.PRE_GAME_START) ? 0 :
+                (totalBets[_betId].gameStatus == GameStatus.GAME_IN_PROGRESS) ? 1 : 2);
+    }
+
+    function getBetTotalBet(uint32 _betId)
+        public
+        view
+        onlyOwner
+        returns (uint16, int16, bool, uint16, uint, bool)
+    {
+        return (totalBets[_betId].teamId,
+                totalBets[_betId].odds,
+                totalBets[_betId].isOver,
+                totalBets[_betId].total,
                 totalBets[_betId].betAmount,
                 totalBets[_betId].isEther);
     }
 
-/*
-    // Getter function - return the gameId of the last game/match that has been created
-    function getLastGameId()
+    function getBetTotalAddress(uint32 _betId)
         public
         view
         onlyOwner
-        returns (uint)
+        returns (address payable)
     {
-        return lastGameId;
+        return (totalBets[_betId].addr);
     }
 
-    // After the initial game creation, odds of the match can/will change dynamically...
-
-    // Update the moneyline odds
-    function updateGameOddsMoneyline(uint _gameId, int _homeTeamOddsMoneyline, int _awayTeamOddsMoneyline)
-        public
+    function gameEventMoneyline(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
+        internal
+        view
         onlyOwner
+        returns (bool, uint, int, bool)
     {
-        require (bettingGames[_gameId].gameStatus == GameStatus.PRE_GAME_START, "Only accepting updated odds for games that have not yet started");
+        bool isWin;
+        uint betAmount;
+        int winnings;
+        bool isEther;
 
-        bettingGames[_gameId].oddsMoneyline.homeOdds = _homeTeamOddsMoneyline;
-        bettingGames[_gameId].oddsMoneyline.awayOdds = _awayTeamOddsMoneyline;
-    }
+        uint16 teamId;
+        int16 odds;
 
-    // Update the spread odds
-    function updateGameSpread(uint _gameId, int _homeTeamSpread, int _awayTeamSpread)
-        public
+        (team,odds,betAmount,isEther) = getBetMoneylineBet(_betId);
+
+        if (teamId != _winningTeamId)
+        {
+            isWin = false;
+            winnings = 0;
+        }
+        else if (_winningScore == _losingScore)
+        {
+            isWin = true;
+            winnings = 0;
+        }
+        else if (odds > 0)
+        {
+            isWin = true;
+            winnings = int(betAmount)*(odds/100);
+        }
+        else
+        {
+            isWin = true;
+            winnings = int(betAmount)*(100/-odds);
+        }
+
+        return (isWin, betAmount, winnings, isEther);
+    }    
+
+    function gameEventSpread(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
+        internal
+        view
         onlyOwner
+        returns (bool, uint, int, bool)
     {
-        require (bettingGames[_gameId].gameStatus == GameStatus.PRE_GAME_START, "Only accepting updated odds for games that have not yet started");
+        bool isWin;
+        uint betAmount;
+        int winnings;
+        bool isEther;
 
-        bettingGames[_gameId].spread.homeSpread = _homeTeamSpread;
-        bettingGames[_gameId].spread.awaySpread = _awayTeamSpread;
+        uint16 teamId;
+        int16 odds;
+
+        int16 spread;
+        (teamId,odds,spread,betAmount,isEther) = getBetSpreadBet(_betId);
+
+        uint16 winningScoreWithSpread = int(_winningScore) + spread;
+
+        if ((teamId != _winningTeamId) || (winningScoreWithSpread < int16(_losingScore)))
+        {
+            isWin = false;
+            winnings = 0;
+        }
+        else if (winningScoreWithSpread == int16(_losingScore))
+        {
+            isWin = true;
+            winnings = 0;
+        }
+        else if (odds > 0)
+        {
+            isWin = true;
+            winnings = int(betAmount)*(odds/100);
+        }
+        else
+        {
+            isWin = true;
+            winnings = int(betAmount)*(100/-odds);
+        }            
+
+        return (isWin, betAmount, winnings, isEther);
     }
 
-    // Update the over/under (total) odds
-    function updateGameOddsOverUnder(uint _gameId, bool _isOver, uint _overUnder)
-        public
+    function gameEventTotal(uint32 _betId, uint16 _winningScore, uint16 _losingScore)
+        internal
+        view
         onlyOwner
+        returns (bool, uint, int, bool)
     {
-        require (bettingGames[_gameId].gameStatus == GameStatus.PRE_GAME_START, "Only accepting updated odds for games that have not yet started");
+        bool isWin;
+        uint betAmount;
+        int winnings;
+        bool isEther;
 
-        bettingGames[_gameId].isOver = _isOver;
-        bettingGames[_gameId].overUnder = _overUnder;
+        uint16 teamId;
+        int16 odds;
+
+        bool isOver;
+        uint16 total;
+        (teamId,odds,isOver,total,betAmount,isEther) = getBetTotalBet(_betId);
+
+        uint16 totalScore = _winningScore + _losingScore;
+
+        if (!isOver && (total > totalScore))
+        {
+            isWin = false;
+            winnings = 0;
+        }
+        else if (total == totalScore)
+        {
+            isWin = true;
+            winnings = 0;
+        }
+        else if (odds > 0)
+        {
+            isWin = true;
+            winnings = int(betAmount)*(odds/100);
+        }
+        else
+        {
+            isWin = true;
+            winnings = int(betAmount)*(100/-odds);
+        }            
+
+        return (isWin, betAmount, winnings, isEther);
     }
 
-    // Action by owner to set the start of the game/match
-    function setGameStart(uint _gameId)
-        public
-        onlyOwner
-    {
-        require (bettingGames[_gameId].gameStatus == GameStatus.PRE_GAME_START, "Can only change status to games to start for games that have not yet started");
-        bettingGames[_gameId].gameStatus = GameStatus.GAME_IN_PROGRESS;
-    }
-
-    // Action by the owner to set the game match has ended
-    function setGameOver(uint _gameId)
-        public
-        onlyOwner
-    {
-        require (bettingGames[_gameId].gameStatus == GameStatus.PRE_GAME_START, "Can only change status to games over for games that have already started");
-        bettingGames[_gameId].gameStatus = GameStatus.POST_GAME_END;
-    }
-
-    // Getter function to determine if no longer accepting bets (not available during the game or after game completiong)
-    function isAcceptingBets(uint _gameId)
-        public
-        view
-        returns (bool)
-    {
-        return (bettingGames[_gameId].gameStatus == GameStatus.PRE_GAME_START);
-    }
-
-    // Getter function to check if the game is in progress
-    function isGameInProgress(uint _gameId)
-        public
-        view
-        returns (bool)
-    {
-        return (bettingGames[_gameId].gameStatus == GameStatus.GAME_IN_PROGRESS);
-    }
-
-    // Getter function to check if the game is over
-    function isGameOver(uint _gameId)
-        public
-        view
-        returns (bool)
-    {
-        return (bettingGames[_gameId].gameStatus == GameStatus.POST_GAME_END);
-    }
-
-    // Getter function to get the 2 teamId's of the game/match referenced by the gameId
-    function getGameTeamIds(uint _gameId)
-        public
-        view
-        returns (uint, uint)
-    {
-        return (bettingGames[_gameId].homeTeamId, bettingGames[_gameId].awayTeamId);
-    }
-
-    // Getter function to get the current moneyline odds
-    function getGameMoneylineOdds(uint _gameId)
-        public
-        view
-        returns (int, int)
-    {
-        return (bettingGames[_gameId].oddsMoneyline.homeOdds, bettingGames[_gameId].oddsMoneyline.awayOdds);
-    }
-
-    // Getter function to get the current spread odds
-    function getGameSpreadOdds(uint _gameId)
-        public
-        view
-        returns (int, int)
-    {
-        return (bettingGames[_gameId].spread.homeSpread, bettingGames[_gameId].spread.awaySpread);
-    }
-
-    // Getter function to get the current over/under (total) odds
-    function getGameOverUnderOdds(uint _gameId)
-        public
-        view
-        returns (bool, uint)
-    {
-        return (bettingGames[_gameId].isOver, bettingGames[_gameId].overUnder);
-    }
-*/
 }
