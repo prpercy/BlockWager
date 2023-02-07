@@ -5,6 +5,7 @@ pragma solidity ^0.5.0;
 
 contract PlaceBets {
     address payable contractOwnerAddr;    // BlockWager contract owner address
+    address payable cbetBettingAddr;    // BlockWage betting account (users must first deposit/withdrawal into this account before betting)
 
     // Keep track of:
     //   PRE_GAME_START: State of game/match before game has started and betting is allowed (default state when the game is initially created)
@@ -62,11 +63,26 @@ contract PlaceBets {
         _;
     }
 
+    modifier onlyHouse {
+        require(msg.sender == cbetBettingAddr, "Only the contracts owner has permissions for this action!");
+        _;
+    }
+
     // Construct which sets up the BlockWager contract owner address
     constructor (address payable _contractOwnerAddr)
         public
     {
         contractOwnerAddr = _contractOwnerAddr;
+    }
+
+    // Configure the address of the wallet (betting account) that will hold the ether/tokens
+    // (Note, this would usually be placed in the constructur, but since the addresses from Ganache are dynamic, will be passed in as
+    //        a parameter from the streamlit app)
+    function setCbetBettingAddrPlaceBets(address payable _cbetBettingAddr)
+        internal
+        onlyOwner
+    {
+        cbetBettingAddr = _cbetBettingAddr;
     }
 
     function createMoneylineBetInternal(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, 
@@ -153,7 +169,7 @@ contract PlaceBets {
     function getBetMoneylineBet(uint32 _betId)
         public
         view
-        onlyOwner
+        onlyHouse
         returns (uint16, int16, uint, bool)
     {
         return (moneylineBets[_betId].teamId,
@@ -163,9 +179,9 @@ contract PlaceBets {
     }
 
     function getBetMoneylineAddress(uint32 _betId)
-        public
+        internal
         view
-        onlyOwner
+        onlyHouse
         returns (address payable)
     {
         return (moneylineBets[_betId].addr);
@@ -193,7 +209,7 @@ contract PlaceBets {
     function getBetSpreadBet(uint32 _betId)
         public
         view
-        onlyOwner
+        onlyHouse
         returns (uint16, int16, int16, uint, bool)
     {
         return (spreadBets[_betId].teamId,
@@ -204,9 +220,9 @@ contract PlaceBets {
     }
 
     function getBetSpreadAddress(uint32 _betId)
-        public
+        internal
         view
-        onlyOwner
+        onlyHouse
         returns (address payable)
     {
         return (spreadBets[_betId].addr);
@@ -234,7 +250,7 @@ contract PlaceBets {
     function getBetTotalBet(uint32 _betId)
         public
         view
-        onlyOwner
+        onlyHouse
         returns (uint16, int16, bool, uint16, uint, bool)
     {
         return (totalBets[_betId].teamId,
@@ -246,9 +262,9 @@ contract PlaceBets {
     }
 
     function getBetTotalAddress(uint32 _betId)
-        public
+        internal
         view
-        onlyOwner
+        onlyHouse
         returns (address payable)
     {
         return (totalBets[_betId].addr);
@@ -257,12 +273,12 @@ contract PlaceBets {
     function gameEventMoneyline(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
         internal
         view
-        onlyOwner
-        returns (bool, uint, int, bool)
+        onlyHouse
+        returns (bool, uint, uint, bool)
     {
         bool isWin;
         uint betAmount;
-        int winnings;
+        uint winnings;
         bool isEther;
 
         uint16 teamId;
@@ -270,25 +286,25 @@ contract PlaceBets {
 
         (teamId,odds,betAmount,isEther) = getBetMoneylineBet(_betId);
 
-        if (teamId != _winningTeamId)
-        {
-            isWin = false;
-            winnings = 0;
-        }
-        else if (_winningScore == _losingScore)
+        if (_winningScore == _losingScore)
         {
             isWin = true;
+            winnings = 0;
+        }
+        else if (teamId != _winningTeamId)
+        {
+            isWin = false;
             winnings = 0;
         }
         else if (odds > 0)
         {
             isWin = true;
-            winnings = int(betAmount)*(odds/100);
+            winnings = (betAmount*uint(odds))/100;
         }
         else
         {
             isWin = true;
-            winnings = int(betAmount)*(100/-odds);
+            winnings = (betAmount*100)/uint(-odds);
         }
 
         return (isWin, betAmount, winnings, isEther);
@@ -297,12 +313,12 @@ contract PlaceBets {
     function gameEventSpread(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
         internal
         view
-        onlyOwner
-        returns (bool, uint, int, bool)
+        onlyHouse
+        returns (bool, uint, uint, bool)
     {
         bool isWin;
         uint betAmount;
-        int winnings;
+        uint winnings;
         bool isEther;
 
         uint16 teamId;
@@ -311,27 +327,38 @@ contract PlaceBets {
         int16 spread;
         (teamId,odds,spread,betAmount,isEther) = getBetSpreadBet(_betId);
 
-        uint16 winningScoreWithSpread = uint16(int16(_winningScore) + spread);
-
-        if ((teamId != _winningTeamId) || (winningScoreWithSpread < uint16(_losingScore)))
+        uint16 myScoreWithSpread;
+        uint16 otherScore;
+        if (teamId == _winningTeamId)
         {
-            isWin = false;
-            winnings = 0;
+            myScoreWithSpread = uint16(int16(_winningScore) + spread);
+            otherScore = _losingScore;
         }
-        else if (winningScoreWithSpread == uint16(_losingScore))
+        else
+        {
+            myScoreWithSpread = uint16(int16(_losingScore) + spread);
+            otherScore = _winningScore;
+        }
+        
+        if (myScoreWithSpread == otherScore)
         {
             isWin = true;
+            winnings = 0;
+        }
+        else if (myScoreWithSpread < otherScore)
+        {
+            isWin = false;
             winnings = 0;
         }
         else if (odds > 0)
         {
             isWin = true;
-            winnings = int(betAmount)*(odds/100);
+            winnings = (betAmount*uint(odds))/100;
         }
         else
         {
             isWin = true;
-            winnings = int(betAmount)*(100/-odds);
+            winnings =  (betAmount*100)/uint(-odds);
         }            
 
         return (isWin, betAmount, winnings, isEther);
@@ -340,12 +367,12 @@ contract PlaceBets {
     function gameEventTotal(uint32 _betId, uint16 _winningScore, uint16 _losingScore)
         internal
         view
-        onlyOwner
-        returns (bool, uint, int, bool)
+        onlyHouse
+        returns (bool, uint, uint, bool)
     {
         bool isWin;
         uint betAmount;
-        int winnings;
+        uint winnings;
         bool isEther;
 
         uint16 teamId;
@@ -370,12 +397,12 @@ contract PlaceBets {
         else if (odds > 0)
         {
             isWin = true;
-            winnings = int(betAmount)*(odds/100);
+            winnings = (betAmount*uint(odds))/100;
         }
         else
         {
             isWin = true;
-            winnings = int(betAmount)*(100/-odds);
+            winnings =  (betAmount*100)/uint(-odds);
         }            
 
         return (isWin, betAmount, winnings, isEther);

@@ -49,12 +49,4 @@ contract CbetToken {
         balances[_recipient] += _value;
     }
 
-    function unmint(address _sender, address _recipient, uint _value) 
-        public 
-        payable 
-    {
-        require(_sender == cbetAccountOwnerAddr, "You do not have permission to mint these tokens!");
-
-        balances[_recipient] -= _value;
-    }
 }

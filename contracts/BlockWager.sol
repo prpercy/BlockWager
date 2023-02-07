@@ -10,8 +10,15 @@ contract BlockWager is UserAccounts, PlaceBets {
     address payable cbetOwnerAddr;      // BlockWager contract owner address
     address payable cbetBettingAddr;    // BlockWage betting account (users must first deposit/withdrawal into this account before betting)
 
+    int lastPayout;  // // Mapping between better wallet address and CBET accounts
+
     modifier onlyOwner {
         require(msg.sender == cbetOwnerAddr, "Only the contracts owner has permissions for this action!");
+        _;
+    }
+
+    modifier onlyHouse {
+        require(msg.sender == cbetBettingAddr, "Only the contracts owner has permissions for this action!");
         _;
     }
 
@@ -21,7 +28,19 @@ contract BlockWager is UserAccounts, PlaceBets {
         PlaceBets(msg.sender)
         public
     {
-        cbetOwnerAddr = msg.sender;                   
+        cbetOwnerAddr = msg.sender; 
+    }
+
+    // Configure the address of the wallet (betting account) that will hold the ether/tokens
+    // (Note, this would usually be placed in the constructur, but since the addresses from Ganache are dynamic, will be passed in as
+    //        a parameter from the streamlit app)
+    function setCbetBettingAddr(address payable _cbetBettingAddr)
+        public
+        onlyOwner
+    {
+        cbetBettingAddr = _cbetBettingAddr;
+        setCbetBettingAddrUserAccounts(_cbetBettingAddr);            
+        setCbetBettingAddrPlaceBets(_cbetBettingAddr);            
     }
 
     function createMoneylineBet(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, 
@@ -56,22 +75,23 @@ contract BlockWager is UserAccounts, PlaceBets {
 
     function gameEvent(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
         public
-        onlyOwner
-        returns (int8, int)
+        onlyHouse
     {
         address payable userAddr;
 
         bool isWin;
         uint betAmount;
-        int winnings;
+        uint winnings;
         bool isEther;
 
         if (betTypes[_betId] == BetType.MONEYLINE)
         {
+            userAddr = getBetMoneylineAddress(_betId);
             (isWin, betAmount, winnings, isEther) = gameEventMoneyline(_betId, _winningTeamId, _winningScore, _losingScore);
         }
-        else if (betTypes[_betId] == BetType.MONEYLINE)
+        else if (betTypes[_betId] == BetType.SPREAD)
         {
+            userAddr = getBetSpreadAddress(_betId);
             (isWin, betAmount, winnings, isEther) = gameEventSpread(_betId, _winningTeamId, _winningScore, _losingScore);
         }
         else
@@ -80,35 +100,44 @@ contract BlockWager is UserAccounts, PlaceBets {
             (isWin, betAmount, winnings, isEther) = gameEventTotal(_betId, _winningScore, _losingScore);
         }
 
-        int8 winStatusId;
-        int payout;
-        if (!isWin)
+       if (!isWin)
         {
-            winStatusId = -1;
-            payout = int(-betAmount);
+            // Lost Bet
 
-            // Lost bet, 
-            // ToDo: move ether/cbet...
-            //transferEscrowToUser(userAddr, betAmount, isEther);
+            lastPayout = int(-betAmount);
+
+            removeEscrowFromUser(userAddr, betAmount, isEther);
         }
         else if (winnings == 0)
         {
-            winStatusId = 0;
-            payout = int(betAmount);
+            // Push Bet (Tie)
 
-            // Push bet.
-            transferEscrowToBetting(userAddr, betAmount, isEther);
+            lastPayout = int(betAmount);
+
+            transferEscrowBackToBetting(userAddr, betAmount, isEther);
         }
         else
         {
-            winStatusId = 1;
-            payout = int(betAmount) + winnings;
+            // Win Bet
 
-            // Win bet
-            // ToDo: move ether/cbet...
+            uint payout = betAmount + winnings;
+
+            lastPayout = int(payout);
+
+            transferEscrowBackToBetting(userAddr, betAmount, isEther);
+            transerWinningsFromBettingToUser(userAddr, winnings, isEther);            
         }
-        return (winStatusId, payout);
     }
+
+    function getLastPayout()
+        public
+        view
+        onlyOwner
+        returns (int)
+    {
+        return lastPayout;
+    }
+
 
     function()
         external

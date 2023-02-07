@@ -91,15 +91,29 @@ st.write("USER ACCOUNT SELECTION")
 user_address_lst = [user_account_addr_1, user_account_addr_2, user_account_addr_3]
 user_address = st.selectbox('Select User Address', user_address_lst)
 
+def get_balance(user_address):
+   (user_balance_wallet_ether, user_balance_wallet_token)              = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
+   (user_balance_betting_ether, user_balance_betting_token)            = contract.functions.getBalanceUserBetting(user_address).call()
+   (user_balance_escrow_ether, user_balance_escrow_token)              = contract.functions.getBalanceUserEscrow(user_address).call()
+   (house_balance_betting_ether_internal, house_balance_betting_token) = contract.functions.getBalanceHouseBetting().call()
+   (house_balance_escrow_ether, house_balance_escrow_token)            = contract.functions.getBalanceHouseEscrow().call()
+   (house_balance_betting_ether)                                       = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether
+   (balance_owner_ether, balance_owner_token)                          = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+
+   return (user_balance_wallet_ether,user_balance_wallet_token,user_balance_betting_ether, user_balance_betting_token,user_balance_escrow_ether, user_balance_escrow_token, house_balance_betting_token,house_balance_escrow_ether, house_balance_escrow_token,house_balance_betting_ether,balance_owner_ether, balance_owner_token)                         
+
+def print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post):
+   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_pre/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_post/WEI_FACTOR) + " / " + str(user_balance_wallet_token_pre/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_post/WEI_FACTOR))
+   st.write("User Betting Balance: " + str(user_balance_betting_ether_pre/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_post/WEI_FACTOR) + " / " + str(user_balance_betting_token_pre/WEI_FACTOR) + "-->" + str(user_balance_betting_token_post/WEI_FACTOR))
+   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_pre/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_post/WEI_FACTOR) + " / " + str(user_balance_escrow_token_pre/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_post/WEI_FACTOR))
+   st.write("House Betting Balance: " + str(house_balance_betting_ether_pre/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_post/WEI_FACTOR) + " / " + str(house_balance_betting_token_pre/WEI_FACTOR) + "-->" + str(house_balance_betting_token_post/WEI_FACTOR))
+   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_pre/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_post/WEI_FACTOR) + " / " + str(house_balance_escrow_token_pre/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_post/WEI_FACTOR))
+   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_pre/WEI_FACTOR) + "-->" + str(balance_owner_ether_post/WEI_FACTOR) + " / " + str(balance_owner_token_pre/WEI_FACTOR) + "-->" + str(balance_owner_token_post/WEI_FACTOR))
+                           
+                        
 if st.button("Check Ether/Token Balances"):
 
-   (user_balance_wallet_ether, user_balance_wallet_token) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether, user_balance_betting_token) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether, user_balance_escrow_token) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_internal, house_balance_betting_token) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether, house_balance_escrow_token) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether
-   (balance_owner_ether, balance_owner_token) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+   (user_balance_wallet_ether,user_balance_wallet_token,user_balance_betting_ether,user_balance_betting_token,user_balance_escrow_ether,user_balance_escrow_token,house_balance_betting_token,house_balance_escrow_ether,house_balance_escrow_token,house_balance_betting_ether,balance_owner_ether,balance_owner_token)=get_balance(user_address)
 
    st.write("User Wallet Balance: " + str(user_balance_wallet_ether/WEI_FACTOR) + " / " + str(user_balance_wallet_token/WEI_FACTOR))
    st.write("User Betting Balance: " + str(user_balance_betting_ether/WEI_FACTOR) + " / " + str(user_balance_betting_token/WEI_FACTOR))
@@ -112,65 +126,31 @@ st.write("---")
 
 st.write("TEST PURCHASING AND SELLING OF CBET TOKENS")
 
-amount = st.text_input("Enter how many tokens to purchase")
+amount = st.number_input("Enter how many tokens to purchase",value=1.0)
 if st.button("Purchase"):
    st.write(user_address)
 
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+   (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
    
    contract.functions.purchaseCbetTokens().transact({'from': user_address, "value": w3.toWei(amount, "ether"), 'gas': 1000000})
 
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+   (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
 
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-   
+   print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
+                            
    st.write("Done")
 
-amount = st.text_input("Enter how many tokens to sell")
+amount = st.number_input("Enter how many tokens to sell",value=1.0)
 if st.button("Sell"):
    st.write(user_address)
 
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+   (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
    
-   contract.functions.sellCbetTokens(user_address).transact({'from': cbet_account_owner_addr, "value": w3.toWei(amount, "ether"), 'gas': 1000000})
+   contract.functions.sellCbetTokens(user_address).transact({'from': cbet_account_betting_addr, "value": w3.toWei(amount, "ether"), 'gas': 1000000})
 
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+   (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
 
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
+   print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
    
    st.write("Done")
 
@@ -186,514 +166,106 @@ st.write("---")
 
 st.write("TEST ETHER/TOKEN DEPOSITS INTO BETTING ACCOUNT")
 
-amount = st.text_input("Enter amount of ether/tokens to deposit")
+amount = st.number_input("Enter amount of ether/tokens to deposit",value=1.0)
 if st.button("Deposit"):
    st.write(user_address)
 
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+   (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
    
    if (is_ether):
       contract.functions.depositIntoBettingEther().transact({'from': user_address, "value": w3.toWei(amount, "ether"), 'gas': 1000000})
    else:
       contract.functions.depositIntoBettingToken(user_address, w3.toWei(amount, "ether")).transact({'from': user_address, 'gas': 1000000})
 
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+   (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
 
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
+   print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
    
    st.write("Done")
 
-amount = st.text_input("Enter amount of ether/tokens to withdraw")
+amount = st.number_input("Enter amount of ether/tokens to withdraw",value=1.0)
 if st.button("Withdrawal"):
    st.write(user_address)
 
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+   (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
    
    if (is_ether):
       contract.functions.withdrawFromBettingEther(user_address).transact({'from': cbet_account_betting_addr, "value": w3.toWei(amount, "ether"), 'gas': 1000000})
    else:
       contract.functions.withdrawFromBettingToken(user_address, w3.toWei(amount, "ether")).transact({'from': cbet_account_betting_addr, 'gas': 1000000})
 
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+   (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
 
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
+   print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
    
    st.write("Done")
 
 st.write("---")
 
-st.write("TEST TRANSFERRING ETHER/TOKEN TO/FROM BETTING/ESCROW ACCOUNT")
-   
-amount = st.text_input("Enter amount of ether/tokens to transfer from betting to escrow accont")
-if st.button("Transfer Betting To Escrow Account"):
-   st.write(user_address)
+bet_id = 1;
+sportbook_id = 2
+team_id = 3
 
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-   
-   contract.functions.transferBettingToEscrow(user_address, w3.toWei(amount, "ether"), is_ether).transact({'from': user_address, 'gas': 1000000})
+st.write("TEST BETTING")
+bet_id_place = int(st.number_input("Bet ID (Placing Bet):",value=bet_id))
+team_id_place = int(st.number_input("Team ID:",value=team_id))
+odds = int(st.number_input("Odds:",value=100))
+bet_amount = int(st.number_input("Bet Amount:",value=1.0)) * WEI_FACTOR
 
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-   
+if (st.button("Place Moneyline Bet")):
+   (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
+   contract.functions.createMoneylineBet(bet_id_place,sportbook_id,team_id_place,odds,user_address,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
+   print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
    st.write("Done")
 
-st.write("---")
+spread = int(st.number_input("Spread:",value=2.))
 
-amount = st.text_input("Enter amount of ether/tokens to transfer from escrow to betting accont")
-if st.button("Transfer Escrow To Betting Account"):
-   st.write(user_address)
+if (st.button("Place Spread Bet")):
+   (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
+   contract.functions.createSpreadBet(bet_id_place,sportbook_id,team_id_place,odds,spread,user_address,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
+   print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
+   last_payout = contract.functions.getLastPayout().call({'from': cbet_account_owner_addr})
+   if (is_ether == True): asset = "ETH"
+   if (is_ether == False): asset = "CBET"
+   st.write("---")
+   st.write(f"Last payout = {str(last_payout)} {asset}")
+   bet_id = bet_id + 1
+   st.write("Done")             
 
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-   
-   contract.functions.transferEscrowToBetting(user_address, w3.toWei(amount, "ether"), is_ether).transact({'from': user_address, 'gas': 1000000})
+bet_is_over = st.checkbox('Is Bet Over')
+total_score = int(st.number_input("OverUnder Score:",value=100.)) * TOTAL_FACTOR
 
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
+if (st.button("Place Total (Over/Under) Bet")):
+   (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
+   contract.functions.createTotalBet(bet_id_place,sportbook_id,team_id_place,odds,bet_is_over,total_score,user_address,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
+   (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
+   print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
+   last_payout = contract.functions.getLastPayout().call({'from': cbet_account_owner_addr})
+   if (is_ether == True): asset = "ETH"
+   if (is_ether == False): asset = "CBET"
+   st.write("---")
+   st.write(f"Last payout = {str(last_payout)} {asset}")
+   bet_id = bet_id + 1
+   st.write("Done")             
 
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-   
-   st.write("Done")
-
-st.write("---")
-
-st.write("TEST PLACE BETS")
-
-if st.button("Place Bet #1, Moneyline, 1 Eth"):
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   bet_id = 1 
-   sportbook_id = 2 
-   team_id = 3
-   odds = -156
-   addr = user_address
-   bet_amount = (1 * WEI_FACTOR)
-   is_ether = True
-   
-   contract.functions.createMoneylineBet(bet_id,sportbook_id,team_id,odds,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   
-   st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   sportbook_id = contract.functions.getBetMoneylineSportbook(bet_id).call({'from': cbet_account_owner_addr})
-   gameStatus= contract.functions.getBetMoneylineGameStatus(bet_id).call({'from': cbet_account_owner_addr})
-   (team_id,odds,bet_amount,is_ether) = contract.functions.getBetMoneylineBet(bet_id).call({'from': cbet_account_owner_addr})
-   addr = contract.functions.getBetMoneylineAddress(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook_id: {sportbook_id}")
-   st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team_id: {team_id}")
-   st.write(f"odds: {odds}")
-   st.write(f"addr: {addr}")
-   st.write(f"bet_amount: {bet_amount/WEI_FACTOR}")
-   st.write(f"is_ether: {str(is_ether)}")
-
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-
-   st.write("Done")
-
-if st.button("Place Bet #2, Spread, 1 Eth"):
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-
-   bet_id = 1 
-   sportbook_id = 2 
-   team_id = 4
-   odds = 100
-   spread = int((2.5 * SPREAD_FACTOR))
-   addr = user_address
-   bet_amount = (1 * WEI_FACTOR)
-   is_ether = True
-   
-   contract.functions.createSpreadBet(bet_id,sportbook_id,team_id,odds,spread,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   
-   st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   sportbook_id = contract.functions.getBetSpreadSportbook(bet_id).call({'from': cbet_account_owner_addr})
-   gameStatus= contract.functions.getBetSpreadGameStatus(bet_id).call({'from': cbet_account_owner_addr})   
-   (team_id,odds,spread,bet_amount,is_ether) = contract.functions.getBetSpreadBet(bet_id).call({'from': cbet_account_owner_addr})
-   addr = contract.functions.getBetSpreadAddress(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook_id: {sportbook_id}")
-   st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team_id: {team_id}")
-   st.write(f"odds: {odds}")
-   st.write(f"spread: {spread}")
-   st.write(f"addr: {addr}")
-   st.write(f"bet_amount: {bet_amount/WEI_FACTOR}")
-   st.write(f"is_ether: {str(is_ether)}")
-
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-
-   st.write("Done")
-
-if st.button("Place Bet #3, Total, 1 Eth"):
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
- 
-   bet_id = 1 
-   sportbook_id = 2 
-   team_id = 4
-   odds = 100
-   is_over = True
-   total = int(46.5 * TOTAL_FACTOR)
-   addr = user_address
-   bet_amount = (1 * WEI_FACTOR)
-   is_ether = True
-   
-   contract.functions.createTotalBet(bet_id,sportbook_id,team_id,odds,is_over,total,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   
-   st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   sportbook_id = contract.functions.getBetTotalSportbook(bet_id).call({'from': cbet_account_owner_addr})
-   gameStatus= contract.functions.getBetTotalGameStatus(bet_id).call({'from': cbet_account_owner_addr})   
-   (team_id,odds,is_over,total,bet_amount,is_ether) = contract.functions.getBetTotalBet(bet_id).call({'from': cbet_account_owner_addr})
-   addr = contract.functions.getBetTotalAddress(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook_id: {sportbook_id}")
-   st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team_id: {team_id}")
-   st.write(f"odds: {odds}")
-   st.write(f"is_over: {str(is_over)}")
-   st.write(f"total: {total}")
-   st.write(f"addr: {addr}")
-   st.write(f"bet_amount: {bet_amount/WEI_FACTOR}")
-   st.write(f"is_ether: {str(is_ether)}")
-
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-
-   st.write("Done")
-
-if st.button("Place Bet #4, Moneyline, 1 Cbet"):
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   bet_id = 1 
-   sportbook_id = 2 
-   team_id = 3
-   odds = -156
-   addr = user_address
-   bet_amount = (1 * WEI_FACTOR)
-   is_ether = False
-   
-   contract.functions.createMoneylineBet(bet_id,sportbook_id,team_id,odds,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   
-   st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   sportbook_id = contract.functions.getBetMoneylineSportbook(bet_id).call({'from': cbet_account_owner_addr})
-   gameStatus= contract.functions.getBetMoneylineGameStatus(bet_id).call({'from': cbet_account_owner_addr})
-   (team_id,odds,bet_amount,is_ether) = contract.functions.getBetMoneylineBet(bet_id).call({'from': cbet_account_owner_addr})
-   addr = contract.functions.getBetMoneylineAddress(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook_id: {sportbook_id}")
-   st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team_id: {team_id}")
-   st.write(f"odds: {odds}")
-   st.write(f"addr: {addr}")
-   st.write(f"bet_amount: {bet_amount/WEI_FACTOR}")
-   st.write(f"is_ether: {str(is_ether)}")
-
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-
-   st.write("Done")
-
-if st.button("Place Bet #5, Spread, 1 Cbet"):
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-
-   bet_id = 1 
-   sportbook_id = 2 
-   team_id = 4
-   odds = 100
-   spread = int((2.5 * SPREAD_FACTOR))
-   addr = user_address
-   bet_amount = (1 * WEI_FACTOR)
-   is_ether = False
-   
-   contract.functions.createSpreadBet(bet_id,sportbook_id,team_id,odds,spread,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   
-   st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   sportbook_id = contract.functions.getBetSpreadSportbook(bet_id).call({'from': cbet_account_owner_addr})
-   gameStatus= contract.functions.getBetSpreadGameStatus(bet_id).call({'from': cbet_account_owner_addr})   
-   (team_id,odds,spread,bet_amount,is_ether) = contract.functions.getBetSpreadBet(bet_id).call({'from': cbet_account_owner_addr})
-   addr = contract.functions.getBetSpreadAddress(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook_id: {sportbook_id}")
-   st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team_id: {team_id}")
-   st.write(f"odds: {odds}")
-   st.write(f"spread: {spread}")
-   st.write(f"addr: {addr}")
-   st.write(f"bet_amount: {bet_amount/WEI_FACTOR}")
-   st.write(f"is_ether: {str(is_ether)}")
-
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-
-   st.write("Done")
-
-if st.button("Place Bet #6, Total, 1 Cbet"):
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
- 
-   bet_id = 1 
-   sportbook_id = 2 
-   team_id = 4
-   odds = 100
-   is_over = True
-   total = int(46.5 * TOTAL_FACTOR)
-   addr = user_address
-   bet_amount = (1 * WEI_FACTOR)
-   is_ether = False
-   
-   contract.functions.createTotalBet(bet_id,sportbook_id,team_id,odds,is_over,total,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-   
-   st.write(f"BetType: {contract.functions.getBetType(bet_id).call({'from': cbet_account_owner_addr})}")
-   sportbook_id = contract.functions.getBetTotalSportbook(bet_id).call({'from': cbet_account_owner_addr})
-   gameStatus= contract.functions.getBetTotalGameStatus(bet_id).call({'from': cbet_account_owner_addr})   
-   (team_id,odds,is_over,total,bet_amount,is_ether) = contract.functions.getBetTotalBet(bet_id).call({'from': cbet_account_owner_addr})
-   addr = contract.functions.getBetTotalAddress(bet_id).call({'from': cbet_account_owner_addr})
-   st.write(f"sportbook_id: {sportbook_id}")
-   st.write(f"gameStatus: {gameStatus}")
-   st.write(f"team_id: {team_id}")
-   st.write(f"odds: {odds}")
-   st.write(f"is_over: {str(is_over)}")
-   st.write(f"total: {total}")
-   st.write(f"addr: {addr}")
-   st.write(f"bet_amount: {bet_amount/WEI_FACTOR}")
-   st.write(f"is_ether: {str(is_ether)}")
-
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-
-   st.write("Done")
-
-if st.button("Place Bet & Tie, Total, 1 Cbet"):
-   (user_balance_wallet_ether_before, user_balance_wallet_token_before) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_before, user_balance_betting_token_before) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_before, user_balance_escrow_token_before) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_before_internal, house_balance_betting_token_before) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_before, house_balance_escrow_token_before) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_before) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_before
-   (balance_owner_ether_before, balance_owner_token_before) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
- 
-   bet_id = 10 
-   sportbook_id = 1 
-   team_id = 10
-   odds = 100
-   is_over = True
-   total = int(50 * TOTAL_FACTOR)
-   addr = user_address
-   bet_amount = (1 * WEI_FACTOR)
-   is_ether = True
-   
-   contract.functions.createTotalBet(bet_id,sportbook_id,team_id,odds,is_over,total,addr,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-      
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   st.write("Before Bet")
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
-
-   bet_id = 10 
-   winningTeamId = 10
-   winningScore = int(25 * TOTAL_FACTOR)
-   losingScore = int(25 * TOTAL_FACTOR)
-   
-   contract.functions.gameEvent(bet_id, winningTeamId, winningScore, losingScore).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
-      
-   st.write("After Bet")
-   (user_balance_wallet_ether_after, user_balance_wallet_token_after) = (w3.eth.getBalance(user_address), contract.functions.balanceCbetTokens(user_address).call())
-   (user_balance_betting_ether_after, user_balance_betting_token_after) = contract.functions.getBalanceUserBetting(user_address).call()
-   (user_balance_escrow_ether_after, user_balance_escrow_token_after) = contract.functions.getBalanceUserEscrow(user_address).call()
-   (house_balance_betting_ether_after_internal, house_balance_betting_token_after) = contract.functions.getBalanceHouseBetting().call()
-   (house_balance_escrow_ether_after, house_balance_escrow_token_after) = contract.functions.getBalanceHouseEscrow().call()
-   (house_balance_betting_ether_after) = w3.eth.getBalance(cbet_account_betting_addr) - house_balance_escrow_ether_after
-   (balance_owner_ether_after, balance_owner_token_after) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
-
-   st.write("User Wallet Balance: " + str(user_balance_wallet_ether_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_ether_after/WEI_FACTOR) + " / " + str(user_balance_wallet_token_before/WEI_FACTOR) + "-->" + str(user_balance_wallet_token_after/WEI_FACTOR))
-   st.write("User Betting Balance: " + str(user_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(user_balance_betting_ether_after/WEI_FACTOR) + " / " + str(user_balance_betting_token_before/WEI_FACTOR) + "-->" + str(user_balance_betting_token_after/WEI_FACTOR))
-   st.write("User Escrow Balance: " + str(user_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(user_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(user_balance_escrow_token_after/WEI_FACTOR))
-   st.write("House Betting Balance: " + str(house_balance_betting_ether_before/WEI_FACTOR) + "-->" + str(house_balance_betting_ether_after/WEI_FACTOR) + " / " + str(house_balance_betting_token_before/WEI_FACTOR) + "-->" + str(house_balance_betting_token_after/WEI_FACTOR))
-   st.write("House Escrow Balance: " + str(house_balance_escrow_ether_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_ether_after/WEI_FACTOR) + " / " + str(house_balance_escrow_token_before/WEI_FACTOR) + "-->" + str(house_balance_escrow_token_after/WEI_FACTOR))
-   st.write("Owner/Deployer Balance: " + str(balance_owner_ether_before/WEI_FACTOR) + "-->" + str(balance_owner_ether_after/WEI_FACTOR) + " / " + str(balance_owner_token_before/WEI_FACTOR) + "-->" + str(balance_owner_token_after/WEI_FACTOR))
- 
+bet_id_event = int(st.number_input("Bet ID (Game Event):",value=bet_id))   
+winning_team_id = int(st.number_input("Winning Team Id:",value=team_id_place))
+winning_score = int(st.number_input("Winning Score:",value=75))
+losing_score = int(st.number_input("Losing Score:",value=75))
+if (st.button("Trigger Game Event")):
+   (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
+   contract.functions.gameEvent(bet_id_event, winning_team_id, winning_score, losing_score).transact({'from': cbet_account_betting_addr, 'gas': 1000000})
+   (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
+   print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
+   last_payout = contract.functions.getLastPayout().call({'from': cbet_account_owner_addr})
+   if (is_ether == True): asset = "ETH"
+   if (is_ether == False): asset = "CBET"
+   st.write("---")
+   st.write(f"Last payout = {str(last_payout)} {asset}")
+   bet_id = bet_id + 1
+   st.write("Done")             
                 
 st.write("---")
       

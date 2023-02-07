@@ -35,9 +35,14 @@ contract UserAccounts is CbetToken {
         _;
     }
 
+    modifier onlyHouse {
+        require(msg.sender == cbetBettingAddr, "Only the contracts owner has permissions for this action!");
+        _;
+    }
+
     // Construct which sets up the BlockWager contract owner address
     constructor (address payable _contractOwnerAddr)
-        CbetToken(msg.sender, 100*WEI_FACTOR)
+        CbetToken(msg.sender, 150*WEI_FACTOR)
         public
     {
         cbetOwnerAddr = _contractOwnerAddr;
@@ -53,13 +58,14 @@ contract UserAccounts is CbetToken {
     // Configure the address of the wallet (betting account) that will hold the ether/tokens
     // (Note, this would usually be placed in the constructur, but since the addresses from Ganache are dynamic, will be passed in as
     //        a parameter from the streamlit app)
-    function setCbetBettingAddr(address payable _cbetBettingAddr)
-        public
+    function setCbetBettingAddrUserAccounts(address payable _cbetBettingAddr)
+        internal
         onlyOwner
     {
         cbetBettingAddr = _cbetBettingAddr;
+        houseBettingBalance.token += 50*WEI_FACTOR;
+        transferOf(cbetOwnerAddr, cbetBettingAddr, 50*WEI_FACTOR);
     }
-
 
     // Create a new user account
     function createUserAccount(address payable _addr)
@@ -94,7 +100,7 @@ contract UserAccounts is CbetToken {
 
         // Need to mint the tokens to the users account
         mint(cbetOwnerAddr, msg.sender, msg.value);
-        cbetOwnerAddr.transfer(msg.value);
+        cbetBettingAddr.transfer(msg.value);
     }
 
     // Allow the user to sell CBET tokens
@@ -105,7 +111,8 @@ contract UserAccounts is CbetToken {
         require (userAccounts[_addr].activeAccount == true, "This account is not active");
 
         // Need to remove the tokens from the open token pool (unmint)
-        unmint(cbetOwnerAddr, _addr, msg.value);
+        transferOf(_addr, cbetBettingAddr, msg.value);
+        houseBettingBalance.token += msg.value;
         _addr.transfer(msg.value);
     }
 
@@ -193,11 +200,13 @@ contract UserAccounts is CbetToken {
     }
 
     // When a game is over, will need to transfer the escrow eth/tokens back into the betting account
-    function transferEscrowToBetting(address payable _addr, uint _value, bool _isEther)
+    function transferEscrowBackToBetting(address payable _addr, uint _value, bool _isEther)
         public
         payable
+        onlyHouse
     {
-        require (userAccounts[_addr].activeAccount == true, "This account is not active");
+        require (((userAccounts[_addr].activeAccount == true) ||
+                  (_addr == cbetOwnerAddr)), "This account is not active");
 
         // Check if betting with ether or tokens...
         if (_isEther)
@@ -217,29 +226,56 @@ contract UserAccounts is CbetToken {
         }
     }
 
-/*
-    function transferEscrowToUser(address payable _addr, uint _value, bool _isEther)
+    function transerWinningsFromBettingToUser(address payable _addr, uint _value, bool _isEther)
         public
         payable
+        //onlyHouse
+    {
+        require (userAccounts[_addr].activeAccount == true, "This account is not active");
+        
+        if (_isEther)
+        {
+            userAccounts[_addr].bettingBalance.eth += _value;
+        }
+        else
+        {
+            userAccounts[_addr].bettingBalance.token += _value;
+        }
+    }
+
+    function removeEscrowFromUser(address payable _addr, uint _value, bool _isEther)
+        public
+        payable
+        onlyHouse
     {
         require (userAccounts[_addr].activeAccount == true, "This account is not active");
 
-        // Check if betting with ether or tokens...
         if (_isEther)
         {
-            // Transfer ether from escrow account back to the betting account
             userAccounts[_addr].escrowBalance.eth -= _value;        // Remove ether from escrow account..
             houseEscrowBalance.eth -= _value;
-            cbetOwnerAddr.transfer(msg.value);
-        } else 
+            // Keep the houseBettingBalance untouched (the betting escrow is not real, just a variable)
+        }
+        else
         {
-            // Transfer tokens from escrow account back to the betting account
             userAccounts[_addr].escrowBalance.token -= _value;      // Remove tokens from escrow account...          
             houseEscrowBalance.token -= _value;
-            transferOf(cbetBettingAddr, recipient, _value);
+            houseBettingBalance.token += _value;                    // For tokens, unlike ether, escrow is real, so need to move back to Betting
+                                                                    // ToDo: Make ether and tokens similar approach (if have time)
         }
     }
-*/
+
+    // Allow the user to withdraw tokens from the betting account
+    function transferFromEscrowToOwnerToken(address payable _addr, uint _value)
+        public
+        payable
+        onlyHouse
+    {
+        require (userAccounts[_addr].activeAccount == true, "This account is not active");
+
+        userAccounts[_addr].escrowBalance.token -= _value;      // Remove tokens from escrow account...          
+        houseEscrowBalance.token -= _value;
+    }
 
     // Getter function to get their ether/token balances from the betting account
     function getBalanceUserBetting(address payable _addr)
