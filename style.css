@@ -41,3 +41,13 @@ div[data-baseweb="input"] > div {
 div[data-baseweb="select"] > div {
     height:52px;
 }
+
+.appview-container .main .block-container{{
+    padding:2rem 1rem 1rem;
+}}
+
+
+div[data-testid="stMarkdownContainer"] > hr {
+    margin:0
+}
+

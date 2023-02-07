@@ -18,9 +18,11 @@ from dotenv import load_dotenv
 st.set_page_config(page_title='NBA Odds and Bets', page_icon=':bar_chart:', layout='wide')
 st.title('🌍 NBA Odds and Bets')
 
+
 if 'user_account_addr' not in st.session_state:
     st.session_state['user_account_addr'] = ""
 
+st.write("\n")
 st.caption(f"💳: {st.session_state.user_account_addr} ")
 
 WEI_FACTOR = 10**18
@@ -60,25 +62,19 @@ st.session_state.user_balance_wallet_token = contract.functions.balanceCbetToken
 (st.session_state.user_balance_betting_ether, st.session_state.user_balance_betting_token) = contract.functions.getBalanceUserBetting(st.session_state.user_account_addr).call()
 (st.session_state.user_balance_escrow_ether, st.session_state.user_balance_escrow_token) = contract.functions.getBalanceUserEscrow(st.session_state.user_account_addr).call()
 with st.container():
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3, c4 = st.columns([2,2,2,2])
     with c1:
-        st.caption('User Wallet Balance Ether')
+        st.info('User Wallet Balance Ether')
+        st.info('User Betting Balance Ether')
     with c2:
-        st.caption(st.session_state.user_balance_wallet_ether/WEI_FACTOR)
+        st.info(st.session_state.user_balance_wallet_ether/WEI_FACTOR)
+        st.info(st.session_state.user_balance_betting_ether/WEI_FACTOR)
     with c3:
-        st.caption('User Wallet Balance token')
+        st.info('User Wallet Balance token')
+        st.info('User Betting Balance token')
     with c4:
-        st.caption(st.session_state.user_balance_wallet_token/WEI_FACTOR)
-with st.container():
-    c1, c2, c3, c4 = st.columns(4)
-    with c1:
-        st.caption('User Betting Balance Ether')
-    with c2:
-        st.caption(st.session_state.user_balance_betting_ether/WEI_FACTOR)
-    with c3:
-        st.caption('User Betting Balance token')
-    with c4:
-        st.caption(st.session_state.user_balance_betting_token/WEI_FACTOR)
+        st.info(st.session_state.user_balance_wallet_token/WEI_FACTOR)
+        st.info(st.session_state.user_balance_betting_token/WEI_FACTOR)
         
 todays_games_url = os.getenv("NBA_GAME_URL")
 
@@ -173,9 +169,9 @@ def place_bets():
                             st.write(f"{bet.team} {bet.spread}")
                         elif bet.bet_type == 'Total':
                             if bet.isOver:
-                                st.write(f"Over {bet.total}")
+                                st.write(f"Over {bet.total/SCORE_SCALING}")
                             else:
-                                st.write(f"Under {bet.total}")
+                                st.write(f"Under {bet.total/SCORE_SCALING}")
                         st.caption(bet.bet_type)
                         st.caption(bet.game)
                     with c2:
@@ -241,8 +237,6 @@ else:
         with c8:
             asset_type_lst = ["ETHER", "CBET TOKENS"]
             asset_type = st.selectbox('Select Asset Type', asset_type_lst, label_visibility="collapsed", key="user_dealing_ccy")
-    
-    
     counter = 0
     for sportsbook in dict_game_options:
         st.markdown("---")
@@ -258,9 +252,9 @@ else:
             with st.container():
                 c1, c2, c3,c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
                 with c1:
-                    st.write("⬛️","*:black[Home Team]*")
+                    st.info("Home", icon="⬛️")
                 with c2:
-                    st.code(f"{df2.home_team[counter]}")
+                    st.info(f"{df2.home_team[counter]}")
                 with c3:
                     st.button(
                         f"{df2.home_ml_odds[counter]}", 
@@ -285,7 +279,7 @@ else:
                 with c6:
                     for bet in st.session_state.user_bets:
                         if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
-                            st.code(bet.bet_type)
+                            st.info(bet.bet_type)
                 with c7:
                     for bet in st.session_state.user_bets:
                         if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
@@ -293,14 +287,14 @@ else:
                 with c8:
                     for bet in st.session_state.user_bets:
                         if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
-                            st.code(f"Payout : {round(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),2)}")
+                            st.info(f"Payout : {round(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),2)}")
 
             with st.container():
                 c1, c2, c3,c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
                 with c1:
-                    st.write("🟥","*:black[Away Team]*")
+                    st.info("Away", icon="🟥")
                 with c2:
-                    st.code(f"{df2.away_team[counter]}")
+                    st.info(f"{df2.away_team[counter]}")
                 with c3:
                     st.button(
                         f"{df2.away_ml_odds[counter]}", 
@@ -325,7 +319,7 @@ else:
                 with c6:
                     for bet in st.session_state.user_bets:
                         if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
-                            st.code(bet.bet_type)
+                            st.info(bet.bet_type)
                 with c7:
                     for bet in st.session_state.user_bets:
                         if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
@@ -333,7 +327,7 @@ else:
                 with c8:
                     for bet in st.session_state.user_bets:
                         if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
-                            st.code(f"Payout : {round(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),2)}")
+                            st.info(f"Payout : {round(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),2)}")
             idx = idx+1
             if(len(game_options) >= idx):
                 with st.container():
