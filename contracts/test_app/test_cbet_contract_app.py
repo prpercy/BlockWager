@@ -52,8 +52,7 @@ user_account_addr_2 = accounts[3]
 user_account_addr_3 = accounts[4]
 
 WEI_FACTOR = 1000000000000000000
-SPREAD_FACTOR = 100
-TOTAL_FACTOR = 100
+SCORE_SCALING = 100
 
 st.write("(1st Ganache Acct) ---> cbet_account_owner_addr=" + cbet_account_owner_addr)
 st.write("(2nd Ganache Acct) ---> cbet_account_betting_addr=" + cbet_account_betting_addr)
@@ -219,44 +218,30 @@ if (st.button("Place Moneyline Bet")):
    print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
    st.write("Done")
 
-spread = int(st.number_input("Spread:",value=2.))
+spread = int(st.number_input("Spread:",value=2.)) * SCORE_SCALING
 
 if (st.button("Place Spread Bet")):
    (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
    contract.functions.createSpreadBet(bet_id_place,sportbook_id,team_id_place,odds,spread,user_address,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
    (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
    print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
-   last_payout = contract.functions.getLastPayout().call({'from': cbet_account_owner_addr})
-   if (is_ether == True): asset = "ETH"
-   if (is_ether == False): asset = "CBET"
-   st.write("---")
-   st.write(f"Last payout = {str(last_payout)} {asset}")
-   bet_id = bet_id + 1
-   st.write("Done")             
 
-bet_is_over = st.checkbox('Is Bet Over')
-total_score = int(st.number_input("OverUnder Score:",value=100.)) * TOTAL_FACTOR
+bet_is_over = st.selectbox('Is Bet Over', [False, True])
+total_score = int(st.number_input("OverUnder Score:",value=100)) * SCORE_SCALING
 
 if (st.button("Place Total (Over/Under) Bet")):
    (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
    contract.functions.createTotalBet(bet_id_place,sportbook_id,team_id_place,odds,bet_is_over,total_score,user_address,bet_amount,is_ether).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
    (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
    print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
-   last_payout = contract.functions.getLastPayout().call({'from': cbet_account_owner_addr})
-   if (is_ether == True): asset = "ETH"
-   if (is_ether == False): asset = "CBET"
-   st.write("---")
-   st.write(f"Last payout = {str(last_payout)} {asset}")
-   bet_id = bet_id + 1
-   st.write("Done")             
 
 bet_id_event = int(st.number_input("Bet ID (Game Event):",value=bet_id))   
 winning_team_id = int(st.number_input("Winning Team Id:",value=team_id_place))
-winning_score = int(st.number_input("Winning Score:",value=75))
-losing_score = int(st.number_input("Losing Score:",value=75))
-if (st.button("Trigger Game Event")):
+winning_score = int(st.number_input("Winning Score:",value=75)) * SCORE_SCALING
+losing_score = int(st.number_input("Losing Score:",value=75)) * SCORE_SCALING
+if (st.button("Trigger Game Event")):   
    (user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre)=get_balance(user_address)
-   contract.functions.gameEvent(bet_id_event, winning_team_id, winning_score, losing_score).transact({'from': cbet_account_betting_addr, 'gas': 1000000})
+   contract.functions.gameEvent(bet_id_event, winning_team_id, winning_score, losing_score).transact({'from': cbet_account_betting_addr, 'gas': 1000000})     
    (user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)=get_balance(user_address)
    print_delta_balances(user_balance_wallet_ether_pre,user_balance_wallet_token_pre,user_balance_betting_ether_pre,user_balance_betting_token_pre,user_balance_escrow_ether_pre,user_balance_escrow_token_pre,house_balance_betting_token_pre,house_balance_escrow_ether_pre,house_balance_escrow_token_pre,house_balance_betting_ether_pre,balance_owner_ether_pre,balance_owner_token_pre,user_balance_wallet_ether_post,user_balance_wallet_token_post,user_balance_betting_ether_post,user_balance_betting_token_post,user_balance_escrow_ether_post,user_balance_escrow_token_post,house_balance_betting_token_post,house_balance_escrow_ether_post,house_balance_escrow_token_post,house_balance_betting_ether_post,balance_owner_ether_post,balance_owner_token_post)
    last_payout = contract.functions.getLastPayout().call({'from': cbet_account_owner_addr})

@@ -64,7 +64,7 @@ contract PlaceBets {
     }
 
     modifier onlyHouse {
-        require(msg.sender == cbetBettingAddr, "Only the contracts owner has permissions for this action!");
+        require(msg.sender == cbetBettingAddr, "Only the betting account has permissions for this action!");
         _;
     }
 
@@ -384,7 +384,7 @@ contract PlaceBets {
 
         uint16 totalScore = _winningScore + _losingScore;
 
-        if (!isOver && (total > totalScore))
+        if ((!isOver && (totalScore > total)) || (isOver && (totalScore < total)))
         {
             isWin = false;
             winnings = 0;
