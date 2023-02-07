@@ -1,0 +1,11 @@
+div[data-baseweb="select"] > div {
+    width:200px;
+}
+
+div.stNumberInput > div {
+    width:200px;
+}
+
+div.stButton > button {
+    width: 160px;
+}
