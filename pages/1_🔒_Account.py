@@ -66,11 +66,9 @@ accounts = w3.eth.accounts
 ## Assign accounts
 #################################################################################
 
-st.markdown("---")
+
 cbet_account_owner_addr = accounts[0]
 cbet_account_betting_addr = accounts[1]
-st.caption(f"House Betting Wallet Address    -> {cbet_account_betting_addr}")
-st.caption(f"House Contract Deployer Address -> {cbet_account_owner_addr}")
 
 if 'cbet_account_owner_addr' not in st.session_state:
     st.session_state['cbet_account_owner_addr'] = cbet_account_owner_addr
@@ -137,10 +135,9 @@ if (st.session_state.isRegistered != True) and (st.session_state.user_account_ad
 if st.session_state.user_account_addr and st.session_state.isRegistered:
     #user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
     get_balances_pre_action()
-    st.write("---")
-    c1, c2 = st.columns(2, gap="large")
+    c1, c2 = st.columns([7,3])
     with c1:
-        st.subheader(f"ACCOUNT: {st.session_state.user_account_addr} !!!")
+        st.subheader(f"💳: {st.session_state.user_account_addr}")
         st.write("---")
         st.subheader("PURCHASE/SELL CBET TOKENS:")
         

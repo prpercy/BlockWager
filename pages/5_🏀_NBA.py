@@ -24,6 +24,7 @@ if 'user_account_addr' not in st.session_state:
 st.caption(f"💳: {st.session_state.user_account_addr} ")
 
 WEI_FACTOR = 10**18
+SCORE_SCALING=100
 
 # environment Variables
 load_dotenv("./blockwager.env")
@@ -54,22 +55,39 @@ def load_contract():
 
 contract = load_contract()
 
-todays_games_url = 'https://data.nba.com/data/10s/v2015/json/mobile_teams/nba/2022/scores/00_todays_scores.json'
+st.session_state.user_balance_wallet_ether = w3.eth.getBalance(st.session_state.user_account_addr)
+st.session_state.user_balance_wallet_token = contract.functions.balanceCbetTokens(st.session_state.user_account_addr).call()
+(st.session_state.user_balance_betting_ether, st.session_state.user_balance_betting_token) = contract.functions.getBalanceUserBetting(st.session_state.user_account_addr).call()
+(st.session_state.user_balance_escrow_ether, st.session_state.user_balance_escrow_token) = contract.functions.getBalanceUserEscrow(st.session_state.user_account_addr).call()
+with st.container():
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.caption('User Wallet Balance Ether')
+    with c2:
+        st.caption(st.session_state.user_balance_wallet_ether/WEI_FACTOR)
+    with c3:
+        st.caption('User Wallet Balance token')
+    with c4:
+        st.caption(st.session_state.user_balance_wallet_token/WEI_FACTOR)
+with st.container():
+    c1, c2, c3, c4 = st.columns(4)
+    with c1:
+        st.caption('User Betting Balance Ether')
+    with c2:
+        st.caption(st.session_state.user_balance_betting_ether/WEI_FACTOR)
+    with c3:
+        st.caption('User Betting Balance token')
+    with c4:
+        st.caption(st.session_state.user_balance_betting_token/WEI_FACTOR)
+        
+todays_games_url = os.getenv("NBA_GAME_URL")
 
-data_url = 'https://stats.nba.com/stats/leaguedashteamstats?' \
-           'Conference=&DateFrom=&DateTo=&Division=&GameScope=&' \
-           'GameSegment=&LastNGames=0&LeagueID=00&Location=&' \
-           'MeasureType=Base&Month=0&OpponentTeamID=0&Outcome=&' \
-           'PORound=0&PaceAdjust=N&PerMode=PerGame&Period=0&' \
-           'PlayerExperience=&PlayerPosition=&PlusMinus=N&Rank=N&' \
-           'Season=2022-23&SeasonSegment=&SeasonType=Regular+Season&ShotClockRange=&' \
-           'StarterBench=&TeamID=0&TwoWay=0&VsConference=&VsDivision='
+data_url = os.getenv("NBA_DATA_URL")
 
 
 # Style
 with open('style.css')as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html = True)
-
 
 #Sportsbook list
 sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn', 'bet_rivers_ny']
@@ -85,7 +103,7 @@ class Bet:
         self.odds = odds
         self.amount=0
         self.spread=spread
-        self.total=total
+        self.total=total*SCORE_SCALING
         self.isOver=isOver
         self.isEther=True
     def update_bet(self, amount,ccy):
@@ -169,43 +187,10 @@ def place_bets():
                 st.caption("---")
     st.session_state['user_bets'] = []
    
-st.markdown("""
-<style>
-div.stButton > button {
-    background-color: rgba(51, 51, 51, 0.05);
-    border-radius: 8px;
-    border-width: 0;
-    color: #333333;
-    cursor: pointer;
-    display: inline-block;
-    font-family: "Haas Grot Text R Web", "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 20px;
-    list-style: none;
-    margin: 0;
-    padding: 10px 12px;
-    text-align: center;
-    transition: all 200ms;
-    vertical-align: baseline;
-    white-space: nowrap;
-    user-select: none;
-    -webkit-user-select: none;
-    touch-action: manipulation;
-    width: 130px;
-    height: 52px;
-}
-</style>""", unsafe_allow_html=True)
 
-st.markdown("""
-<style>
-div[data-baseweb=“base-input”] > div {
-    height: 53px;
-}
-</style>""", unsafe_allow_html=True)
 
 # Filter the sportsbooks
-options = st.multiselect(
+options = st.sidebar.multiselect(
     '**Select your desired sportsbook(s):**',
     options=sportsbooks,
     default='fanduel',
@@ -217,7 +202,7 @@ if len(options) == 0:
 else:
     dict_game_options = {}
     dict_df = {}
-    st.write('---')
+    st.sidebar.write('---')
     for i in range(len(options)):
         sportsbook = options[i]
         df, dict_games = getOdds(sportsbook)
@@ -228,7 +213,7 @@ else:
 
 
         # Filter for teams
-        game_options = st.multiselect(
+        game_options = st.sidebar.multiselect(
             f'**Select your matches(s) for sportsbook {sportsbook}:**',
             options=games,
             default=games[1],
