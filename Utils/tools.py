@@ -137,7 +137,9 @@ def retrieve_user_bets(user_account_Addr, db_engine):
     WHERE user_account_Addr = '{user_account_Addr}' and bet_type = 'Spread'
     """
     
-    bet_results_spread = db_engine.execute(retrieve_user_bets_query)
+    bet_results_spread_cur = db_engine.execute(retrieve_user_bets_query)
+    
+    bet_results_spread = [r for r in bet_results_spread_cur]
     
     retrieve_user_bets_query = f"""
     SELECT 
@@ -147,7 +149,8 @@ def retrieve_user_bets(user_account_Addr, db_engine):
     WHERE user_account_Addr = '{user_account_Addr}' and bet_type = 'Total'
     """
     
-    bet_results_total = db_engine.execute(retrieve_user_bets_query)
+    bet_results_total_cur = db_engine.execute(retrieve_user_bets_query)
+    bet_results_total = [r for r in bet_results_total_cur]
  
     retrieve_user_bets_query = f"""
     SELECT 
@@ -157,7 +160,8 @@ def retrieve_user_bets(user_account_Addr, db_engine):
     WHERE user_account_Addr = '{user_account_Addr}' and bet_type = 'ML'
     """
     
-    bet_results_ml = db_engine.execute(retrieve_user_bets_query)
+    bet_results_ml_cur = db_engine.execute(retrieve_user_bets_query)
+    bet_results_ml = [r for r in bet_results_ml_cur]
     
     bet_results = {
         'ML' : bet_results_ml,
@@ -167,6 +171,20 @@ def retrieve_user_bets(user_account_Addr, db_engine):
     
     return bet_results
 
+
+def get_bet_id_counter(db_engine):
+    get_bet_id_counter = f"""
+    SELECT 
+        COUNT(*)
+    FROM 
+        bet 
+    """
+    
+    result = db_engine.scalar(get_bet_id_counter)+1
+
+    return result
+
+# to navigate in streamlit app from one page to another
 def nav_page(page_name, timeout_secs=5):
     nav_script = """
         <script type="text/javascript">
@@ -191,15 +209,3 @@ def nav_page(page_name, timeout_secs=5):
         </script>
     """ % (page_name, timeout_secs)
     html(nav_script)
-    
-def get_bet_id_counter(db_engine):
-    get_bet_id_counter = f"""
-    SELECT 
-        COUNT(*)
-    FROM 
-        bet 
-    """
-    
-    result = db_engine.scalar(get_bet_id_counter)+1
-
-    return result
