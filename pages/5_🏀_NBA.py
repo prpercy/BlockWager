@@ -17,7 +17,7 @@ from streamlit.components.v1 import html
 # Layout
 st.set_page_config(page_title='NBA Odds and Bets', page_icon=':bar_chart:', layout='wide')
 st.title('🏀 NBA Odds and Bets')
-
+##javascript injection for nav page to make it more visually appealing
 def nav_page(page_name, timeout_secs=5):
     nav_script = """
         <script type="text/javascript">
@@ -44,7 +44,7 @@ def nav_page(page_name, timeout_secs=5):
     html(nav_script)
     
 
-
+##mechanism that ensure user is registered for cbet
 if 'user_account_addr' not in st.session_state or st.session_state['user_account_addr'] == "":
     st.session_state['user_account_addr'] = ""
     st.warning("User has not registered or logged in. Please do so before you start betting", icon="⚠️")
@@ -85,11 +85,13 @@ def load_contract():
     return contract
 
 contract = load_contract()
-
+##performs a contract call and Gets/stores users ethereum and cbet token balance, then stores in in escrow. 
 st.session_state.user_balance_wallet_ether = w3.eth.getBalance(st.session_state.user_account_addr)
 st.session_state.user_balance_wallet_token = contract.functions.balanceCbetTokens(st.session_state.user_account_addr).call()
 (st.session_state.user_balance_betting_ether, st.session_state.user_balance_betting_token) = contract.functions.getBalanceUserBetting(st.session_state.user_account_addr).call()
 (st.session_state.user_balance_escrow_ether, st.session_state.user_balance_escrow_token) = contract.functions.getBalanceUserEscrow(st.session_state.user_account_addr).call()
+
+##Creates a container that is expandable and populates it with the users betting balances and also shows wei values
 with st.expander("User account balances", expanded=True):
     c1, c2, c3, c4 = st.columns([2,2,2,2])
     with c1:
@@ -105,6 +107,7 @@ with st.expander("User account balances", expanded=True):
         st.info(format(st.session_state.user_balance_wallet_token/WEI_FACTOR,'.2f'))
         st.info(format(st.session_state.user_balance_betting_token/WEI_FACTOR,'.2f'))
         
+## pulls todays games from the backend 
 todays_games_url = os.getenv("NBA_GAME_URL")
 
 data_url = os.getenv("NBA_DATA_URL")
@@ -119,6 +122,8 @@ sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn'
 
 
 
+
+##class intitiates all logic for accepting and updating bets. 
 class Bet:
     def __init__(self, sportsbook, game, team, bet_type, odds, spread, total, isOver):
         self.sportsbook = sportsbook
@@ -141,6 +146,7 @@ class Bet:
     
 # Data Sources
 @st.cache(ttl=600)
+##uses sbrodds to get odds and store them in a df 
 def getOdds(sportsbook):
     odds = None
     if sportsbooks != None:
@@ -151,17 +157,17 @@ def getOdds(sportsbook):
     data = get_json_data(data_url)
     df = to_data_frame(data)
     return df, dict_games
-
+##creates an empty list for user bets
 if 'user_bets' not in st.session_state:
     st.session_state['user_bets'] = []
-    
+
 if 'user_dealing_ccy' not in st.session_state:
     st.session_state['user_dealing_ccy'] = "ETHER"
-    
+ ##function for appending a bet to the sportsbook   
 def add_bet(sportsbook, game, team, bet_type, odds, spread, total, isOver):
     if odds != "":
         st.session_state.user_bets.append(Bet(sportsbook, game, team, bet_type, odds, spread, total, isOver))
-        
+##function for placing a bet on the sportsbook, the function is stored in an expanding container      
 def place_bets():
     with st.expander("🟢 Bets placed", expanded=True):
         isError = False
@@ -219,7 +225,7 @@ def place_bets():
    
 
 
-# Filter the sportsbooks
+# side bar to Filter the sportsbooks
 options = st.sidebar.multiselect(
     '**Select your desired sportsbook(s):**',
     options=sportsbooks,
@@ -284,6 +290,8 @@ else:
                 counter = df1[df1['game']==game].index.values[0]
                 #st.subheader(df2.game[counter])
                 st.caption(df2.game[counter])
+                
+                ##creates the buttons for choosing bets , these buttons render odds and allow user to select games to place a bet
                 with st.container():
                     c1, c2, c3,c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
                     with c1:
