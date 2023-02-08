@@ -45,8 +45,8 @@ accounts = w3.eth.accounts
 #################################################################################
 
 st.markdown("---")
-cbet_account_owner_addr = accounts[1]
-cbet_account_betting_addr = accounts[0]
+cbet_account_owner_addr = accounts[0]
+cbet_account_betting_addr = accounts[1]
 user_account_addr_1 = accounts[2]
 user_account_addr_2 = accounts[3]
 user_account_addr_3 = accounts[4]
