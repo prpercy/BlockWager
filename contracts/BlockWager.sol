@@ -18,7 +18,7 @@ contract BlockWager is UserAccounts, PlaceBets {
     }
 
     modifier onlyHouse {
-        require(msg.sender == cbetBettingAddr, "Only the contracts owner has permissions for this action!");
+        require(msg.sender == cbetBettingAddr, "Only the house betting account has permissions for this action!");
         _;
     }
 
