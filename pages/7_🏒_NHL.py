@@ -17,61 +17,47 @@ st.set_page_config(page_title='[Under construction]', page_icon='🚧', layout='
 st.title('🚧 [Page Under construction]')
 
 
-if 'user_account_addr' not in st.session_state:
-    st.session_state['user_account_addr'] = ''
-st.caption(f'ACCOUNT: {st.session_state.user_account_addr}!!!')
-st.caption(f"Cbet account {st.session_state.cbet_account_owner_addr}!!!")
-WEI_FACTOR = 10**18 
-load_dotenv('./blockwagwer.env')
+# if 'user_account_addr' not in st.session_state:
+#     st.session_state['user_account_addr'] = ''
+# st.caption(f'ACCOUNT: {st.session_state.user_account_addr}!!!')
+# st.caption(f"Cbet account {st.session_state.cbet_account_owner_addr}!!!")
+# WEI_FACTOR = 10**18 
+# load_dotenv('./blockwagwer.env')
 
-w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
-
-
-@st.cache(allow_output_mutation=True)
-contract = 5_🏀_NBA.load_contract()
-#Sportsbooks list
-sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn', 'bet_rivers_ny']
-
-# Filter for sportsbooks
-options = st.multiselect(
-    '**Select your sportsbook(s):**',
-    options=sportsbooks,
-    default=sportsbooks,
-    key='Sportsbooks'
-)
-todays_games_url = ''
-data_url= ''
-
-#Team list
-nhl_teams = [
-    "Anaheim Ducks",    "Arizona Coyotes",    "Boston Bruins",    "Buffalo Sabres",
-    "Calgary Flames",    "Carolina Hurricanes",    "Chicago Blackhawks",    "Colorado Avalanche",
-    "Columbus Blue Jackets",    "Dallas Stars",    "Detroit Red Wings",    "Edmonton Oilers",
-    "Florida Panthers",    "Los Angeles Kings",    "Minnesota Wild",    "Montreal Canadiens",
-    "Nashville Predators",    "New Jersey Devils",    "New York Islanders",    "New York Rangers",
-    "Ottawa Senators",    "Philadelphia Flyers",    "Pittsburgh Penguins",    "San Jose Sharks",
-    "St. Louis Blues",    "Tampa Bay Lightning",    "Toronto Maple Leafs",    "Vancouver Canucks",
-    "Vegas Golden Knights",    "Washington Capitals",    "Winnipeg Jets"]
+# w3 = Web3(Web3.HTTPProvider(os.getenv("WEB3_PROVIDER_URI")))
 
 
-# Filter for teams
-options = st.multiselect(
-    '**Select your team(s):**',
-    options=nhl_teams,
-    default=nhl_teams,
-    key='NHL Teams'
-)
+# @st.cache(allow_output_mutation=True)
+# contract = 5_🏀_NBA.load_contract()
+# #Sportsbooks list
+# sportsbooks = ['fanduel', 'draftkings', 'betmgm', 'pointsbet', 'caesars', 'wynn', 'bet_rivers_ny']
 
-tab1, tab2, tab3 = st.tabs(["Spread", "Money", "Total"])
+# # Filter for sportsbooks
+# options = st.multiselect(
+#     '**Select your sportsbook(s):**',
+#     options=sportsbooks,
+#     default=sportsbooks,
+#     key='Sportsbooks'
+# )
+# todays_games_url = ''
+# data_url= ''
 
-with tab1:
-   st.subheader("Odds")
-#Odds and betting code to be inserted here
+# #Team list
+# nhl_teams = [
+#     "Anaheim Ducks",    "Arizona Coyotes",    "Boston Bruins",    "Buffalo Sabres",
+#     "Calgary Flames",    "Carolina Hurricanes",    "Chicago Blackhawks",    "Colorado Avalanche",
+#     "Columbus Blue Jackets",    "Dallas Stars",    "Detroit Red Wings",    "Edmonton Oilers",
+#     "Florida Panthers",    "Los Angeles Kings",    "Minnesota Wild",    "Montreal Canadiens",
+#     "Nashville Predators",    "New Jersey Devils",    "New York Islanders",    "New York Rangers",
+#     "Ottawa Senators",    "Philadelphia Flyers",    "Pittsburgh Penguins",    "San Jose Sharks",
+#     "St. Louis Blues",    "Tampa Bay Lightning",    "Toronto Maple Leafs",    "Vancouver Canucks",
+#     "Vegas Golden Knights",    "Washington Capitals",    "Winnipeg Jets"]
 
-with tab2:
-    st.subheader("Odds")
-#Odds and betting code to be inserted here
 
-with tab3:
-   st.subheader("Odds")
-#Odds and betting code to be inserted here
+# # Filter for teams
+# options = st.multiselect(
+#     '**Select your team(s):**',
+#     options=nhl_teams,
+#     default=nhl_teams,
+#     key='NHL Teams'
+# )
