@@ -18,7 +18,7 @@ contract BlockWager is UserAccounts, PlaceBets {
     }
 
     modifier onlyHouse {
-        require(msg.sender == cbetBettingAddr, "Only the contracts owner has permissions for this action!");
+        require(msg.sender == cbetBettingAddr, "Only the house betting account has permissions for this action!");
         _;
     }
 
@@ -48,6 +48,7 @@ contract BlockWager is UserAccounts, PlaceBets {
         public
         onlyOwner
     {
+        checkUniqueBetId(_betId);
         CheckBettingFundsAvailability(_addr, _betAmount, _isEther);
         createMoneylineBetInternal(_betId, _sportbookId, _teamId, _odds, _addr, _betAmount, _isEther);                               
         transferBettingToEscrow(_addr, _betAmount, _isEther);
@@ -58,6 +59,7 @@ contract BlockWager is UserAccounts, PlaceBets {
         public
         onlyOwner
     {
+        checkUniqueBetId(_betId);
         CheckBettingFundsAvailability(_addr, _betAmount, _isEther);
         createSpreadBetInternal(_betId, _sportbookId, _teamId, _odds, _spread, _addr, _betAmount, _isEther);                               
         transferBettingToEscrow(_addr, _betAmount, _isEther);
@@ -68,6 +70,7 @@ contract BlockWager is UserAccounts, PlaceBets {
         public
         onlyOwner
     {
+        checkUniqueBetId(_betId);
         CheckBettingFundsAvailability(_addr, _betAmount, _isEther);
         createTotalBetInternal(_betId, _sportbookId, _teamId, _odds, _isOver, _total, _addr, _betAmount, _isEther);                               
         transferBettingToEscrow(_addr, _betAmount, _isEther);

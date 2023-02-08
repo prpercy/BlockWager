@@ -42,7 +42,7 @@ contract UserAccounts is CbetToken {
 
     // Construct which sets up the BlockWager contract owner address
     constructor (address payable _contractOwnerAddr)
-        CbetToken(msg.sender, 150*WEI_FACTOR)
+        CbetToken(msg.sender, 200*WEI_FACTOR)
         public
     {
         cbetOwnerAddr = _contractOwnerAddr;
@@ -63,8 +63,14 @@ contract UserAccounts is CbetToken {
         onlyOwner
     {
         cbetBettingAddr = _cbetBettingAddr;
-        houseBettingBalance.token += 50*WEI_FACTOR;
-        transferOf(cbetOwnerAddr, cbetBettingAddr, 50*WEI_FACTOR);
+
+        if (houseBettingBalance.token < 100*WEI_FACTOR)
+        {
+            mint(cbetOwnerAddr, msg.sender, 100*WEI_FACTOR);
+            houseBettingBalance.token += 100*WEI_FACTOR;
+            transferOf(cbetOwnerAddr, cbetBettingAddr, 100*WEI_FACTOR);
+        }
+
     }
 
     // Create a new user account
