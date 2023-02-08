@@ -255,7 +255,7 @@ else:
     with st.container():
         c1, c2, c3, c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
         with c1:
-            st.write("")
+            st.success("🖇")
         with c2:
             st.success("Team")
         with c3:
@@ -327,7 +327,7 @@ else:
                 with st.container():
                     c1, c2, c3,c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
                     with c1:
-                        st.info("Away", icon="✈️ ")
+                        st.info("Away", icon="✈️")
                     with c2:
                         st.info(f"{df2.away_team[counter]}")
                     with c3:
