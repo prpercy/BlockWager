@@ -14,7 +14,7 @@ c3.image(Image.open('images/NBA.png').resize((50,100)))
 c4.image(Image.open('images/NFL.png').resize((80,100)))
 c5.image(Image.open('images/NHL.png').resize((100,100)))
 
-
+## home page text
 st.write(
     """
     Introducing the revolutionary new sports betting app built on the cutting-edge technology of web 3
@@ -27,7 +27,7 @@ st.write(
 
     """
 )
-
+##information in subheader 
 st.subheader('Getting Started')
 st.write(
     """
@@ -41,5 +41,5 @@ st.write(
 )
 
 st.write('---')
-
+##column with link to git repo 
 c1 = st.info('**GitHub: [@ppercy/BlockWager](https://github.com/prpercy/BlockWager)**', icon="💻")

@@ -25,24 +25,24 @@ data_headers = {
     'x-nba-stats-token': 'true'
 }
 
-
+##
 def get_json_data(url):
     raw_data = requests.get(url, headers=data_headers)
     json = raw_data.json()
     return json.get('resultSets')
 
-
+#scrapes todays game, returns json
 def get_todays_games_json(url):
     raw_data = requests.get(url, headers=games_header)
     json = raw_data.json()
     return json.get('gs').get('g')
 
-
+#converts game data to a pandas dataframe
 def to_data_frame(data):
     data_list = data[0]
     return pd.DataFrame(data=data_list.get('rowSet'), columns=data_list.get('headers'))
 
-
+#stores todays games in an empty list with proper format in order to render on front end
 def create_todays_games(input_list):
     games = []
     for game in input_list:
@@ -61,7 +61,7 @@ def create_todays_games_from_odds(input_dict):
         games.append([home_team, away_team])
     return games
 
-
+## creates payout logic 
 def payout(stake, odds):
     if odds > 0:
         return (stake * (odds / 100)) + stake
@@ -116,7 +116,7 @@ def create_bet(bet_id, bet, user_account_Addr, db_engine):
     db_engine.execute(bet_query)
       
     return bet
-
+#ufunction that updates bets and persists to db 
 def update_bet_status_payout(bet_id, payout, status, db_engine):
     
     bet_status_update_query = f"""
@@ -127,7 +127,7 @@ def update_bet_status_payout(bet_id, payout, status, db_engine):
     db_engine.execute(bet_status_update_query)
     
     return True
-
+##retrieves users bets from db 
 def retrieve_user_bets(user_account_Addr, db_engine):
     retrieve_user_bets_query = f"""
     SELECT 
@@ -171,7 +171,7 @@ def retrieve_user_bets(user_account_Addr, db_engine):
     
     return bet_results
 
-
+##counter for creating new bet_ids 
 def get_bet_id_counter(db_engine):
     get_bet_id_counter = f"""
     SELECT 

@@ -8,7 +8,7 @@ from Utils.Dictionaries import team_index_current
 # Layout
 st.set_page_config(page_title='Bets placed by User', page_icon=':bar_chart:', layout='wide')
 st.title('🟢 Your bets')
-
+##logic that determines if a bet is a winner or loser for totals
 def win_lose_total_bet(bet_id, team_id, odds, is_over_int, total, is_win):
     print("ok total")
     if is_win:
@@ -17,7 +17,7 @@ def win_lose_total_bet(bet_id, team_id, odds, is_over_int, total, is_win):
             winning_score = total - losing_score
     else:
         print("ok total")
-
+##logic that determines if a bet is a winner or loser for spreads
 def win_lose_spread_bet(bet_id, team_id, odds):
     print("ok spread")
 
@@ -27,7 +27,7 @@ def win_lose_ml_bet(bet_id, team_id, odds):
 # Style
 with open('style.css')as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html = True)
-    
+ #ensures a user is logged in (has address to transact)   
 if 'user_account_addr' not in st.session_state or st.session_state['user_account_addr'] == "":
     st.session_state['user_account_addr'] = ""
     st.warning("User has not registered or logged in. Please do so before you start betting", icon="⚠️")
@@ -40,7 +40,7 @@ insp = inspect(db_engine)
 # Check if bet table already exists; if not, create one
 if len(insp.get_table_names()) == 0:
     initiate_database_tables(db_engine)
-    
+ #stores user bets in a variable during user session   
 bets = retrieve_user_bets(st.session_state.user_account_addr, db_engine)
 
 bets_ml = bets['ML']
@@ -51,7 +51,7 @@ WEI_FACTOR = 10**18
 SCORE_SCALING=100
 
 tab1, tab2 = st.tabs(["User Bets", "Bet Event"])
-
+##redners bets (one for each: ML, Spreads, Totals)
 with tab1:
     with st.expander("🟢 MoneyLine Bets placed", expanded=True):
         with st.container():
