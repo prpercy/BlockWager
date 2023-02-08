@@ -3,7 +3,7 @@ import streamlit as st
 import pandas as pd
 import argparse
 from colorama import Fore, Style
-from Utils.tools import get_json_data, to_data_frame, payout
+from Utils.tools import get_json_data, to_data_frame, payout, get_db_engine, initiate_database_tables, create_bet, nav_page, get_bet_id_counter
 from Utils.Dictionaries import team_index_current, sportsbook_index
 from OddsProvider.SbrOddsProvider import SbrOddsProvider
 import os
@@ -11,39 +11,13 @@ import json
 from web3 import Web3
 from pathlib import Path
 from dotenv import load_dotenv
-from streamlit.components.v1 import html
+from sqlalchemy import inspect
+
 
 
 # Layout
 st.set_page_config(page_title='NBA Odds and Bets', page_icon=':bar_chart:', layout='wide')
 st.title('🏀 NBA Odds and Bets')
-
-def nav_page(page_name, timeout_secs=5):
-    nav_script = """
-        <script type="text/javascript">
-            function attempt_nav_page(page_name, start_time, timeout_secs) {
-                var links = window.parent.document.getElementsByTagName("a");
-                for (var i = 0; i < links.length; i++) {
-                    if (links[i].href.toLowerCase().endsWith("/" + page_name.toLowerCase())) {
-                        links[i].click();
-                        return;
-                    }
-                }
-                var elasped = new Date() - start_time;
-                if (elasped < timeout_secs * 1000) {
-                    setTimeout(attempt_nav_page, 100, page_name, start_time, timeout_secs);
-                } else {
-                    alert("Unable to navigate to page '" + page_name + "' after " + timeout_secs + " second(s).");
-                }
-            }
-            window.addEventListener("load", function() {
-                attempt_nav_page("%s", new Date(), %d);
-            });
-        </script>
-    """ % (page_name, timeout_secs)
-    html(nav_script)
-    
-
 
 if 'user_account_addr' not in st.session_state or st.session_state['user_account_addr'] == "":
     st.session_state['user_account_addr'] = ""
@@ -96,14 +70,14 @@ with st.expander("User account balances", expanded=True):
         st.info('**User Wallet Balance Ether**')
         st.info('**User Betting Balance Ether**')
     with c2:
-        st.info(format(st.session_state.user_balance_wallet_ether/WEI_FACTOR,'.2f'))
-        st.info(format(st.session_state.user_balance_betting_ether/WEI_FACTOR,'.2f'))
+        st.info(format(st.session_state.user_balance_wallet_ether/WEI_FACTOR,'.6f'))
+        st.info(format(st.session_state.user_balance_betting_ether/WEI_FACTOR,'.6f'))
     with c3:
         st.info('**User Wallet Balance token**')
         st.info('**User Betting Balance token**')
     with c4:
-        st.info(format(st.session_state.user_balance_wallet_token/WEI_FACTOR,'.2f'))
-        st.info(format(st.session_state.user_balance_betting_token/WEI_FACTOR,'.2f'))
+        st.info(format(st.session_state.user_balance_wallet_token/WEI_FACTOR,'.6f'))
+        st.info(format(st.session_state.user_balance_betting_token/WEI_FACTOR,'.6f'))
         
 todays_games_url = os.getenv("NBA_GAME_URL")
 
@@ -165,10 +139,19 @@ def add_bet(sportsbook, game, team, bet_type, odds, spread, total, isOver):
 def place_bets():
     with st.expander("🟢 Bets placed", expanded=True):
         isError = False
-        counter = 1
+        
+        # get database engine
+        db_engine = get_db_engine()
+        insp = inspect(db_engine)
+
+        # Check if bet table already exists; if not, create one
+        if len(insp.get_table_names()) == 0:
+            initiate_database_tables(db_engine)
+        
         for bet in st.session_state.user_bets:
             if f"bet_amount_{bet}" in st.session_state:
                 if st.session_state[f'bet_amount_{bet}'] > 0:
+                    counter = get_bet_id_counter(db_engine)
                     try:
                         bet.update_bet(st.session_state[f'bet_amount_{bet}'], st.session_state.user_dealing_ccy)
 
@@ -185,6 +168,11 @@ def place_bets():
                             contract.functions.createTotalBet(counter, sportsbook_index[bet.sportsbook], team_index_current[bet.team], bet.odds, bet.isOver, int(bet.total),
                                         st.session_state.user_account_addr, bet.amount, isEther
                             ).transact({'from': st.session_state.cbet_account_owner_addr, 'gas': 1000000})
+                        
+
+                        
+                        #Create the bet into database
+                        bet = create_bet(counter, bet, st.session_state.user_account_addr, db_engine)
                         counter = counter + 1
                     except Exception as ex:
                         isError = True
@@ -209,7 +197,7 @@ def place_bets():
                                 st.caption(f"@{bet.sportsbook}")
                             with c3:
                                 st.info(f"{bet.amount/WEI_FACTOR} {st.session_state.user_dealing_ccy}")
-                                st.info(f"Payout : {format(payout(bet.amount/WEI_FACTOR,bet.odds),'.2f')}")
+                                st.info(f"Payout : {format(payout(bet.amount/WEI_FACTOR,bet.odds),'.6f')}")
                         st.write("---")
 
  
@@ -299,14 +287,14 @@ else:
                         )
                     with c4:
                         st.button(
-                            f"{df2.home_spread[counter]}    {df2.home_spread_odds[counter]}", 
+                            f"{df2.home_spread[counter]} / {df2.home_spread_odds[counter]}", 
                             key=f"{sportsbook}_{df2.home_team[counter]}_s_{counter}",
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.home_team[counter],"Spread",df2.home_spread_odds[counter],df2.home_spread[counter], 0, False, )
                         )
                     with c5:
                         st.button(
-                            f"O: {df2.home_total[counter]}    {df2.over_odds[counter]}", 
+                            f"O: {df2.home_total[counter]} / {df2.over_odds[counter]}", 
                             key=f"{sportsbook}_{df2.home_team[counter]}_t_{counter}",
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.home_team[counter],"Total",df2.over_odds[counter], 0, df2.home_total[counter], True,)
@@ -322,7 +310,7 @@ else:
                     with c8:
                         for bet in st.session_state.user_bets:
                             if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
-                                st.info(f"Payout : {format(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),'.2f')}")
+                                st.info(f"Payout : {format(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),'.6f')}")
 
                 with st.container():
                     c1, c2, c3,c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
@@ -339,14 +327,14 @@ else:
                         )
                     with c4:
                         st.button(
-                            f"{df2.away_spread[counter]}    {df2.away_spread_odds[counter]}", 
+                            f"{df2.away_spread[counter]} / {df2.away_spread_odds[counter]}", 
                             key=f"{sportsbook}_{df2.away_team[counter]}_s_{counter}",
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.away_team[counter],"Spread",df2.away_spread_odds[counter], df2.away_spread[counter], 0, False,)
                         )
                     with c5:
                         st.button(
-                            f"U: {df2.away_total[counter]}    {df2.under_odds[counter]}", 
+                            f"U: {df2.away_total[counter]} / {df2.under_odds[counter]}", 
                             key=f"{sportsbook}_{df2.away_team[counter]}_t_{counter}",
                             on_click=add_bet, 
                             args=(sportsbook,df2.game[counter],df2.away_team[counter],"Total",df2.under_odds[counter],0, df2.away_total[counter], False, )
@@ -362,7 +350,7 @@ else:
                     with c8:
                         for bet in st.session_state.user_bets:
                             if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
-                                st.info(f"Payout : {format(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),'.2f')}")
+                                st.info(f"Payout : {format(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),'.6f')}")
                 idx = idx+1
                 if(len(game_options) >= idx):
                     with st.container():
