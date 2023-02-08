@@ -96,14 +96,14 @@ with st.expander("User account balances", expanded=True):
         st.info('**User Wallet Balance Ether**')
         st.info('**User Betting Balance Ether**')
     with c2:
-        st.info(format(st.session_state.user_balance_wallet_ether/WEI_FACTOR,'.2f'))
-        st.info(format(st.session_state.user_balance_betting_ether/WEI_FACTOR,'.2f'))
+        st.info(format(st.session_state.user_balance_wallet_ether/WEI_FACTOR,'.6f'))
+        st.info(format(st.session_state.user_balance_betting_ether/WEI_FACTOR,'.6f'))
     with c3:
         st.info('**User Wallet Balance token**')
         st.info('**User Betting Balance token**')
     with c4:
-        st.info(format(st.session_state.user_balance_wallet_token/WEI_FACTOR,'.2f'))
-        st.info(format(st.session_state.user_balance_betting_token/WEI_FACTOR,'.2f'))
+        st.info(format(st.session_state.user_balance_wallet_token/WEI_FACTOR,'.6f'))
+        st.info(format(st.session_state.user_balance_betting_token/WEI_FACTOR,'.6f'))
         
 todays_games_url = os.getenv("NBA_GAME_URL")
 
@@ -209,7 +209,7 @@ def place_bets():
                                 st.caption(f"@{bet.sportsbook}")
                             with c3:
                                 st.info(f"{bet.amount/WEI_FACTOR} {st.session_state.user_dealing_ccy}")
-                                st.info(f"Payout : {format(payout(bet.amount/WEI_FACTOR,bet.odds),'.2f')}")
+                                st.info(f"Payout : {format(payout(bet.amount/WEI_FACTOR,bet.odds),'.6f')}")
                         st.write("---")
 
  
@@ -322,7 +322,7 @@ else:
                     with c8:
                         for bet in st.session_state.user_bets:
                             if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.home_team[counter]):
-                                st.info(f"Payout : {format(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),'.2f')}")
+                                st.info(f"Payout : {format(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),'.6f')}")
 
                 with st.container():
                     c1, c2, c3,c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
@@ -362,7 +362,7 @@ else:
                     with c8:
                         for bet in st.session_state.user_bets:
                             if (bet.game  == df2.game[counter] and bet.sportsbook == sportsbook and bet.team == df2.away_team[counter]):
-                                st.info(f"Payout : {format(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),'.2f')}")
+                                st.info(f"Payout : {format(payout(st.session_state[f'bet_amount_{bet}'],bet.odds),'.6f')}")
                 idx = idx+1
                 if(len(game_options) >= idx):
                     with st.container():
