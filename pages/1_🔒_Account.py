@@ -195,7 +195,7 @@ if st.session_state.user_account_addr and st.session_state.isRegistered:
             st.write("\n")
             st.write("\n")
             if st.button("Sell"):
-                contract.functions.sellCbetTokens(st.session_state.user_account_addr).transact({'from': cbet_account_owner_addr, "value": w3.toWei(amount_token_sell, "ether"), 'gas': 1000000})
+                contract.functions.sellCbetTokens(st.session_state.user_account_addr).transact({'from': cbet_account_betting_addr, "value": w3.toWei(amount_token_sell, "ether"), 'gas': 1000000})
 
 
     with st.expander(f"Transfer {asset_type} to/from Betting/Escrow Account"):
