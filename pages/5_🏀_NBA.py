@@ -16,7 +16,7 @@ from streamlit.components.v1 import html
 
 # Layout
 st.set_page_config(page_title='NBA Odds and Bets', page_icon=':bar_chart:', layout='wide')
-st.title('🌍 NBA Odds and Bets')
+st.title('🏀 NBA Odds and Bets')
 
 def nav_page(page_name, timeout_secs=5):
     nav_script = """
@@ -255,7 +255,7 @@ else:
     with st.container():
         c1, c2, c3, c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
         with c1:
-            st.write("")
+            st.success("🖇")
         with c2:
             st.success("Team")
         with c3:
@@ -287,7 +287,7 @@ else:
                 with st.container():
                     c1, c2, c3,c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
                     with c1:
-                        st.info("Home", icon="⬛️")
+                        st.info("Home", icon="🏠")
                     with c2:
                         st.info(f"{df2.home_team[counter]}")
                     with c3:
@@ -327,7 +327,7 @@ else:
                 with st.container():
                     c1, c2, c3,c4, c5, c6, c7, c8 = st.columns([2,4,3,3,3,2,3,3])
                     with c1:
-                        st.info("Away", icon="🟥")
+                        st.info("Away", icon="✈️")
                     with c2:
                         st.info(f"{df2.away_team[counter]}")
                     with c3:
