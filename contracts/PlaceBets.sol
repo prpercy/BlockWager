@@ -17,6 +17,7 @@ contract PlaceBets {
     // Betting odds for home and away teams
 
     struct MoneylineBetParams {
+        bool activated;
         uint8 sportbookId;
         GameStatus gameStatus;
         uint16 teamId;
@@ -27,6 +28,7 @@ contract PlaceBets {
     }
 
     struct SpreadBetParams {
+        bool activated;
         uint8 sportbookId;
         GameStatus gameStatus;
         uint16 teamId;
@@ -38,6 +40,7 @@ contract PlaceBets {
     }
 
     struct TotalBetParams {
+        bool activated;
         uint8 sportbookId;
         GameStatus gameStatus;
         uint16 teamId;
@@ -85,11 +88,22 @@ contract PlaceBets {
         cbetBettingAddr = _cbetBettingAddr;
     }
 
+    function checkUniqueBetId(uint32 _betId)
+        internal
+        view
+        onlyOwner
+    {
+        require(((moneylineBets[_betId].activated != true) &&
+                 (spreadBets[_betId].activated != true) &&
+                 (totalBets[_betId].activated != true)), "Cannot create this bet, betId already used!");
+    }
+
     function createMoneylineBetInternal(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, 
                                         address payable _addr, uint _betAmount, bool _isEther)
         internal
         onlyOwner
     {
+        moneylineBets[_betId].activated = true;
         moneylineBets[_betId].sportbookId = _sportbookId;
         moneylineBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
         moneylineBets[_betId].teamId = _teamId;
@@ -106,6 +120,7 @@ contract PlaceBets {
         internal
         onlyOwner
     {
+        spreadBets[_betId].activated = true;
         spreadBets[_betId].sportbookId = _sportbookId;
         spreadBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
         spreadBets[_betId].teamId = _teamId;
@@ -123,6 +138,7 @@ contract PlaceBets {
         internal
         onlyOwner
     {
+        totalBets[_betId].activated = true;
         totalBets[_betId].sportbookId = _sportbookId;
         totalBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
         totalBets[_betId].teamId = _teamId;
