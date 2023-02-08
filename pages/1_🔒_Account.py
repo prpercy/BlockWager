@@ -238,7 +238,7 @@ if st.session_state.user_account_addr and st.session_state.isRegistered:
         (st.session_state.house_balance_betting_ether) = w3.eth.getBalance(cbet_account_betting_addr) - st.session_state.house_balance_escrow_ether
         (st.session_state.balance_owner_ether, st.session_state.balance_owner_token) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())   
 
-        col1, col2, col3, col4, col5, col6 = st.columns([4,2,2,4,2,2])
+        col1, col2, col3, col4, col5, col6 = st.columns([2,2,2,2,2,2])
         with col1:
             st.subheader("👻")
         with col2:
@@ -253,7 +253,7 @@ if st.session_state.user_account_addr and st.session_state.isRegistered:
             st.subheader("🎲 Cbet")
             
         st.write("---")
-        c1, c2, c3, c4, c5, c6 = st.columns([3,2,2,3,2,2])
+        c1, c2, c3, c4, c5, c6 = st.columns([2,2,2,2,2,2])
         with c1:
             st.info('**User Wallet Balance**')
             st.info('**User Betting Balance**')
