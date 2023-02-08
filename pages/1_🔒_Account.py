@@ -277,9 +277,9 @@ if st.session_state.user_account_addr and st.session_state.isRegistered:
                 st.info(format(st.session_state.house_balance_betting_ether/WEI_FACTOR,'.2f'))
                 st.info(format(st.session_state.house_balance_escrow_ether/WEI_FACTOR,'.2f'))
             with c6:
-                st.info(format(st.session_state.balance_owner_token/WEI_FACTOR,'.2g'))
-                st.info(format(st.session_state.house_balance_betting_token/WEI_FACTOR,'.2g'))
-                st.info(format(st.session_state.house_balance_escrow_token/WEI_FACTOR,'.2g'))
+                st.info(format(st.session_state.balance_owner_token/WEI_FACTOR,'.2f'))
+                st.info(format(st.session_state.house_balance_betting_token/WEI_FACTOR,'.2f'))
+                st.info(format(st.session_state.house_balance_escrow_token/WEI_FACTOR,'.2f'))
         else:
             with c2:
                 st.info(f"{format(st.session_state.user_balance_wallet_ether_pre/WEI_FACTOR,'.2f')} ➡️ {format(st.session_state.user_balance_wallet_ether/WEI_FACTOR,'.2f')}")
@@ -294,9 +294,9 @@ if st.session_state.user_account_addr and st.session_state.isRegistered:
                 st.info(f"{format(st.session_state.house_balance_betting_ether_pre/WEI_FACTOR,'.2f')} ➡️ {format(st.session_state.house_balance_betting_ether/WEI_FACTOR,'.2f')}")
                 st.info(f"{format(st.session_state.house_balance_escrow_ether_pre/WEI_FACTOR,'.2f')} ➡️ {format(st.session_state.house_balance_escrow_ether/WEI_FACTOR,'.2f')}")
             with c6:
-                st.info(f"{format(st.session_state.balance_owner_token_pre/WEI_FACTOR,'.2g')} ➡️ {format(st.session_state.balance_owner_token/WEI_FACTOR,'.2g')}")
-                st.info(f"{format(st.session_state.house_balance_betting_token_pre/WEI_FACTOR,'.2g')} ➡️ {format(st.session_state.house_balance_betting_token/WEI_FACTOR,'.2g')}")
-                st.info(f"{format(st.session_state.house_balance_escrow_token_pre/WEI_FACTOR,'.2g')} ➡️ {format(st.session_state.house_balance_escrow_token/WEI_FACTOR,'.2g')}")
+                st.info(f"{format(st.session_state.balance_owner_token_pre/WEI_FACTOR,'.2f')} ➡️ {format(st.session_state.balance_owner_token/WEI_FACTOR,'.2f')}")
+                st.info(f"{format(st.session_state.house_balance_betting_token_pre/WEI_FACTOR,'.2f')} ➡️ {format(st.session_state.house_balance_betting_token/WEI_FACTOR,'.2f')}")
+                st.info(f"{format(st.session_state.house_balance_escrow_token_pre/WEI_FACTOR,'.2f')} ➡️ {format(st.session_state.house_balance_escrow_token/WEI_FACTOR,'.2f')}")
 
         st.write("---")
         st.write("\n")
