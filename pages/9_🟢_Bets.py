@@ -70,15 +70,19 @@ def render_page(db_engine,user_account_addr):
         with c1:
             st.info('**User Wallet Balance Ether**')
             st.info('**User Betting Balance Ether**')
+            st.info('**User Escrow Balance Ether**')
         with c2:
             st.info(format(st.session_state.user_balance_wallet_ether/WEI_FACTOR,'.6f'))
             st.info(format(st.session_state.user_balance_betting_ether/WEI_FACTOR,'.6f'))
+            st.info(format(st.session_state.user_balance_escrow_ether/WEI_FACTOR,'.6f'))
         with c3:
             st.info('**User Wallet Balance token**')
             st.info('**User Betting Balance token**')
+            st.info('**User Escrow Balance token**')
         with c4:
             st.info(format(st.session_state.user_balance_wallet_token/WEI_FACTOR,'.6f'))
             st.info(format(st.session_state.user_balance_betting_token/WEI_FACTOR,'.6f'))
+            st.info(format(st.session_state.user_balance_escrow_token/WEI_FACTOR,'.6f'))
 
     insp = inspect(db_engine)
 
