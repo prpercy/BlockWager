@@ -11,7 +11,7 @@ contract PlaceBets {
     //   PRE_GAME_START: State of game/match before game has started and betting is allowed (default state when the game is initially created)
     //   GAME_IN_PROGRESS: The game has started / in progress.  New bets are no longer accepted.
     //   POST_GAME_END: Game is officillay over. No new bets are accpted, and bet results (losses/winnings) are distributed
-    enum GameStatus { PRE_GAME_START, GAME_IN_PROGRESS, POST_GAME_END }
+    //enum GameStatus { PRE_GAME_START, GAME_IN_PROGRESS, POST_GAME_END }
     enum BetType { MONEYLINE, SPREAD, TOTAL}
 
     // Betting odds for home and away teams
@@ -19,7 +19,7 @@ contract PlaceBets {
     struct MoneylineBetParams {
         bool activated;
         uint8 sportbookId;
-        GameStatus gameStatus;
+        //GameStatus gameStatus;
         uint16 teamId;
         int16 odds;
         address payable addr;
@@ -30,7 +30,7 @@ contract PlaceBets {
     struct SpreadBetParams {
         bool activated;
         uint8 sportbookId;
-        GameStatus gameStatus;
+        //GameStatus gameStatus;
         uint16 teamId;
         int16 odds;
         int16 spread;
@@ -42,7 +42,7 @@ contract PlaceBets {
     struct TotalBetParams {
         bool activated;
         uint8 sportbookId;
-        GameStatus gameStatus;
+        //GameStatus gameStatus;
         uint16 teamId;
         int16 odds;
         bool isOver;
@@ -105,7 +105,7 @@ contract PlaceBets {
     {
         moneylineBets[_betId].activated = true;
         moneylineBets[_betId].sportbookId = _sportbookId;
-        moneylineBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
+        //moneylineBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
         moneylineBets[_betId].teamId = _teamId;
         moneylineBets[_betId].odds = _odds;
         moneylineBets[_betId].addr = _addr;
@@ -122,7 +122,7 @@ contract PlaceBets {
     {
         spreadBets[_betId].activated = true;
         spreadBets[_betId].sportbookId = _sportbookId;
-        spreadBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
+        //spreadBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
         spreadBets[_betId].teamId = _teamId;
         spreadBets[_betId].odds = _odds;
         spreadBets[_betId].spread = _spread;
@@ -140,7 +140,7 @@ contract PlaceBets {
     {
         totalBets[_betId].activated = true;
         totalBets[_betId].sportbookId = _sportbookId;
-        totalBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
+        //totalBets[_betId].gameStatus = GameStatus.PRE_GAME_START;
         totalBets[_betId].teamId = _teamId;
         totalBets[_betId].odds = _odds;
         totalBets[_betId].isOver = _isOver;
@@ -172,6 +172,7 @@ contract PlaceBets {
         return moneylineBets[_betId].sportbookId;
     }
 
+    /*
     function getBetMoneylineGameStatus(uint32 _betId)
         public
         view
@@ -181,6 +182,7 @@ contract PlaceBets {
         return (moneylineBets[_betId].gameStatus == GameStatus.PRE_GAME_START) ? 0 :
                (moneylineBets[_betId].gameStatus == GameStatus.GAME_IN_PROGRESS) ? 1 : 2;
     }
+    */
 
     function getBetMoneylineBet(uint32 _betId)
         public
@@ -212,6 +214,7 @@ contract PlaceBets {
         return (spreadBets[_betId].sportbookId);
     }
 
+    /*
     function getBetSpreadGameStatus(uint32 _betId)
         public
         view
@@ -221,6 +224,7 @@ contract PlaceBets {
         return ((spreadBets[_betId].gameStatus == GameStatus.PRE_GAME_START) ? 0 :
                 (spreadBets[_betId].gameStatus == GameStatus.GAME_IN_PROGRESS) ? 1 : 2);
     }
+    */
 
     function getBetSpreadBet(uint32 _betId)
         public
@@ -253,6 +257,7 @@ contract PlaceBets {
         return (totalBets[_betId].sportbookId);
     }
 
+    /*
     function getBetTotalGameStatus(uint32 _betId)
         public
         view
@@ -262,6 +267,7 @@ contract PlaceBets {
         return ((totalBets[_betId].gameStatus == GameStatus.PRE_GAME_START) ? 0 :
                 (totalBets[_betId].gameStatus == GameStatus.GAME_IN_PROGRESS) ? 1 : 2);
     }
+    */
 
     function getBetTotalBet(uint32 _betId)
         public

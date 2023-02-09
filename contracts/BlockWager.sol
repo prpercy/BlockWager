@@ -10,7 +10,8 @@ contract BlockWager is UserAccounts, PlaceBets {
     address payable cbetOwnerAddr;      // BlockWager contract owner address
     address payable cbetBettingAddr;    // BlockWage betting account (users must first deposit/withdrawal into this account before betting)
 
-    int lastPayout;  // // Mapping between better wallet address and CBET accounts
+    int8 lastWinStatus;
+    int lastPayout;  // Mapping between better wallet address and CBET accounts
 
     modifier onlyOwner {
         require(msg.sender == cbetOwnerAddr, "Only the contracts owner has permissions for this action!");
@@ -76,10 +77,14 @@ contract BlockWager is UserAccounts, PlaceBets {
         transferBettingToEscrow(_addr, _betAmount, _isEther);
     }
 
+    event gameEventPayout(address _addr, uint32 _betId, int8 _winStatus, int _payout);
+
     function gameEvent(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
         public
         onlyHouse
     {
+        require(_winningScore >= _losingScore, "The winning score cannot be < than the losing score!");
+
         address payable userAddr;
 
         bool isWin;
@@ -107,6 +112,7 @@ contract BlockWager is UserAccounts, PlaceBets {
         {
             // Lost Bet
 
+            lastWinStatus = -1;
             lastPayout = int(-betAmount);
 
             removeEscrowFromUser(userAddr, betAmount, isEther);
@@ -115,6 +121,7 @@ contract BlockWager is UserAccounts, PlaceBets {
         {
             // Push Bet (Tie)
 
+            lastWinStatus = 0;
             lastPayout = int(betAmount);
 
             transferEscrowBackToBetting(userAddr, betAmount, isEther);
@@ -123,6 +130,7 @@ contract BlockWager is UserAccounts, PlaceBets {
         {
             // Win Bet
 
+            lastWinStatus = 1;
             uint payout = betAmount + winnings;
 
             lastPayout = int(payout);
@@ -130,6 +138,8 @@ contract BlockWager is UserAccounts, PlaceBets {
             transferEscrowBackToBetting(userAddr, betAmount, isEther);
             transerWinningsFromBettingToUser(userAddr, winnings, isEther);            
         }
+
+        emit gameEventPayout(userAddr, _betId, lastWinStatus, lastPayout);
     }
 
     function getLastPayout()
@@ -148,5 +158,4 @@ contract BlockWager is UserAccounts, PlaceBets {
         onlyOwner
     {}
 }
-
 
