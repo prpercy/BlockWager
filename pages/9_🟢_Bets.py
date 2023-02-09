@@ -44,17 +44,17 @@ def win_lose_total_bet(bet_id, winning_team_id, is_over_int, total):
     if is_over_int == 1:
         # winning_score + losing_score > total
         losing_score = 100
-        winning_score= total - losing_score + 10
+        winning_score= int(total - losing_score + 10)
     else:
         # winning_score + losing_score < total
         losing_score = 100
-        winning_score= total - losing_score - 10
+        winning_score= int(total - losing_score - 10)
     contract.functions.gameEvent(bet_id, winning_team_id, winning_score, losing_score).transact({'from': st.session_state.cbet_account_betting_addr, 'gas': 1000000})
     
 ##logic that determines if a bet is a winner or loser for spreads
 def win_lose_spread_bet(bet_id, winning_team_id, spread):
     losing_score = 100
-    winning_score=losing_score+spread+10
+    winning_score=int(losing_score+spread+10)
     contract.functions.gameEvent(bet_id, winning_team_id, winning_score, losing_score).transact({'from': st.session_state.cbet_account_betting_addr, 'gas': 1000000})
 
 def win_lose_ml_bet(bet_id, winning_team_id):
@@ -129,10 +129,7 @@ with tab1:
                 else:
                     st.info("🎲")
             with c7:
-                if bet[11] == 'None':
-                    st.info("Pending")
-                else:
-                    st.info("Settled")
+                st.info(bet[11])
             with c8:
                 st.info(bet[12])
 
@@ -179,10 +176,7 @@ with tab1:
                 else:
                     st.info("🎲")
             with c8:
-                if bet[11] == 'None':
-                    st.info("Pending")
-                else:
-                    st.info("Settled")
+                st.info(bet[11]) 
             with c9:
                 st.info(bet[12])
 

@@ -70,7 +70,7 @@ if 'cbet_account_owner_addr' not in st.session_state:
     persist('cbet_account_owner_addr')
 
 if 'cbet_account_betting_addr' not in st.session_state:
-    st.session_state['cbet_account_betting_addr'] = cbet_account_owner_addr
+    st.session_state['cbet_account_betting_addr'] = cbet_account_betting_addr
     persist('cbet_account_betting_addr')
     
 if 'user_account_addr' not in st.session_state:

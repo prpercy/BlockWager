@@ -109,9 +109,9 @@ def create_bet(bet_id, bet, user_account_Addr, db_engine):
     
     bet_query = f"""
     INSERT INTO 
-        bet (bet_id, sportsbook, game, team, bet_type, odds, amount, spread, total, isOver, isEther, user_account_Addr)
+        bet (bet_id, sportsbook, game, team, bet_type, odds, amount, spread, total, isOver, isEther, status, user_account_Addr)
     VALUES 
-        ('{bet_id}', '{bet.sportsbook}', '{bet.game}', '{bet.team}', '{bet.bet_type}', {bet.odds}, {bet.amount}, {bet.spread}, {bet.total}, {int(bet.isOver)}, {int(bet.isEther)}, '{user_account_Addr}')
+        ('{bet_id}', '{bet.sportsbook}', '{bet.game}', '{bet.team}', '{bet.bet_type}', {bet.odds}, {bet.amount}, {bet.spread}, {bet.total}, {int(bet.isOver)}, {int(bet.isEther)}, 'Pending', '{user_account_Addr}')
     """
     db_engine.execute(bet_query)
       

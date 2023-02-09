@@ -110,12 +110,15 @@ class Bet:
         self.total=total*SCORE_SCALING
         self.isOver=isOver
         self.isEther=True
+        self.status="Pending"
     def update_bet(self, amount,ccy):
         self.amount = w3.toWei(amount, "ether")
         if ccy == 'ETHER':
             self.isEther = True
         else:
             self.isEther = False
+    def update_status(self, status):
+        self.status = status
 
     
 # Data Sources
