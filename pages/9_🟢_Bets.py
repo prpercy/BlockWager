@@ -1,6 +1,6 @@
 import streamlit as st
 import pandas as pd
-from Utils.tools import get_db_engine, initiate_database_tables, create_bet, retrieve_user_bets, nav_page, get_bet_id_counter
+from Utils.tools import get_db_engine, initiate_database_tables, create_bet, retrieve_user_bets, nav_page, get_bet_id_counter, update_bet_status_payout, nav_page
 from sqlalchemy import inspect
 from Utils.Dictionaries import team_index_current
 import re
@@ -9,6 +9,7 @@ import json
 from web3 import Web3
 from pathlib import Path
 from dotenv import load_dotenv
+import asyncio
         
 # Layout
 st.set_page_config(page_title='Bets placed by User', page_icon=':bar_chart:', layout='wide')
@@ -39,58 +40,64 @@ def load_contract():
 
 contract = load_contract()
 
-##logic that determines if a bet is a winner or loser for totals
-def win_lose_total_bet(bet_id, winning_team_id, is_over_int, total):
-    if is_over_int == 1:
-        # winning_score + losing_score > total
-        losing_score = 100
-        winning_score= int(total - losing_score + 10)
-    else:
-        # winning_score + losing_score < total
-        losing_score = 100
-        winning_score= int(total - losing_score - 10)
-    contract.functions.gameEvent(bet_id, winning_team_id, winning_score, losing_score).transact({'from': st.session_state.cbet_account_betting_addr, 'gas': 1000000})
-    
-##logic that determines if a bet is a winner or loser for spreads
-def win_lose_spread_bet(bet_id, winning_team_id, spread):
-    losing_score = 100
-    winning_score=int(losing_score+spread+10)
-    contract.functions.gameEvent(bet_id, winning_team_id, winning_score, losing_score).transact({'from': st.session_state.cbet_account_betting_addr, 'gas': 1000000})
-
-def win_lose_ml_bet(bet_id, winning_team_id):
-    losing_score = 100
-    winning_score=losing_score+10
-    contract.functions.gameEvent(bet_id, winning_team_id, winning_score, losing_score).transact({'from': st.session_state.cbet_account_betting_addr, 'gas': 1000000})
-
 # Style
 with open('style.css')as f:
     st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html = True)
- #ensures a user is logged in (has address to transact)   
+
+#ensures a user is logged in (has address to transact)   
 if 'user_account_addr' not in st.session_state or st.session_state['user_account_addr'] == "":
     st.session_state['user_account_addr'] = ""
     st.warning("User has not registered or logged in. Please do so before you start betting", icon="⚠️")
     nav_page("Account")
 
-# get database engine
-db_engine = get_db_engine()
-insp = inspect(db_engine)
+def render_page(db_engine,user_account_addr):
+    
+    WEI_FACTOR = 10**18
+    SCORE_SCALING=100
+    
+    if 'user_account_addr' not in st.session_state or st.session_state['user_account_addr'] == "":
+        st.session_state['user_account_addr'] = user_account_addr
+        
+    ##performs a contract call and Gets/stores users ethereum and cbet token balance, then stores in in escrow. 
+    st.session_state.user_balance_wallet_ether = w3.eth.getBalance(st.session_state.user_account_addr)
+    st.session_state.user_balance_wallet_token = contract.functions.balanceCbetTokens(st.session_state.user_account_addr).call()
+    (st.session_state.user_balance_betting_ether, st.session_state.user_balance_betting_token) = contract.functions.getBalanceUserBetting(st.session_state.user_account_addr).call()
+    (st.session_state.user_balance_escrow_ether, st.session_state.user_balance_escrow_token) = contract.functions.getBalanceUserEscrow(st.session_state.user_account_addr).call()
 
-# Check if bet table already exists; if not, create one
-if len(insp.get_table_names()) == 0:
-    initiate_database_tables(db_engine)
- #stores user bets in a variable during user session   
-bets = retrieve_user_bets(st.session_state.user_account_addr, db_engine)
+    ##Creates a container that is expandable and populates it with the users betting balances and also shows wei values
+    with st.expander("User account balances", expanded=True):
+        c1, c2, c3, c4 = st.columns([2,2,2,2])
+        with c1:
+            st.info('**User Wallet Balance Ether**')
+            st.info('**User Betting Balance Ether**')
+        with c2:
+            st.info(format(st.session_state.user_balance_wallet_ether/WEI_FACTOR,'.6f'))
+            st.info(format(st.session_state.user_balance_betting_ether/WEI_FACTOR,'.6f'))
+        with c3:
+            st.info('**User Wallet Balance token**')
+            st.info('**User Betting Balance token**')
+        with c4:
+            st.info(format(st.session_state.user_balance_wallet_token/WEI_FACTOR,'.6f'))
+            st.info(format(st.session_state.user_balance_betting_token/WEI_FACTOR,'.6f'))
 
-bets_ml = bets['ML']
-bets_spread = bets['Spread']
-bets_total = bets['Total']
+    insp = inspect(db_engine)
 
-WEI_FACTOR = 10**18
-SCORE_SCALING=100
+    # Check if bet table already exists; if not, create one
+    if len(insp.get_table_names()) == 0:
+        initiate_database_tables(db_engine)
 
-tab1, tab2 = st.tabs(["User Bets", "Bet Event"])
-##redners bets (one for each: ML, Spreads, Totals)
-with tab1:
+    #stores user bets in a variable during user session   
+    bets = retrieve_user_bets(st.session_state.user_account_addr, db_engine)
+
+    bets_ml = bets['ML']
+    bets_spread = bets['Spread']
+    bets_total = bets['Total']
+
+
+
+
+    ##redners bets (one for each: ML, Spreads, Totals)
+
     with st.expander("🟢 MoneyLine Bets placed", expanded=True):
         with st.container():
             c1,c2,c3,c4,c5,c6,c7,c8 = st.columns([1,3.7,2,1,1.2,1,1,1])
@@ -131,7 +138,10 @@ with tab1:
             with c7:
                 st.info(bet[11])
             with c8:
-                st.info(bet[12])
+                if bet[12] ==  None:
+                    st.info(bet[12])
+                else:
+                    st.info(format(bet[12]/WEI_FACTOR,'.6f'))
 
     with st.expander("🟢 Spread Bets placed"):
         with st.container():
@@ -155,7 +165,7 @@ with tab1:
             with c9:
                 st.success('Payout')
             st.write("---")
-            
+
         for bet in bets_spread:
             c1,c2,c3,c4,c5,c6,c7,c8,c9 = st.columns([1,3.7,1.8,1,1.2,1,0.8,1,1])
             with c1:
@@ -178,7 +188,10 @@ with tab1:
             with c8:
                 st.info(bet[11]) 
             with c9:
-                st.info(bet[12])
+                if bet[12] ==  None:
+                    st.info(bet[12])
+                else:
+                    st.info(format(bet[12]/WEI_FACTOR,'.6f'))
 
     with st.expander("🟢 Total (Under/Over) Bets placed"):
         with st.container():
@@ -202,7 +215,7 @@ with tab1:
             with c9:
                 st.success('Payout')
             st.write("---")
-            
+
         for bet in bets_total:
             c1,c2,c3,c4,c5,c6,c7,c8,c9 = st.columns([1,3.7,1.8,1,1.2,1,0.8,1,1])
             with c1:
@@ -221,133 +234,64 @@ with tab1:
             with c6:
                 st.info(bet[6]/WEI_FACTOR)
             with c7:
-                st.info(bet[10])
+                if bet[10] == 1:
+                    st.info("Ξ")
+                else:
+                    st.info("🎲")
             with c8:
                 st.info(bet[11])
             with c9:
-                st.info(bet[12])
-    
-with tab2:
-    
-    with st.expander("🟢 Bets placed", expanded=True):
-        with st.container():
-            c1,c2,c3,c4,c5 = st.columns([1,4,2,1,1])
-            with c1:
-                st.success('ID')
-            with c2:
-                st.success('Sportsbook | Game')
-            with c3:
-                st.success('Team')
-            with c4:
-                st.success('Win')
-            with c5:
-                st.success('Lose')
-            st.write("---")
-        
-        c1, c2 = st.columns([1,8])
-        with c1:
-            st.caption("Money Line Bets")
-        with c2:
-            st.write(" ")
-        for bet in bets_ml:
-            c1,c2,c3,c4,c5 = st.columns([1,4,2,1,1])
-            with c1:
-                st.info(bet[0])
-            with c2:
-                st.info(f"{bet[1]} | {bet[2]}")
-            with c3:
-                st.info(bet[3])
-            with c4:
-                st.button(
-                    "Win", 
-                    key=f"{bet[0]}_Win", 
-                    on_click=win_lose_ml_bet, 
-                    args=(bet[0],team_index_current[bet[3]], )
-                    #args=(betID, teamID, )
-                )
-            with c5:
-                if bet[3] == re.split('@',bet[2])[0]:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[1]]
+                if bet[12] ==  None:
+                    st.info(bet[12])
                 else:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[0]]
-                st.button(
-                    "Lose", 
-                    key=f"{bet[0]}_Lose", 
-                    on_click=win_lose_ml_bet, 
-                    args=(bet[0],winning_team_id, )
-                    #args=(betID, teamID,)
-                )
-        
-        
-        c1, c2 = st.columns([1,8])
-        with c1:
-            st.caption("Spread Bets")
-        with c2:
-            st.write("---")
-        for bet in bets_spread:
-            c1,c2,c3,c4,c5 = st.columns([1,4,2,1,1])
-            with c1:
-                st.info(bet[0])
-            with c2:
-                st.info(f"{bet[1]} | {bet[2]}")
-            with c3:
-                st.info(bet[3])
-            with c4:
-                st.button(
-                    "Win", 
-                    key=f"{bet[0]}_Win", 
-                    on_click=win_lose_spread_bet, 
-                    args=(bet[0],team_index_current[bet[3]],bet[7] )
-                    #args=(betID, teamID, spread,)
-                )
-            with c5:
-                if bet[3] == re.split('@',bet[2])[0]:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[1]]
-                else:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[0]]
-                st.button(
-                    "Lose", 
-                    key=f"{bet[0]}_Lose", 
-                    on_click=win_lose_spread_bet, 
-                    args=(bet[0],winning_team_id,bet[7] )
-                    #args=(betID, teamID, spread,)
-                )
-        
-        
-        c1, c2 = st.columns([1,8])
-        with c1:
-            st.caption("Total Over/Under Bets")
-        with c2:
-            st.write("---")
-        for bet in bets_total:
-            c1,c2,c3,c4,c5 = st.columns([1,4,2,1,1])
-            with c1:
-                st.info(bet[0])
-            with c2:
-                st.info(f"{bet[1]} | {bet[2]}")
-            with c3:
-                st.info(bet[3])
-            with c4:
-                st.button(
-                    "Win", 
-                    key=f"{bet[0]}_Win", 
-                    on_click=win_lose_total_bet, 
-                    args=(bet[0],team_index_current[bet[3]], bet[9], bet[8]/SCORE_SCALING,)
-                    #args=(betID, teamID, isOver, total)
-                    
-                )
-            with c5:
-                if bet[3] == re.split('@',bet[2])[0]:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[1]]
-                else:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[0]]
+                    st.info(format(bet[12]/WEI_FACTOR,'.6f'))
 
-                st.button(
-                    "Lose", 
-                    key=f"{bet[0]}_Lose", 
-                    on_click=win_lose_total_bet, 
-                    args=(bet[0],winning_team_id, bet[9], bet[8]/SCORE_SCALING,)
-                    #args=(betID, teamID, isOver, total)
-                )
-
+    # define function to handle events
+def handle_event(event,db_engine,user_account_addr):
+    x = json.loads(Web3.toJSON(event))
+    bet_info = x['args']
+    update_bet_status_payout(bet_info['_betId'], bet_info['_payout'],"Settled",db_engine)
+    #render_page(db_engine,user_account_addr)
+    raise Exception('Stop this thing')
+    #(bet_id, payout, status, db_engine)
     
+
+
+# asynchronous defined function to loop
+# this loop sets up an event filter and is looking for new entires for the "gameEventPayout" event
+# this loop runs on a poll interval
+async def log_loop(event_filter, poll_interval,db_engine,user_account_addr):
+    while True:
+        for gameEventPayout in event_filter.get_new_entries():
+            handle_event(gameEventPayout,db_engine,user_account_addr)
+        await asyncio.sleep(poll_interval)
+    #nav_page("Bets")
+
+
+# when main is called
+# create a filter for the latest block and look for the "gameEventPayout" event for the uniswap factory contract
+# run an async loop
+# try to run the log_loop function above every 3 seconds
+def main():
+    # get database engine
+    db_engine = get_db_engine()
+    user_account_addr = st.session_state['user_account_addr']
+    render_page(db_engine,user_account_addr)
+    
+    event_filter = contract.events.gameEventPayout.createFilter(fromBlock='latest')
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try:
+        loop.run_until_complete(
+            asyncio.gather(
+                log_loop(event_filter, 3,db_engine, user_account_addr)))
+    except Exception as ex:
+        loop.close()
+        st.experimental_rerun()
+    finally:
+        # close loop to free up system resources
+        loop.close()
+    
+
+if __name__ == "__main__":
+    main()

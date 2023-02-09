@@ -125,6 +125,7 @@ def update_bet_status_payout(bet_id, payout, status, db_engine):
     WHERE bet_id ='{bet_id}'
     """
     db_engine.execute(bet_status_update_query)
+    print(f"successfully updated the status and payout of bet id {bet_id}")
     
     return True
 ##retrieves users bets from db 
