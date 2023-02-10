@@ -44,18 +44,18 @@ contract = load_contract()
 def win_lose_total_bet(bet_id, winning_team_id, is_over_int, total):
     if is_over_int == 1:
         # winning_score + losing_score > total
-        losing_score = 100
-        winning_score= int(total - losing_score + 10)
+        losing_score = int(total*0.3)
+        winning_score= int(total - losing_score+total*0.5)
     else:
         # winning_score + losing_score < total
-        losing_score = 100
-        winning_score= int(total - losing_score - 10)
+        losing_score = int(total*0.3)
+        winning_score= int(total - losing_score - total*0.1)
     contract.functions.gameEvent(bet_id, winning_team_id, winning_score, losing_score).transact({'from': st.session_state.cbet_account_betting_addr, 'gas': 1000000})
     
 ##logic that determines if a bet is a winner or loser for spreads
 def win_lose_spread_bet(bet_id, winning_team_id, spread):
     losing_score = 100
-    winning_score=int(losing_score+spread+10)
+    winning_score=int(losing_score+spread+50)
     contract.functions.gameEvent(bet_id, winning_team_id, winning_score, losing_score).transact({'from': st.session_state.cbet_account_betting_addr, 'gas': 1000000})
 
 def win_lose_ml_bet(bet_id, winning_team_id):
@@ -123,15 +123,11 @@ with st.expander("🟢 Money Line Bets", expanded=True):
                     #args=(betID, teamID, )
                 )
             with c5:
-                if bet[3] == re.split('@',bet[2])[0]:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[1]]
-                else:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[0]]
                 st.button(
                     "Lose", 
                     key=f"{bet[0]}_Lose", 
                     on_click=win_lose_ml_bet, 
-                    args=(bet[0],winning_team_id, )
+                    args=(bet[0],team_index_current[bet[3]]+1, )
                     #args=(betID, teamID,)
                 )
 
@@ -154,15 +150,11 @@ with st.expander("🟢 Spread Bets", expanded=True):
                     #args=(betID, teamID, spread,)
                 )
             with c5:
-                if bet[3] == re.split('@',bet[2])[0]:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[1]]
-                else:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[0]]
                 st.button(
                     "Lose", 
                     key=f"{bet[0]}_Lose", 
                     on_click=win_lose_spread_bet, 
-                    args=(bet[0],winning_team_id,bet[7] )
+                    args=(bet[0],team_index_current[bet[3]]+1,bet[7] )
                     #args=(betID, teamID, spread,)
                 )
 
@@ -186,16 +178,11 @@ with st.expander("🟢 Total Over/Under Bets", expanded=True):
 
                 )
             with c5:
-                if bet[3] == re.split('@',bet[2])[0]:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[1]]
-                else:
-                    winning_team_id = team_index_current[re.split('@',bet[2])[0]]
-
                 st.button(
                     "Lose", 
                     key=f"{bet[0]}_Lose", 
                     on_click=win_lose_total_bet, 
-                    args=(bet[0],winning_team_id, bet[9], bet[8]/SCORE_SCALING,)
+                    args=(bet[0],team_index_current[bet[3]]+1, bet[9], bet[8]/SCORE_SCALING,)
                     #args=(betID, teamID, isOver, total)
                 )
 
