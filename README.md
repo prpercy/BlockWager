@@ -13,7 +13,8 @@ compile and deploy Contracts and paste contract ID into blockwager.env file
 # Usage:
 BlockWager is a proof of concept sports betting platform that supports betting in ether and Cbet proprietary tokens. Currently it supports betting for the NBA and only runs locally. 
 
-You will need to tranfer eth from your wallet into your betting balance or use your eth to purchase cbet tokens. Follow the prompts on the page in order to do so
+You will need to transfer eth from your wallet into your betting balance or use your eth to purchase cbet tokens. 
+ Follow the prompts on the page in order to do so
 Lastly, navigate to the NBA page and place your bets. 
 ## Technologies: 
 #### Web3:
