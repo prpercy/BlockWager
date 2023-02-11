@@ -8,14 +8,17 @@ Decentralized Online Betting Platform
 
 # To Run 
 > pip3 install -r requirements.txt
-compile and deploy Contracts and paste contract ID into blockwager.env file
-> streamlit run app.py
-# Usage:
-BlockWager is a proof of concept sports betting platform that supports betting in ether and Cbet proprietary tokens. Currently it supports betting for the NBA and only runs locally. 
+> compile and deploy Contracts
+> Paste contract ID into blockwager.env file for 'SMART_CONTRACT_ADDRESS' variable
+> streamlit run home.py
 
-You will need to transfer eth from your wallet into your betting balance or use your eth to purchase cbet tokens. 
- Follow the prompts on the page in order to do so
-Lastly, navigate to the NBA page and place your bets. 
+# Usage:
+BlockWager is a proof of concept sports betting platform that supports betting in ether and Cbet proprietary tokens. Currently it supports betting for the NBA. 
+
+> You will need to transfer eth from your wallet into your betting balance or use your eth to purchase cbet tokens. 
+> Follow the prompts on the page in order to do so.
+> Lastly, navigate to the NBA page and place your bets. 
+
 ## Technologies: 
 #### Web3:
 A collection of modules that allow python to interface with web3 services 
@@ -28,37 +31,24 @@ powerful frontend tool for python
 #### Sbrscrape:
 Python package for scraping sports odds, supports NBA, NFL, NHL, MLB,
 and NCAA 
-
-
 #### SqlAlchemy:
 Structured Query Language support for python
-
 #### OS:
 python module for Operating system agnostic integration
 #### Requests:
 Send HTTP requests with python
-
 #### Json:
 Python module for JSON(Javascript Object Notation), for data interchange
-
 #### Pandas:
 powerful library for data analysis and visualization tools
-
 #### Colorama:
 colored terminal characters
 
 
 
-
-
-
-
-
-
-
 # Contributors 
 
-Pravin Patel [Linkedin](https://www.linkedin.com/in/pravin-patil-5880301/) [Github](https://github.com/prpercy)
+Pravin Patil [Linkedin](https://www.linkedin.com/in/pravin-patil-5880301/) [Github](https://github.com/prpercy)
 Stratis Gavnoudias [Linkedin](https://www.linkedin.com/in/stratis-gavnoudias-465b527/)[Github](https://github.com/sgavnoudias)
 Liset Lopez [Linkedin](https://www.linkedin.com/in/liset-l-a273261a7/) [Github](https://github.com/lisetlopez)
 Esteban Lopez [Linkedin](https://www.linkedin.com/in/estebandlopez/) [Github](https://github.com/Esteban-D-Lopez)
