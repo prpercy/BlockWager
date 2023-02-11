@@ -13,7 +13,7 @@ Decentralized Online Betting Platform
 > streamlit run home.py
 
 # Usage:
-BlockWager is a proof of concept sports betting platform that supports betting in ether and Cbet proprietary tokens. Currently it supports betting for the NBA. 
+BlockWager is a proof of concept sports betting platform that supports betting in ether and Cbet proprietary tokens. Currently it supports betting for the NBA and the NHL. 
 >Firstly, register your wallet address in order to create a BlockWager Account 
 ><img width="616" alt="Screen Shot 2023-02-11 at 5 09 57 PM" src="https://user-images.githubusercontent.com/90299942/218283198-da6aaf75-153b-44c2-9224-f97e3ecfb37e.png">
 
@@ -22,7 +22,7 @@ BlockWager is a proof of concept sports betting platform that supports betting i
 > You will need to transfer eth from your wallet into your betting balance or use your eth to purchase cbet tokens. 
 > Follow the prompts on the page in order to do so.
 > 
-> Lastly, navigate to the NBA page and place your bets. 
+> Lastly, navigate to the NBA or NHL page and place your bets. 
 <img width="1288" alt="Screen Shot 2023-02-11 at 4 46 46 PM" src="https://user-images.githubusercontent.com/90299942/218283172-90284b7f-3735-4738-b18d-9d8fc1b7b9d2.png">
 
 
