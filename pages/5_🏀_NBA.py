@@ -131,7 +131,7 @@ class Bet:
 def getOdds(sportsbook):
     odds = None
     if sportsbooks != None:
-        dict_games = SbrOddsProvider(sportsbook).get_odds()
+        dict_games = SbrOddsProvider(sportsbook, "NBA").get_odds()
     else:
         st.warning('Please select sportsbook', icon="⚠️")
 

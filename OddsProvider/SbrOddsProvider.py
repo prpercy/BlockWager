@@ -10,8 +10,9 @@ class SbrOddsProvider:
         string: Full location name
     """    
 
-    def __init__(self, sportsbook="fanduel"):
-        self.games = Scoreboard(sport="NBA").games
+    def __init__(self, sportsbook="fanduel", sports="NBA"):
+        print(f" ssportsbook -> {sportsbook}, sports -> {sports}")
+        self.games = Scoreboard(sport=sports).games
         self.sportsbook = sportsbook
     
     def get_odds(self):
