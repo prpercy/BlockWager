@@ -14,6 +14,7 @@ Decentralized Online Betting Platform
 
 # Usage:
 BlockWager is a proof of concept sports betting platform that supports betting in ether and Cbet proprietary tokens. Currently it supports betting for the NBA. 
+>Firstly register your wallet address in order to create a BlockWager Account 
 
 > You will need to transfer eth from your wallet into your betting balance or use your eth to purchase cbet tokens. 
 > Follow the prompts on the page in order to do so.
