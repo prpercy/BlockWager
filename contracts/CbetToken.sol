@@ -1,10 +1,16 @@
 pragma solidity ^0.5.0;
 
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/token/ERC20/ERC20.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/token/ERC20/ERC20Detailed.sol";
+import "https://github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/token/ERC20/ERC20Mintable.sol";
+
 contract CbetToken {
+    // (Note, cannot inherit from ERC20 contracts due to the deployment of the contract size has breached upper limit.  
+    //  ToDo future work to optimzize contract)
     address payable cbetAccountOwnerAddr;
 
-    string public name = "CBET Token";
-    string public symbol = "CBET";
+    string public name;
+    string public symbol;
 
     mapping(address => uint) balances;  // Cbet token balance
 

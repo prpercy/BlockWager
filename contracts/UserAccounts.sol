@@ -6,9 +6,14 @@ pragma solidity ^0.5.0;
 import "./CbetToken.sol";
 import "./PlaceBets.sol";
 
+// Commenting out since inherited from ERC20
+//import "github.com/OpenZeppelin/openzeppelin-contracts/blob/release-v2.5.0/contracts/math/SafeMath.sol";
+
 contract UserAccounts is CbetToken {
     address payable cbetOwnerAddr;      // BlockWager contract owner address
     address payable cbetBettingAddr;    // BlockWage betting account (users must first deposit/withdrawal into this account before betting)
+
+    using SafeMath for uint;
 
     // Balance of ETHER and CBET (custom) tokens
     struct Balance {
@@ -119,7 +124,7 @@ contract UserAccounts is CbetToken {
 
         // Need to remove the tokens from the open token pool (unmint)
         transferOf(_addr, cbetBettingAddr, msg.value);
-        houseBettingBalance.token += msg.value;
+        houseBettingBalance.token = houseBettingBalance.token.add(msg.value);
         _addr.transfer(msg.value);
     }
 
@@ -140,9 +145,11 @@ contract UserAccounts is CbetToken {
         require (msg.sender != cbetBettingAddr, "The Cbet account is not allowed to deposit ether to itself");
         require (userAccounts[msg.sender].activeAccount == true, "This account is not active");
 
-        userAccounts[msg.sender].bettingBalance.eth += msg.value;  // Keep local track of the amount of ether in the betting account
-        houseBettingBalance.eth += msg.value;                      // Keep track of the house (total) betting account ether balance
-        cbetBettingAddr.transfer(msg.value);                       // Transfer ether from the user to the betting account 
+        // Keep local track of the amount of ether in the betting account
+        userAccounts[msg.sender].bettingBalance.eth = userAccounts[msg.sender].bettingBalance.eth.add(msg.value);
+        // Keep track of the house (total) betting account ether balance
+        houseBettingBalance.eth = houseBettingBalance.eth.add(msg.value);
+        cbetBettingAddr.transfer(msg.value);   // Transfer ether from the user to the betting account 
     }
 
     // Allow the suer to deposit cbet custom tokens into the betting account (to be used for betting in the future)
@@ -153,8 +160,9 @@ contract UserAccounts is CbetToken {
         require (_addr != cbetBettingAddr, "The Cbet account is not allowed to deposit ether to itself");
         require (userAccounts[_addr].activeAccount == true, "This account is not active");
 
-        userAccounts[_addr].bettingBalance.token += _value;   // Keep local track of the amount of tokens in the betting account
-        houseBettingBalance.token += _value;                  // Keep track of the house (total) betting account token balance
+        // Keep local track of the amount of tokens in the betting account
+        userAccounts[_addr].bettingBalance.token = userAccounts[_addr].bettingBalance.token.add(_value);
+        houseBettingBalance.token = houseBettingBalance.token.add(_value); // Keep track of the house (total) betting account token balance
         transferOf(_addr, cbetBettingAddr, _value); // Transfer tokens from the user to the betting account 
     }
 
@@ -165,8 +173,10 @@ contract UserAccounts is CbetToken {
     {
         require (userAccounts[recipient].activeAccount == true, "This account is not active");
 
-        userAccounts[recipient].bettingBalance.eth -= msg.value;  // Keep local track of the amount of ether in the betting account
-        houseBettingBalance.eth -= msg.value;                     // Keep track of the house (total) betting account ether balance
+        // Keep local track of the amount of ether in the betting account
+        userAccounts[recipient].bettingBalance.eth = userAccounts[recipient].bettingBalance.eth.sub(msg.value);
+        // Keep track of the house (total) betting account ether balance
+        houseBettingBalance.eth = houseBettingBalance.eth.sub(msg.value);
         recipient.transfer(msg.value);                            // Transfer ether from the betting account to the user account
     }
 
@@ -177,8 +187,10 @@ contract UserAccounts is CbetToken {
     {
         require (userAccounts[recipient].activeAccount == true, "This account is not active");
 
-        userAccounts[recipient].bettingBalance.token -= _value;    // Keep local track of the amount of tokens in the betting account
-        houseBettingBalance.token -= _value;                       // Keep track of the house (total) betting account tokens balance
+        // Keep local track of the amount of tokens in the betting account
+        userAccounts[recipient].bettingBalance.token = userAccounts[recipient].bettingBalance.token.sub(_value);
+        // Keep track of the house (total) betting account tokens balance
+        houseBettingBalance.token = houseBettingBalance.token.sub(_value);
         transferOf(cbetBettingAddr, recipient, _value);  // Transfer tokens from the betting account to the user account
     }
 
@@ -192,10 +204,12 @@ contract UserAccounts is CbetToken {
         if (_isEther)
         {
             // Transfer the ether from betting account to escrow account
-            userAccounts[_addr].bettingBalance.eth -= _value;       // Remove ether to betting account...
-            houseBettingBalance.eth -= _value;              
-            userAccounts[_addr].escrowBalance.eth += _value;        // Add ether from escrow account...
-            houseEscrowBalance.eth += _value;
+            // Remove ether to betting account...
+            userAccounts[_addr].bettingBalance.eth = userAccounts[_addr].bettingBalance.eth.sub(_value);
+            houseBettingBalance.eth = houseBettingBalance.eth.sub(_value);
+            // Add ether from escrow account...
+            userAccounts[_addr].escrowBalance.eth = userAccounts[_addr].escrowBalance.eth.add(_value);
+            houseEscrowBalance.eth = houseEscrowBalance.eth.add(_value);
         } else 
         {
             // Transfer the tokens from betting account to escrow account
@@ -372,4 +386,3 @@ contract UserAccounts is CbetToken {
         onlyOwner
     {}
 }
-
