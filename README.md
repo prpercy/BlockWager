@@ -22,8 +22,6 @@ BlockWager is a proof of concept sports betting platform that supports betting i
 > You will need to transfer eth from your wallet into your betting balance or use your eth to purchase cbet tokens. 
 > Follow the prompts on the page in order to do so.
 > 
-> <img width="1305" alt="Screen Shot 2023-02-11 at 4 46 35 PM" src="https://user-images.githubusercontent.com/90299942/218283204-f1f000a9-900a-4403-8fd1-014f68638fef.png">
-
 > Lastly, navigate to the NBA page and place your bets. 
 <img width="1288" alt="Screen Shot 2023-02-11 at 4 46 46 PM" src="https://user-images.githubusercontent.com/90299942/218283172-90284b7f-3735-4738-b18d-9d8fc1b7b9d2.png">
 
