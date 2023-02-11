@@ -16,6 +16,7 @@ contract PlaceBets {
 
     // Betting odds for home and away teams
 
+    // Data structure to hold all "Moneyline" betting parameters
     struct MoneylineBetParams {
         bool activated;
         uint8 sportbookId;
@@ -27,6 +28,7 @@ contract PlaceBets {
         bool isEther;
     }
 
+    // Data structure to hold all "Spread" betting parameters
     struct SpreadBetParams {
         bool activated;
         uint8 sportbookId;
@@ -39,6 +41,7 @@ contract PlaceBets {
         bool isEther;
     }
 
+    // Data structure to hold all "Total Over/Under" betting parameters
     struct TotalBetParams {
         bool activated;
         uint8 sportbookId;
@@ -52,10 +55,10 @@ contract PlaceBets {
         bool isEther;
     }
     
+    // Keep track of all betting parameters (for the 3 types of bets) using the betId as the index to the mapping
     mapping(uint32 => MoneylineBetParams) moneylineBets;
     mapping(uint32 => SpreadBetParams) spreadBets;
     mapping(uint32 => TotalBetParams) totalBets;
-
     mapping(uint32 => BetType) betTypes;
 
     uint WEI_FACTOR = 10**18;
@@ -88,6 +91,7 @@ contract PlaceBets {
         cbetBettingAddr = _cbetBettingAddr;
     }
 
+    // A bet placed should always have a unique betId assigned from the front end application
     function checkUniqueBetId(uint32 _betId)
         internal
         view
@@ -98,6 +102,7 @@ contract PlaceBets {
                  (totalBets[_betId].activated != true)), "Cannot create this bet, betId already used!");
     }
 
+    // Create a moneyline bet..
     function createMoneylineBetInternal(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, 
                                         address payable _addr, uint _betAmount, bool _isEther)
         internal
@@ -115,6 +120,7 @@ contract PlaceBets {
         betTypes[_betId] = BetType.MONEYLINE;
     }
 
+    // Create a spread bet
     function createSpreadBetInternal(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, int16 _spread, 
                                      address payable _addr, uint _betAmount, bool _isEther)
         internal
@@ -133,6 +139,7 @@ contract PlaceBets {
         betTypes[_betId] = BetType.SPREAD;
     }
 
+    // Create an over/under bet
     function createTotalBetInternal(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, bool _isOver, uint16 _total,
                                     address payable _addr, uint _betAmount, bool _isEther)
         internal
@@ -152,6 +159,7 @@ contract PlaceBets {
         betTypes[_betId] = BetType.TOTAL;
     }
 
+    // Getter function to access the type of bet using the betId (assigned when the bet was placed by the front end)
     function getBetType(uint32 _betId)
         public
         view
@@ -163,6 +171,7 @@ contract PlaceBets {
                2;
     }
 
+    // Getter function to determine which sportbook was used to determine the odds
     function getBetMoneylineSportbook(uint32 _betId)
         public
         view
@@ -173,6 +182,7 @@ contract PlaceBets {
     }
 
     /*
+    // Getter function to get the bet status (did it start, in progress, end)
     function getBetMoneylineGameStatus(uint32 _betId)
         public
         view
@@ -184,6 +194,7 @@ contract PlaceBets {
     }
     */
 
+    // Getter function to extract the moneyline bet paameters given a betId
     function getBetMoneylineBet(uint32 _betId)
         public
         view
@@ -196,6 +207,7 @@ contract PlaceBets {
                 moneylineBets[_betId].isEther);
     }
 
+    // Getter function to extract the moneyline bet user address
     function getBetMoneylineAddress(uint32 _betId)
         internal
         view
@@ -205,6 +217,7 @@ contract PlaceBets {
         return (moneylineBets[_betId].addr);
     }
 
+    // Getter function to extract the sportbook paameters given a betId
     function getBetSpreadSportbook(uint32 _betId)
         public
         view
@@ -226,6 +239,7 @@ contract PlaceBets {
     }
     */
 
+    // Getter function to extract the spread bet paameters given a betId
     function getBetSpreadBet(uint32 _betId)
         public
         view
@@ -239,6 +253,7 @@ contract PlaceBets {
                 spreadBets[_betId].isEther);
     }
 
+    // Getter function to extract the spread bet user address
     function getBetSpreadAddress(uint32 _betId)
         internal
         view
@@ -248,6 +263,7 @@ contract PlaceBets {
         return (spreadBets[_betId].addr);
     }
 
+    // Getter function to extract the sportbook paameters given a betId
     function getBetTotalSportbook(uint32 _betId)
         public
         view
@@ -269,6 +285,7 @@ contract PlaceBets {
     }
     */
 
+    // Getter function to extract the total - over/under bet paameters given a betId
     function getBetTotalBet(uint32 _betId)
         public
         view
@@ -283,6 +300,7 @@ contract PlaceBets {
                 totalBets[_betId].isEther);
     }
 
+    // Getter function to extract the total - over/under bet user address
     function getBetTotalAddress(uint32 _betId)
         internal
         view
@@ -292,6 +310,7 @@ contract PlaceBets {
         return (totalBets[_betId].addr);
     }
 
+    // Game event occurred (end of betting game), the following function will return the results for a moneyline bet
     function gameEventMoneyline(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
         internal
         view
@@ -306,18 +325,23 @@ contract PlaceBets {
         uint16 teamId;
         int16 odds;
 
+        // Get the betting parameters used for this moneyline bet
         (teamId,odds,betAmount,isEther) = getBetMoneylineBet(_betId);
 
+        // If the 2 scores of the game are the same, the game ended in a tie.
         if (_winningScore == _losingScore)
         {
-            isWin = true;
-            winnings = 0;
+            isWin = true;   // IsWin is set to true here as this will be used as qualifier to return funds from escrow back to the users betting virtual wallet (this is true for a tie game)
+            winnings = 0;   // for tie game, there are no winning.
         }
+        // If the teamId origingally placed a bet on is not the same as the winning team, then lost the bet
         else if (teamId != _winningTeamId)
         {
             isWin = false;
             winnings = 0;
         }
+        // Gets here if the better won the bet...
+        // The winning amount needs to be handled different if the odds were positive versus if they were negative
         else if (odds > 0)
         {
             isWin = true;
@@ -332,6 +356,7 @@ contract PlaceBets {
         return (isWin, betAmount, winnings, isEther);
     }    
 
+    // Game event occurred (end of betting game), the following function will return the results for a spread bet
     function gameEventSpread(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
         internal
         view
@@ -347,10 +372,15 @@ contract PlaceBets {
         int16 odds;
 
         int16 spread;
+
+        // Get the betting parameters used for this spread bet
         (teamId,odds,spread,betAmount,isEther) = getBetSpreadBet(_betId);
 
         uint16 myScoreWithSpread;
         uint16 otherScore;
+
+        // Determine if the team selected won or lost the game, and apply the spread to the score of the betting team accordingly
+        // spread can be positive or negative
         if (teamId == _winningTeamId)
         {
             myScoreWithSpread = uint16(int16(_winningScore) + spread);
@@ -362,16 +392,20 @@ contract PlaceBets {
             otherScore = _winningScore;
         }
         
+        // If with the spread, the betters score equals the other teams score, then a tie bet
         if (myScoreWithSpread == otherScore)
         {
             isWin = true;
             winnings = 0;
         }
+        // If with the spread, teh bettors score is less than the other teams score, then lost the bet
         else if (myScoreWithSpread < otherScore)
         {
             isWin = false;
             winnings = 0;
         }
+        // Gets here if the better won the bet...
+        // The winning amount needs to be handled different if the odds were positive versus if they were negative
         else if (odds > 0)
         {
             isWin = true;
@@ -386,6 +420,7 @@ contract PlaceBets {
         return (isWin, betAmount, winnings, isEther);
     }
 
+    // Game event occurred (end of betting game), the following function will return the results for a total over/under bet
     function gameEventTotal(uint32 _betId, uint16 _winningScore, uint16 _losingScore)
         internal
         view
@@ -402,20 +437,29 @@ contract PlaceBets {
 
         bool isOver;
         uint16 total;
+
+        // Get the betting parameters used for this total over/under bet
         (teamId,odds,isOver,total,betAmount,isEther) = getBetTotalBet(_betId);
 
+        // Combine both scores of the 2 teams playing each other
         uint16 totalScore = _winningScore + _losingScore;
 
+        // If the bettor picked "under" and the combined score was great than the over/under total score, OR
+        // If the bettor picked "over" and the combined score was less than the over/under total score,
+        // Then the bettor lost
         if ((!isOver && (totalScore > total)) || (isOver && (totalScore < total)))
         {
             isWin = false;
             winnings = 0;
         }
+        // If the combined score equals the over/under total, then its a tie (push bet)
         else if (total == totalScore)
         {
             isWin = true;
             winnings = 0;
         }
+        // Gets here if the better won the bet...
+        // The winning amount needs to be handled different if the odds were positive versus if they were negative
         else if (odds > 0)
         {
             isWin = true;
@@ -427,6 +471,7 @@ contract PlaceBets {
             winnings =  (betAmount*100)/uint(-odds);
         }            
 
+        // Return the results...
         return (isWin, betAmount, winnings, isEther);
     }
 

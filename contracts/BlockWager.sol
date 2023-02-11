@@ -10,6 +10,7 @@ contract BlockWager is UserAccounts, PlaceBets {
     address payable cbetOwnerAddr;      // BlockWager contract owner address
     address payable cbetBettingAddr;    // BlockWage betting account (users must first deposit/withdrawal into this account before betting)
 
+    // Variables to hold the "last" winning bet (to be used to generate/emit an event to the front end application)
     int8 lastWinStatus;
     int lastPayout;  // Mapping between better wallet address and CBET accounts
 
@@ -44,41 +45,46 @@ contract BlockWager is UserAccounts, PlaceBets {
         setCbetBettingAddrPlaceBets(_cbetBettingAddr);            
     }
 
+    // Bettor selected a moneyline bet in the front end application, assign all the bet parameters to the bet id
     function createMoneylineBet(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, 
                                 address payable _addr, uint _betAmount, bool _isEther)
         public
         onlyOwner
     {
-        checkUniqueBetId(_betId);
-        CheckBettingFundsAvailability(_addr, _betAmount, _isEther);
+        checkUniqueBetId(_betId);  // Confirm that this betId is unique (not used before)
+        CheckBettingFundsAvailability(_addr, _betAmount, _isEther); // Make sure the bettor has enough funds to cover the bet
         createMoneylineBetInternal(_betId, _sportbookId, _teamId, _odds, _addr, _betAmount, _isEther);                               
-        transferBettingToEscrow(_addr, _betAmount, _isEther);
+        transferBettingToEscrow(_addr, _betAmount, _isEther);   // Transer the funds to an escrow account
     }
 
+    // Bettor selected a spread bet in the front end application, assign all the bet parameters to the bet id
     function createSpreadBet(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, int16 _spread, 
                              address payable _addr, uint _betAmount, bool _isEther)
         public
         onlyOwner
     {
-        checkUniqueBetId(_betId);
-        CheckBettingFundsAvailability(_addr, _betAmount, _isEther);
+        checkUniqueBetId(_betId);  // Confirm that this betId is unique (not used before)
+        CheckBettingFundsAvailability(_addr, _betAmount, _isEther); // Make sure the bettor has enough funds to cover the bet
         createSpreadBetInternal(_betId, _sportbookId, _teamId, _odds, _spread, _addr, _betAmount, _isEther);                               
-        transferBettingToEscrow(_addr, _betAmount, _isEther);
+        transferBettingToEscrow(_addr, _betAmount, _isEther);  // Transer the funds to an escrow account
     }
 
+    // Bettor selected a total over/under bet in the front end application, assign all the bet parameters to the bet id
     function createTotalBet(uint32 _betId, uint8 _sportbookId, uint16 _teamId, int16 _odds, bool _isOver, uint16 _total,
                             address payable _addr, uint _betAmount, bool _isEther)
         public
         onlyOwner
     {
-        checkUniqueBetId(_betId);
-        CheckBettingFundsAvailability(_addr, _betAmount, _isEther);
+        checkUniqueBetId(_betId);  // Confirm that this betId is unique (not used before)
+        CheckBettingFundsAvailability(_addr, _betAmount, _isEther); // Make sure the bettor has enough funds to cover the bet
         createTotalBetInternal(_betId, _sportbookId, _teamId, _odds, _isOver, _total, _addr, _betAmount, _isEther);                               
-        transferBettingToEscrow(_addr, _betAmount, _isEther);
+        transferBettingToEscrow(_addr, _betAmount, _isEther);  // Transer the funds to an escrow account
     }
 
+    // Configure an event function (that will be emitted at the conclusion of the game)
     event gameEventPayout(address _addr, uint32 _betId, int8 _winStatus, int _payout);
 
+    // Called by the front end application to distribute the bet winnings or losses.
     function gameEvent(uint32 _betId, uint16 _winningTeamId, uint16 _winningScore, uint16 _losingScore)
         public
         onlyHouse
@@ -92,6 +98,7 @@ contract BlockWager is UserAccounts, PlaceBets {
         uint winnings;
         bool isEther;
 
+        // Based on the 3 types of betting options (moneyline, spread, total over/under), go determine if bet status (win, loss, tie)
         if (betTypes[_betId] == BetType.MONEYLINE)
         {
             userAddr = getBetMoneylineAddress(_betId);
@@ -115,6 +122,7 @@ contract BlockWager is UserAccounts, PlaceBets {
             lastWinStatus = -1;
             lastPayout = int(-betAmount);
 
+            // Remove funds from escrow (by default will remain in the house betting account)
             removeEscrowFromUser(userAddr, betAmount, isEther);
         }
         else if (winnings == 0)
@@ -124,6 +132,7 @@ contract BlockWager is UserAccounts, PlaceBets {
             lastWinStatus = 0;
             lastPayout = int(betAmount);
 
+            // Transfer the escrow funds back to the bettors virtual betting account)
             transferEscrowBackToBetting(userAddr, betAmount, isEther);
         }
         else
@@ -135,10 +144,13 @@ contract BlockWager is UserAccounts, PlaceBets {
 
             lastPayout = int(payout);
 
+            // Transfer the escrow funds back to the bettors virtual betting account)
             transferEscrowBackToBetting(userAddr, betAmount, isEther);
+            // AND additionally, since won the bet, transfer funds from the house betting virtual account to the bettors virtual account
             transerWinningsFromBettingToUser(userAddr, winnings, isEther);            
         }
 
+        // Emit the payout back to the front end application
         emit gameEventPayout(userAddr, _betId, lastWinStatus, lastPayout);
     }
 

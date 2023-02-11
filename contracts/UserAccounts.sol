@@ -48,6 +48,7 @@ contract UserAccounts is CbetToken {
         cbetOwnerAddr = _contractOwnerAddr;
         
         // Initialize all house (i.e. total of all user accounts) balances
+
         houseBettingBalance.eth = 0;                  
         houseBettingBalance.token = 0;  
         
@@ -232,6 +233,7 @@ contract UserAccounts is CbetToken {
         }
     }
 
+    // When a user wins a bet, need to transfer ether or tokens to the user virtual accounts.
     function transerWinningsFromBettingToUser(address payable _addr, uint _value, bool _isEther)
         public
         payable
@@ -249,6 +251,7 @@ contract UserAccounts is CbetToken {
         }
     }
 
+    // At the conclusion of a betting game, required to remove the funds originally placed in escrow at the start of the bet
     function removeEscrowFromUser(address payable _addr, uint _value, bool _isEther)
         public
         payable
@@ -256,6 +259,7 @@ contract UserAccounts is CbetToken {
     {
         require (userAccounts[_addr].activeAccount == true, "This account is not active");
 
+        // Handle both ether and token betting scenarios
         if (_isEther)
         {
             userAccounts[_addr].escrowBalance.eth -= _value;        // Remove ether from escrow account..
@@ -345,6 +349,7 @@ contract UserAccounts is CbetToken {
         return (houseEscrowBalance.eth, houseEscrowBalance.token);
     }
 
+    // When a bet is place by the user, will need to validate if the user has enough funds in the betting account to bet with.
     function CheckBettingFundsAvailability(address payable _addr, uint _betAmount, bool _isEther)
         internal
         view

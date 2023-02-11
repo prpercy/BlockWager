@@ -20,6 +20,7 @@ contract CbetToken {
         name = "CbetToken";
         symbol = "CBET";    
 
+        // Mint the initial supply to the account owner
         mint(_cbetAccountOwnerAddr, _cbetAccountOwnerAddr, _initialSupply);
     }
 
@@ -32,7 +33,7 @@ contract CbetToken {
         return balances[_addr];
     }
 
-    // Transfer tokens from one account to the another
+    // Transfer tokens from one sender account to the recepient account
     function transferOf(address _sender, address _recipient, uint _value) 
         public 
     {
@@ -40,6 +41,7 @@ contract CbetToken {
         balances[_recipient] += _value;
     }
 
+    // Mint additional CBET tokens (owner mints) and send transfer it to users/bettors wallet (recipient)
     function mint(address _sender, address _recipient, uint _value) 
         public 
         payable 
