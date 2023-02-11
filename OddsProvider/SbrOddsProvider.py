@@ -26,7 +26,7 @@ class SbrOddsProvider:
         idx = 1
         
         for game in self.games:
-            #print(f"game is --> {game}")
+            # print(f"game is --> {game}")
             # Get team names
             home_team_name = game['home_team'].replace("Los Angeles Clippers", "LA Clippers")
             away_team_name = game['away_team'].replace("Los Angeles Clippers", "LA Clippers")

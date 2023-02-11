@@ -4,7 +4,7 @@ import pandas as pd
 import argparse
 from colorama import Fore, Style
 from Utils.tools import get_json_data, to_data_frame, payout, get_db_engine, initiate_database_tables, create_bet, nav_page, get_bet_id_counter
-from Utils.Dictionaries import team_index_current, sportsbook_index
+from Utils.Dictionaries import team_index_nhl, sportsbook_index
 from OddsProvider.SbrOddsProvider import SbrOddsProvider
 import os
 import json
@@ -110,7 +110,10 @@ class Bet:
         self.bet_type = bet_type
         self.odds = odds
         self.amount=0
-        self.spread=spread
+        if spread == None:
+            self.spread=0
+        else:
+            self.spread=spread
         self.total=total*SCORE_SCALING
         self.isOver=isOver
         self.isEther=True
@@ -170,15 +173,17 @@ def place_bets():
 
                         isEther = (st.session_state.user_dealing_ccy == 'ETHER')
                         if bet.bet_type == 'ML':
-                            contract.functions.createMoneylineBet(counter, sportsbook_index[bet.sportsbook], team_index_current[bet.team], bet.odds, 
+                            contract.functions.createMoneylineBet(counter, sportsbook_index[bet.sportsbook], team_index_nhl[bet.team], bet.odds, 
                                             st.session_state.user_account_addr, bet.amount, isEther
                             ).transact({'from': st.session_state.cbet_account_owner_addr, 'gas': 1000000})
                         elif bet.bet_type == 'Spread':
-                            contract.functions.createSpreadBet(counter, sportsbook_index[bet.sportsbook], team_index_current[bet.team], bet.odds, int(bet.spread), 
+                            if bet.spread == None:
+                                bet.spread = 0
+                            contract.functions.createSpreadBet(counter, sportsbook_index[bet.sportsbook], team_index_nhl[bet.team], bet.odds, int(bet.spread), 
                                          st.session_state.user_account_addr, bet.amount, isEther
                             ).transact({'from': st.session_state.cbet_account_owner_addr, 'gas': 1000000})
                         elif bet.bet_type == 'Total':
-                            contract.functions.createTotalBet(counter, sportsbook_index[bet.sportsbook], team_index_current[bet.team], bet.odds, bet.isOver, int(bet.total),
+                            contract.functions.createTotalBet(counter, sportsbook_index[bet.sportsbook], team_index_nhl[bet.team], bet.odds, bet.isOver, int(bet.total),
                                         st.session_state.user_account_addr, bet.amount, isEther
                             ).transact({'from': st.session_state.cbet_account_owner_addr, 'gas': 1000000})
                         
