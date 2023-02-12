@@ -65,6 +65,10 @@ accounts = w3.eth.accounts
 cbet_account_owner_addr = accounts[0]
 cbet_account_betting_addr = accounts[1]
 
+#################################################################################
+## Ensure account betting addresses are in session and persist those variables for further access
+#################################################################################
+
 if 'cbet_account_owner_addr' not in st.session_state:
     st.session_state['cbet_account_owner_addr'] = cbet_account_owner_addr
     persist('cbet_account_owner_addr')
@@ -78,14 +82,17 @@ if 'user_account_addr' not in st.session_state:
     
 if 'isRegistered' not in st.session_state:
     st.session_state['isRegistered'] = False
-    
+
+#################################################################################
+## Function to check if user is already registered and active
+#################################################################################
+
 def check_registered():
     st.session_state.is_first_time = True
     is_account_active = contract.functions.isUserAccountActive(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
     st.session_state['user_account_addr'] = st.session_state.user_account_address
     persist("user_account_addr")
     if (is_account_active):
-        #user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
         contract.functions.setCbetBettingAddr(cbet_account_betting_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
         st.session_state.isRegistered = True
         
@@ -93,12 +100,14 @@ def check_registered():
         st.warning('User is not active', icon="⚠️")
         st.session_state.isRegistered = False
         
+#################################################################################
+## Function to register a new user with smart contract
+#################################################################################
 def register_new_user():
     try:
         contract.functions.createUserAccount(st.session_state.user_account_address).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
     except Exception as ex:
         st.write(ex.args)
-    #user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_address).call({'from': cbet_account_owner_addr})
     contract.functions.setCbetBettingAddr(cbet_account_betting_addr).transact({'from': cbet_account_owner_addr, 'gas': 1000000})
     st.session_state.isRegistered = True
     st.success(f"{st.session_state.user_account_address} has been successfully registered!", icon="✅")
@@ -117,7 +126,9 @@ def get_balances_pre_action():
     (st.session_state.balance_owner_ether_pre, st.session_state.balance_owner_token_pre) = (w3.eth.getBalance(cbet_account_owner_addr), contract.functions.balanceCbetTokens(cbet_account_owner_addr).call())
 
     
-
+#################################################################################
+## New USer registration form
+#################################################################################
 with st.form(key='check_registration_form'):
     st.text_input("Wallet public address:", key="user_account_address", value=st.session_state.user_account_addr)
     submit = st.form_submit_button(label='Login to BlockWager', on_click=check_registered)
@@ -131,6 +142,12 @@ if (st.session_state.isRegistered != True) and (st.session_state.user_account_ad
         st.caption(f"Registere user {st.session_state.user_account_addr}")
         submit2 = st.form_submit_button(label='Register new user', on_click=register_new_user)
 
+#################################################################################
+## Show account features:
+## 1. Withdrawl / deposit Ether/CBET into betting account
+## 2. Purchase/sell of CEBT token
+## 3. See user/house balances (house balances are shown for testing purpose only. Will be removed in real life version.)
+#################################################################################
 if st.session_state.user_account_addr and st.session_state.isRegistered:
     #user_account_first_name, user_account_last_name = contract.functions.getUserAccountName(st.session_state.user_account_addr).call({'from': cbet_account_owner_addr})
     get_balances_pre_action()
