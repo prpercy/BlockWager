@@ -54,7 +54,7 @@ Descriptions below are relative to main / root folder 'BlockWager'
     - Used style.css and accountstyle.css files for UI formatting (files are in root folder)
 - OddsProvider folder has file to scrape data for NBA and NHL games
 - Utils folder has tools.py that is used to help UI pages work with database and some business logic
-- All etherum contracts are stored in contracts folder
+- All solidity contracts are stored in contracts folder
 - Main environment variable file 'BlockWager.env' is in root folder
 
 
