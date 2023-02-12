@@ -100,6 +100,8 @@ Esteban Lopez [Linkedin](https://www.linkedin.com/in/estebandlopez/) [Github](ht
 
 William Conyea [Linkedin](https://www.linkedin.com/in/william-conyea-3666a7172/) [Github](https://github.com/willco-1)
 
+William Wolfenbarger [Linkedin]() [Github](https://github.com/William-Wolfenbarger)
+
 ![Team](images/results/team.png)
 
 
