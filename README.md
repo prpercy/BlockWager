@@ -12,16 +12,16 @@ The betting industry is monopolized by a few large sports betting behemoths.  Bl
 - BlockWager Advantages
     - Transparency: As a public ledger on the blockchain, our app is able to unequivically prove operational fairness by recording all gaming activity - including payouts, wins, and losses, that is transparent and immutable. This eliminates the risk of fraud and ensures fairness.  The use of smart contracts to facilitate this process also eliminates the need for 3rd party intermediaries.
     - Value Transfer: Transact in crypto instead of fiat currencies without providing sensitive banking invormation like a credit card..  Our app provides betting with Ethereum and our own custom CBET coins/tokens.  Our coins facilitate rapid payouts with near-instantaneous settlement periods.
-    - Accessibility: As our application is on a decentralized network, it is inherently censorship-resistant since the underlying netowrk is not susceptible to a central point of failure.
+    - Accessibility: As our application is on a decentralized network, it is inherently censorship-resistant since the underlying network is not susceptible to a central point of failure.
     - User anonymity: Traditional casinos require their customers to provide personal details to setup an account.  Our app keeps your information private by associating the network activity with a transaction address.
 
 - Includes the following features:
     - Logging into app with wallet/account address.
-    - Betting with ETH and/or our custome CBET coins/tokens
+    - Betting with ETH and/or our custom CBET coins/tokens
     - Checking ETH and CBET balances
     - Purchasing/Selling CBET coins/tokens
     - Depositing and withdrawing into betting accounts
-    - Viewing instanaeous odds for various sporting events (NFL, NBA, NHL, etc.)
+    - Viewing instantaneous odds for various sporting events (NFL, NBA, NHL, etc.)
     - Support for different betting options: Moneyline, Spread, and Over/Under
 
 ---
