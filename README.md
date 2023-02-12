@@ -5,7 +5,8 @@
 ---
 
 
-Feature Summary: BlockWager: The Future of Decentralized Betting - a blockchain-powered sports betting service.  
+## BlockWager
+**The Future of Decentralized Betting - a blockchain-powered sports betting service.**  
 
 The betting industry is monopolized by a few large sports betting behemoths.  Blockager is a decentralized, transparent platform that allows customers to control their funds without third-party interference.  Each transaction is governed by a smart contract.  Through our blockchain, players can break out of the traditional ways of betting and improving their gaming experience.
 
@@ -14,6 +15,7 @@ The betting industry is monopolized by a few large sports betting behemoths.  Bl
     - Value Transfer: Transact in crypto instead of fiat currencies without providing sensitive banking invormation like a credit card..  Our app provides betting with Ethereum and our own custom CBET coins/tokens.  Our coins facilitate rapid payouts with near-instantaneous settlement periods.
     - Accessibility: As our application is on a decentralized network, it is inherently censorship-resistant since the underlying network is not susceptible to a central point of failure.
     - User anonymity: Traditional casinos require their customers to provide personal details to setup an account.  Our app keeps your information private by associating the network activity with a transaction address.
+
 
 - Includes the following features:
     - Logging into app with wallet/account address.
@@ -43,6 +45,20 @@ This projects leverages the Remix IDE which is an open source application for de
 
 ---
 
+## Source code organisation
+Descriptions below are relative to main / root folder 'BlockWager'
+- Front end:
+    - Front end UI pages are stored in 'pages' folder
+    - Home page for UI on other hand is in the root folder
+    - 'persist.py', in root folder, is a helper python file to persist state_session variables.
+    - Used style.css and accountstyle.css files for UI formatting (files are in root folder)
+- OddsProvider folder has file to scrape data for NBA and NHL games
+- Utils folder has tools.py that is used to help UI pages work with database and some business logic
+- All etherum contracts are stored in contracts folder
+- Main environment variable file 'BlockWager.env' is in root folder
+
+
+---
 
 # To Run 
 > pip3 install -r requirements.txt
